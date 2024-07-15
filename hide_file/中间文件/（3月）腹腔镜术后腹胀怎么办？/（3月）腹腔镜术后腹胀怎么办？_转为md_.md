@@ -1,6 +1,6 @@
 腹腔镜术后腹胀怎么办？
 
-![陈华](C:/Users/asus/OneDrive/CodeLib/AIreview/hide_file/中间文件/（3月）腹腔镜术后腹胀怎么办？/（3月）腹腔镜术后腹胀怎么办？_转为md__media/media/image1.png){width="1.3138888888888889in"
+![陈华](C:/Users/asus/CodeLib_win/AI-Review-win/hide_file/中间文件/（3月）腹腔镜术后腹胀怎么办？/（3月）腹腔镜术后腹胀怎么办？_转为md__media/media/image1.png){width="1.3138888888888889in"
 height="1.9388888888888889in"}
 
 陈华[1] 张海燕
