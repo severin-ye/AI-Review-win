@@ -8,11 +8,17 @@ import platform
 from docx import Document
 from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from time_lock import check_date
+
 from w2_docx_to_md import convert_md_to_docx
 from w1_table_about import replace_placeholders_with_tables
 from w0_file_path import generate_path
-from time_lock import check_date
+from w6_2_key_verifier import main as key_verifier_main
+
 check_date()
+
+# 验证密钥
+key_verifier_main()
 
 # 找到文件夹中的所有审校后的md文件
 def find_reviewed_md_files_recursive(folder_path):
