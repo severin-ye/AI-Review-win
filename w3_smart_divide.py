@@ -37,8 +37,8 @@ def table_divider(text):
 
     return divided_contents
 
-# 以max_length分割文本
-def divide_text(md_path, max_length):
+# 以max_length分割文本--弃用)
+def divide_text_with_max_length(text, max_length):
     md_path = md_path
     max_length = int(max_length)
     with open(md_path, 'r', encoding='utf-8') as f:
@@ -66,4 +66,34 @@ def divide_text(md_path, max_length):
         
     f.close()
     print(f"智能分段共分割为{len(segments)}段")
+    return segments
+
+# 以缩进划分段落
+def divide_text_with_indent(md_path):
+    md_path = md_path
+    with open(md_path, 'r', encoding='utf-8') as f:
+        try:
+            text = f.read()
+            # 以表格为单位分割文本
+            paragraphs = table_divider(text)
+            
+            # 以缩进划分段落
+            segments = []
+            segment = ''
+            for paragraph in paragraphs:
+                # 通过缩进判断段落
+                if paragraph.startswith('    ') or paragraph.startswith('\t'):
+                    segment += '\n' + paragraph
+                else:
+                    if segment:
+                        segments.append(segment)
+                    segment = paragraph
+
+            if segment:
+                segments.append(segment)
+        except Exception as e:
+            print(f"分割文本时出现错误：{e}")
+        
+    f.close()
+    print(f"根据缩进分割共分割为{len(segments)}段")
     return segments

@@ -10,7 +10,7 @@ from config import max_length, has_review_table
 from w0_file_path import traverse_folder, generate_path, remove_middle_folder
 from w1_table_about import extract_tables_from_word, replace_tables, replace_placeholders_with_tables, remove_first_table
 from w2_docx_to_md import convert_file_md, convert_md_to_docx
-from w3_smart_divide import divide_text
+from w3_smart_divide import divide_text_with_indent
 from w4_ai_answer import ai_answer
 from w5_same_find import find_diff_sentences
 from w6_2_key_verifier import main as key_verifier_main
@@ -49,7 +49,7 @@ def process_file(file_name, file_type):
         with open(md_path, 'w', encoding='utf-8') as file:
             file.write(modified_text)
 
-        input_list = divide_text(md_path, max_length)
+        input_list = divide_text_with_indent(md_path)
 
         with open(ai_path, 'w', encoding='utf-8') as f:
             paragraph_num = 0
