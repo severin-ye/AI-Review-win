@@ -1,15 +1,19 @@
-import re
-import os
-from config import max_length, has_review_table
+import re  # 导入正则表达式模块，用于匹配和处理文本
+import os  # 导入os模块，用于处理文件和操作系统交互
+from config import max_length, has_review_table  # 从config文件导入max_length和has_review_table配置
 
 # 分割表格
 def table_divider(text):
     divided_contents = []  # 存储分割后的文本内容
 
+    # 正则表达式，匹配“Content Above the Table”之前和之后的文本
     above_pattern = re.compile(r'(.*?)Content Above the Table(.*?)(?=Content Above the Table|Content Below the Table|$)', re.DOTALL)
+    # 正则表达式，匹配“Content Below the Table”之后的文本
     below_pattern = re.compile(r'Content Below the Table(.*?)(?=Content Above the Table|Content Below the Table|$)', re.DOTALL)
 
+    # 查找所有匹配“Content Above the Table”的部分
     above_matches = [match.groups() for match in above_pattern.finditer(text)]
+    # 查找所有匹配“Content Below the Table”的部分
     below_matches = [match.group(1) for match in below_pattern.finditer(text)]
 
     for i, groups in enumerate(above_matches):
@@ -63,11 +67,3 @@ def divide_text(md_path, max_length):
     f.close()
     print(f"智能分段共分割为{len(segments)}段")
     return segments
-
-
-
-
-
-
-
-

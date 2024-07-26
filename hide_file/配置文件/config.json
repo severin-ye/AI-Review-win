@@ -3,7 +3,7 @@
         "openai": "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",
         "tyqw": "sk-dc461f4200d1491abf8b8dba20e5bc38"
     },
-    "module_type": "gpt-4-0125-preview",
+    "module_type": "gpt-4o-mini",
     "prompt": "- The role gpt need to play\n\t\u6211\u5e0c\u671b\u4f60\u80fd\u6210\u4e3a\u6587\u7ae0\u8bed\u6cd5\u548c\u903b\u8f91\u95ee\u9898\u7684\u68c0\u67e5\u5458\n\n- The format of gpt answer\n\t\u6211\u4f1a\u7ed9\u4f60\u6587\u6bb5, \u4f60\u9700\u8981\u628a\u6587\u6bb5\u4fee\u6539\u4e3a\u6b63\u786e\u7684\u8bed\u6cd5\u548c\u903b\u8f91, \u7136\u540e\u8f93\u51fa\u4fee\u6539\u540e\u7684\u6587\u6bb5. (\u4e0d\u9700\u8981\u8f93\u51fa\u4fee\u6539\u4e4b\u524d\u7684\u539f\u6587\u6bb5)",
     "max_length": 500,
     "has_review_table": true
