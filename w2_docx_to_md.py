@@ -1,7 +1,6 @@
 import os  # 用于处理文件和目录路径
 import pypandoc  # 用于文件格式转换
 from docx import Document  # 用于处理Word文档
-from docx.shared import Pt  # 用于设置Word文档的缩进值
 import shutil  # 用于删除文件和文件夹
 import logging  # 用于记录日志
 
@@ -75,9 +74,9 @@ def add_indents_to_md(md_file_path, docx_file_path):
     docx = Document(docx_file_path)
     indents = []
     for para in docx.paragraphs:  # 获取每个段落的缩进信息
-        left_indent = para.paragraph_format.left_indent.pt if para.paragraph_format.left_indent else 0
-        first_line_indent = para.paragraph_format.first_line_indent.pt if para.paragraph_format.first_line_indent else 0
-        hanging_indent = -first_line_indent if first_line_indent < 0 else 0
+        left_indent = para.paragraph_format.left_indent
+        first_line_indent = para.paragraph_format.first_line_indent
+        hanging_indent = -first_line_indent if first_line_indent and first_line_indent < 0 else 0
         indents.append((left_indent, first_line_indent, hanging_indent))
 
     new_md_content = []
@@ -87,12 +86,12 @@ def add_indents_to_md(md_file_path, docx_file_path):
             if indent_idx < len(indents):
                 left_indent, first_line_indent, hanging_indent = indents[indent_idx]
                 indent_text = ''
-                if left_indent > 0:
-                    indent_text += f'[left_indent: {left_indent}pt]'
-                if first_line_indent > 0:
-                    indent_text += f'[first_line_indent: {first_line_indent}pt]'
-                if hanging_indent > 0:
-                    indent_text += f'[hanging_indent: {hanging_indent}pt]'
+                if left_indent:
+                    indent_text += '[left_indent]'
+                if first_line_indent:
+                    indent_text += '[first_line_indent]'
+                if hanging_indent:
+                    indent_text += '[hanging_indent]'
                 new_md_content.append(indent_text + line)
                 indent_idx += 1
             else:
@@ -103,11 +102,6 @@ def add_indents_to_md(md_file_path, docx_file_path):
 
     with open(md_file_path, 'w', encoding='utf-8') as file:
         file.writelines(new_md_content)
-    
-    # # 调试：打印带有缩进占位符的更新Markdown内容
-    # logging.info("\n更新后的Markdown内容带有缩进占位符:\n")
-    # for line in new_md_content:
-    #     logging.info(line)
 
 # 将Markdown文件转换为Word文档
 def convert_md_to_docx(input_md_path, output_docx_path):
@@ -138,30 +132,18 @@ def replace_indent_placeholders(docx_file_path):
         text = para.text
 
         # 用制表符替换左缩进占位符
-        while '[left_indent:' in text:
-            start_idx = text.find('[left_indent:')
-            end_idx = text.find('pt]', start_idx) + 3
-            text = text[:start_idx] + '\t' + text[end_idx:]
+        text = text.replace('[left_indent]', '\t')
         
         # 用制表符替换首行缩进占位符
-        while '[first_line_indent:' in text:
-            start_idx = text.find('[first_line_indent:')
-            end_idx = text.find('pt]', start_idx) + 3
-            text = text[:start_idx] + '\t' + text[end_idx:]
+        text = text.replace('[first_line_indent]', '\t')
         
         # 用制表符替换悬挂缩进占位符
-        while '[hanging_indent:' in text:
-            start_idx = text.find('[hanging_indent:')
-            end_idx = text.find('pt]', start_idx) + 3
-            text = text[:start_idx] + '\t' + text[end_idx:]
+        text = text.replace('[hanging_indent]', '\t')
 
         # 更新段落文本
         if text != para.text:
             para.clear()  # 清空段落的运行
             para.add_run(text)  # 添加新的运行
-        
-        # # 打印替换后的缩进值和段落文本
-        # logging.info(f"Replaced indent with tabs for paragraph: {para.text}")
 
     # 保存修改后的DOCX文件
     doc.save(docx_file_path)
