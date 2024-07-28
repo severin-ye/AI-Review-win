@@ -147,7 +147,7 @@ def replace_indent_placeholders(docx_file_path):
 
     # 保存修改后的DOCX文件
     doc.save(docx_file_path)
-    logging.info(f"Indent placeholders replaced in {docx_file_path}")
+    logging.info(f"Docx文件缩进占位符替换成功: {docx_file_path}")
 
 # 主程序入口
 if __name__ == '__main__':
