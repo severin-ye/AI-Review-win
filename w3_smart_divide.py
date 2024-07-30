@@ -1,9 +1,7 @@
 import re
 import os
+import shutil
 
-# 从配置文件导入配置
-max_length = 500  # 假设最大长度为500字符
-has_review_table = True  # 假设配置文件中表明有review表格
 
 # 分割表格
 def table_divider(text):
@@ -57,30 +55,75 @@ def divide_text_with_indent(md_path):
 
 if __name__ == '__main__':
     
-    # 测试代码
-    def create_test_files(test_folder):
-        os.makedirs(test_folder, exist_ok=True)
-        example_texts = [
-            "[first_line_indent]陈华[^1] 张海燕\n\n[first_line_indent]腹腔镜手术可用于治疗卵巢囊肿切除、宫外孕、子宫切除、子宫肌瘤、子宫内膜异位症、盆腔肿物等疾病，是目前妇科常用的手术方式。然而，腹腔镜术后常出现腹胀这一并发症，给患者带来了诸多困扰，如腹胀不适、消化不良、便秘甚至肠梗阻等症状，这不仅影响了患者的生活质量，还可能延长住院时间。那么，为何腹腔镜术后会出现腹胀？腹腔镜术后腹胀有哪些危害？解决腹腔镜术后腹胀的方法又有哪些？针对患者经常提出的疑问，本文将为大家一一解答。\n\n[first_line_indent]一、腹腔镜术后为什么会出现腹胀？",
-            "[first_line_indent]这是一个示例文本，包含多个段落。\n\n[first_line_indent]这是第二段，内容较为简短。\n\n[first_line_indent]这是第三段，进一步的示例内容。"
-        ]
+    test_num = int(input("输入测试编号："))
 
-        for i, text in enumerate(example_texts):
-            file_path = os.path.join(test_folder, f'test_file_{i + 1}.md')
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(text)
+    if test_num == 1:
 
+        # 测试代码--1
+        def create_test_files(test_folder):
+            os.makedirs(test_folder, exist_ok=True)
+            example_texts = [
+                "[first_line_indent]陈华[^1] 张海燕\n\n[first_line_indent]腹腔镜手术可用于治疗卵巢囊肿切除、宫外孕、子宫切除、子宫肌瘤、子宫内膜异位症、盆腔肿物等疾病，是目前妇科常用的手术方式。然而，腹腔镜术后常出现腹胀这一并发症，给患者带来了诸多困扰，如腹胀不适、消化不良、便秘甚至肠梗阻等症状，这不仅影响了患者的生活质量，还可能延长住院时间。那么，为何腹腔镜术后会出现腹胀？腹腔镜术后腹胀有哪些危害？解决腹腔镜术后腹胀的方法又有哪些？针对患者经常提出的疑问，本文将为大家一一解答。\n\n[first_line_indent]一、腹腔镜术后为什么会出现腹胀？",
+                "[first_line_indent]这是一个示例文本，包含多个段落。\n\n[first_line_indent]这是第二段，内容较为简短。\n\n[first_line_indent]这是第三段，进一步的示例内容。"
+            ]
 
-    test_folder = 'divided_test'
-    create_test_files(test_folder)
-    test_files = os.listdir(test_folder)
+            for i, text in enumerate(example_texts):
+                file_path = os.path.join(test_folder, f'test_file_{i + 1}.md')
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(text)
 
-    for file_name in test_files:
-        source_file = os.path.join(test_folder, file_name)
-        if file_name.endswith('.md'):
-            output_file = os.path.splitext(source_file)[0] + '_divided.txt'
-            divided_segments = divide_text_with_indent(source_file)
-            with open(output_file, 'w', encoding='utf-8') as out_f:
-                for i, segment in enumerate(divided_segments):
-                    out_f.write(f"段落 {i + 1}:\n{segment}\n\n")
-            print(f"已处理文件: {file_name}, 输出文件: {output_file}")
+        test_folder = 'divided_test'
+        create_test_files(test_folder)
+        test_files = os.listdir(test_folder)
+
+        for file_name in test_files:
+            source_file = os.path.join(test_folder, file_name)
+            if file_name.endswith('.md'):
+                output_file = os.path.splitext(source_file)[0] + '_divided.txt'
+                divided_segments = divide_text_with_indent(source_file)
+                with open(output_file, 'w', encoding='utf-8') as out_f:
+                    for i, segment in enumerate(divided_segments):
+                        out_f.write(f"段落 {i + 1}:\n{segment}\n\n")
+                print(f"已处理文件: {file_name}, 输出文件: {output_file}")
+    
+    elif test_num == 2:
+        # 测试代码--2
+        test_folder = 'divided_test_2'
+
+        # 删除之前测试产生的文件（保留源文件）
+        if os.path.exists(test_folder):
+            for item in os.listdir(test_folder):
+                item_path = os.path.join(test_folder, item)
+                if os.path.isfile(item_path) and not item_path.endswith('.md'):
+                    os.remove(item_path)
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+            print(f"已删除{test_folder}中除源文件外的所有文件")
+
+        # 创建测试文件夹并生成新的测试文件
+        def create_test_files(test_folder):
+            os.makedirs(test_folder, exist_ok=True)
+            example_texts = [
+                "[first_line_indent]这是测试文件2的示例文本，包含多个段落。\n\n[first_line_indent]这是第二段，内容较为简短。\n\n[first_line_indent]这是第三段，进一步的示例内容。"
+            ]
+
+            for i, text in enumerate(example_texts):
+                file_path = os.path.join(test_folder, f'test_file_{i + 1}.md')
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(text)
+
+        create_test_files(test_folder)
+        test_files = os.listdir(test_folder)
+
+        for file_name in test_files:
+            source_file = os.path.join(test_folder, file_name)
+            if file_name.endswith('.md'):
+                output_file = os.path.splitext(source_file)[0] + '_divided.txt'
+                divided_segments = divide_text_with_indent(source_file)
+                with open(output_file, 'w', encoding='utf-8') as out_f:
+                    for i, segment in enumerate(divided_segments):
+                        out_f.write(f"段落 {i + 1}:\n{segment}\n\n")
+                print(f"已处理文件: {file_name}, 输出文件: {output_file}")
+
+    else:
+        print("无效的测试编号")

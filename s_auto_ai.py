@@ -10,7 +10,7 @@ from config import max_length, has_review_table  # 配置模块，导入最大�
 
 from w0_file_path import traverse_folder, generate_path, remove_middle_folder  # 自定义模块，文件路径相关功能
 from w1_table_about import extract_tables_from_word, replace_tables, replace_placeholders_with_tables, remove_first_table  # 自定义模块，处理Word文档中的表格
-from w2_docx_to_md import convert_file_md, convert_md_to_docx  # 自定义模块，转换文件格式
+from w2_docx_to_md import convert_file_md # 自定义模块，处理Word文档和Markdown文档
 from w3_smart_divide import divide_text_with_indent  # 自定义模块，分割文本
 from w4_ai_answer import ai_answer  # 自定义模块，AI回答功能
 from w5_same_find import find_diff_sentences  # 自定义模块，查找不同句子
@@ -33,7 +33,10 @@ def process_file(file_name, file_type):
                 print(f"has_review_table配置错误: {has_review_table}")  # 配置错误提示
             extract_tables_from_word(begin_path, path_extract)  # 从Word中提取表格
             replace_tables(begin_path, no_table)  # 替换表格
+            # 转换DOCX文件为MD文件
             convert_file_md(no_table, md_path)  # 转换文件为md格式
+
+            
         elif file_type == 'md':  # 如果文件类型是md
             pass  # 不做任何处理
         else:
@@ -102,6 +105,8 @@ if __name__ == "__main__":
     end = input(f"AI程序执行完毕, 当前时间: {time_now}, 输入'e'退出程序: ")  # 提示程序执行完毕并输入'e'退出
     while True:  # 循环等待用户输入
         if end == 'e' or end == 'E':  # 如果输入'e'或'E'
-            quit()  # 退出程序
+            # 退出程序
+            print("程序退出")
+            sys.exit(0)
         else:
             pass  # 继续等待输入

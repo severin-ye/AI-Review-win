@@ -62,6 +62,10 @@ def tyqw_answer(tyqw_question, tyqw_prompt):
 
     return content
 
+# 添加占位符函数
+def add_first_line_indent(text):
+    return "[first_line_indent]" + text
+
 # 更新后的总调用函数
 def ai_answer(question):
     print("模型类型为：", module_type)
@@ -76,7 +80,7 @@ def ai_answer(question):
     else:
         print("模型类型错误")
 
-    return answer
+    return add_first_line_indent(answer)
 
 # 测试
 if __name__ == '__main__':

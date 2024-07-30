@@ -8,6 +8,7 @@
         "outputfile",
         "pady",
         "qwen",
-        "textvariable"
+        "textvariable",
+        "topdown"
     ]
 }

@@ -21,7 +21,7 @@ def load_config(json_path):
 
         # 加载其他配置
         config_vars['module_type'].set(config_data.get('module_type', ''))
-        config_vars['max_length'].set(str(config_data.get('max_length', '')))
+        # config_vars['max_length'].set(str(config_data.get('max_length', '')))
         config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', False) else 'N')
         
         # 加载 prompt
@@ -51,7 +51,7 @@ def save_config(json_path):
             },
             "module_type": config_vars["module_type"].get(),
             "prompt": prompt_text.get('1.0', tk.END).strip(),
-            "max_length": int(config_vars["max_length"].get()),
+            # "max_length": int(config_vars["max_length"].get()),
             "has_review_table": config_vars["has_review_table"].get() == 'Y'
         }
 
@@ -76,7 +76,7 @@ label_names = {
     "tyqw_api_key": "通义千问 API Key",
     "module_type": "Module Type",
     "prompt": "Prompt",
-    "max_length": "单次审校最大字数",
+    # "max_length": "单次审校最大字数",
     "has_review_table": "有无审校表格"
 }
 
