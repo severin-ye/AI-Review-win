@@ -2,6 +2,8 @@ import datetime
 import time
 import sys
 import os
+import tkinter as tk
+from tkinter import messagebox
 
 # 试用期检查
 def check_date():
@@ -15,8 +17,9 @@ def check_date():
     
     # 检查当前时间是否超过截止时间
     if current_time >= deadline:
-        print("试用期已过，请联系管理员")
-        time.sleep(5)
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror("错误", "试用期已过，请联系管理员")
         sys.exit() # 终止整个程序
     else:
         return True

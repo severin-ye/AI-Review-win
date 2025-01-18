@@ -3,6 +3,8 @@ import os  # 操作系统相关功能模块
 import time  # 时间相关功能模块
 import re  # 正则表达式模块，用于字符串匹配和替换
 import sys  # 系统特定参数和功能模块
+import tkinter as tk
+from tkinter import messagebox
 from docx import Document  # 处理Word文档的模块
 from lxml import etree  # 用于处理XML和HTML的模块
 from config import has_review_table  # 配置模块，导入是否有审查表的配置项
@@ -96,11 +98,7 @@ if __name__ == "__main__":
         process_file(file_name, file_type)  # 处理每个文件
 
     time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))  # 获取当前时间
-    end = input(f"AI程序执行完毕, 当前时间: {time_now}, 输入'e'退出程序: ")  # 提示程序执行完毕并输入'e'退出
-    while True:  # 循环等待用户输入
-        if end == 'e' or end == 'E':  # 如果输入'e'或'E'
-            # 退出程序
-            print("程序退出")
-            sys.exit(0)
-        else:
-            pass  # 继续等待输入
+    root = tk.Tk()
+    root.withdraw()
+    if messagebox.askyesno("完成", f"AI程序执行完毕, 当前时间: {time_now}\n是否退出程序?"):
+        sys.exit(0)
