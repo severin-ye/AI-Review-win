@@ -10,6 +10,7 @@ from docx.shared import Inches
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT # 这个是设置段落对齐方式的
 import tkinter as tk
 from tkinter import messagebox, ttk
+from tkinter import font as tkfont
 
 from w2_docx_to_md import convert_md_to_docx
 from w1_table_about import replace_placeholders_with_tables
@@ -263,6 +264,32 @@ def revision_use():
     root = tk.Tk()
     root.withdraw()  # 隐藏主窗口
 
+    # 定义颜色方案
+    COLORS = {
+        'primary': '#2196F3',  # 主色调
+        'secondary': '#FFC107',  # 次要色调
+        'background': '#F5F5F5',  # 背景色
+        'text': '#333333',  # 文本色
+        'button': '#1976D2',  # 按钮色
+        'button_hover': '#1565C0',  # 按钮悬停色
+        'border': '#E0E0E0'  # 边框色
+    }
+
+    def create_custom_style():
+        style = ttk.Style()
+        style.configure('Custom.TButton',
+                       background=COLORS['button'],
+                       foreground='white',
+                       padding=(10, 5),
+                       font=('Microsoft YaHei UI', 10))
+        style.map('Custom.TButton',
+                 background=[('active', COLORS['button_hover'])])
+        
+        style.configure('Custom.TRadiobutton',
+                       background=COLORS['background'],
+                       foreground=COLORS['text'],
+                       font=('Microsoft YaHei UI', 10))
+
     for file_path in find_reviewed_md_files_recursive(r'.\hide_file\中间文件'):
         file_name = os.path.basename(file_path)
         file_name_original = file_name.replace("_审校后_.md", "")
@@ -273,28 +300,59 @@ def revision_use():
 
         # 创建一个可重用的对话框
         dialog = tk.Toplevel()
-        dialog.title("审校选择")
-        dialog.geometry("800x600")
+        dialog.title("文本审校系统")
+        dialog.geometry("1000x700")
+        dialog.configure(bg=COLORS['background'])
+
+        # 应用自定义样式
+        create_custom_style()
         
-        # 创建界面元素
-        frame = tk.Frame(dialog)
-        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # 创建主框架
+        main_frame = tk.Frame(dialog, bg=COLORS['background'])
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
-        # 左侧文本框
-        left_frame = tk.Frame(frame)
+        # 创建标题
+        title_frame = tk.Frame(main_frame, bg=COLORS['background'])
+        title_frame.pack(fill=tk.X, pady=(0, 20))
+        
+        title_label = tk.Label(title_frame, 
+                             text="文本审校系统",
+                             font=('Microsoft YaHei UI', 16, 'bold'),
+                             bg=COLORS['background'],
+                             fg=COLORS['primary'])
+        title_label.pack()
+
+        # 左侧文本显示区域
+        left_frame = tk.Frame(main_frame, bg=COLORS['background'])
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
-        text_display = tk.Text(left_frame, height=20, width=80)
-        text_display.pack(pady=10)
-        
-        # 右侧按钮
-        right_frame = tk.Frame(frame)
-        right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(10, 0))
-        
+
+        # 创建带有自定义样式的文本显示区域
+        text_display = tk.Text(left_frame,
+                             height=20,
+                             width=80,
+                             font=('Microsoft YaHei UI', 11),
+                             wrap=tk.WORD,
+                             bg='white',
+                             fg=COLORS['text'],
+                             padx=10,
+                             pady=10,
+                             relief=tk.FLAT)
+        text_display.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        # 添加滚动条
+        scrollbar = ttk.Scrollbar(left_frame, orient=tk.VERTICAL, command=text_display.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        text_display.configure(yscrollcommand=scrollbar.set)
+
+        # 右侧控制面板
+        right_frame = tk.Frame(main_frame, bg=COLORS['background'])
+        right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(20, 0))
+
+        # 选项变量
         choice_var = tk.StringVar()
         self_define_text = tk.StringVar()
         dialog_done = tk.BooleanVar(value=False)
-        
+
         def on_choice():
             if choice_var.get() == '3':
                 self_define_entry.config(state='normal')
@@ -302,37 +360,60 @@ def revision_use():
             else:
                 self_define_entry.config(state='disabled')
                 dialog_done.set(True)
-        
-        # 确认按钮函数
+
         def on_confirm():
             if choice_var.get() == '3' and not self_define_text.get():
                 messagebox.showerror("错误", "请输入自定义文本")
                 return
             dialog_done.set(True)
-        
-        # 创建选项框架
-        options_frame = tk.Frame(dialog)
-        options_frame.pack(fill=tk.X, padx=10)
-        
-        # 使用grid布局来纵向排列选项
-        tk.Radiobutton(options_frame, text="保留原文", variable=choice_var, value='1', command=on_choice).grid(row=0, column=0, sticky='w')
-        tk.Radiobutton(options_frame, text="采纳修订", variable=choice_var, value='2', command=on_choice).grid(row=1, column=0, sticky='w')
-        
-        # 创建一个框架来容纳自定义选项、输入框和确认按钮
-        custom_frame = tk.Frame(options_frame)
-        custom_frame.grid(row=2, column=0, sticky='w')
-        
-        # 自定义选项按钮
-        tk.Radiobutton(custom_frame, text="自定义", variable=choice_var, value='3', command=on_choice).pack(side=tk.LEFT)
-        
-        # 自定义输入框
-        self_define_entry = tk.Entry(custom_frame, textvariable=self_define_text, width=40, state='disabled')
-        self_define_entry.pack(side=tk.LEFT, padx=(10, 0))
-        
+
+        # 选项框架
+        options_frame = tk.Frame(right_frame, bg=COLORS['background'])
+        options_frame.pack(fill=tk.X, pady=20)
+
+        # 使用自定义样式的单选按钮
+        ttk.Radiobutton(options_frame,
+                       text="保留原文 (1)",
+                       variable=choice_var,
+                       value='1',
+                       command=on_choice,
+                       style='Custom.TRadiobutton').pack(pady=10, anchor='w')
+
+        ttk.Radiobutton(options_frame,
+                       text="采纳修订 (2)",
+                       variable=choice_var,
+                       value='2',
+                       command=on_choice,
+                       style='Custom.TRadiobutton').pack(pady=10, anchor='w')
+
+        # 自定义输入区域
+        custom_frame = tk.Frame(options_frame, bg=COLORS['background'])
+        custom_frame.pack(fill=tk.X, pady=10)
+
+        ttk.Radiobutton(custom_frame,
+                       text="自定义 (3)",
+                       variable=choice_var,
+                       value='3',
+                       command=on_choice,
+                       style='Custom.TRadiobutton').pack(anchor='w')
+
+        self_define_entry = tk.Entry(custom_frame,
+                                   textvariable=self_define_text,
+                                   width=30,
+                                   font=('Microsoft YaHei UI', 10),
+                                   state='disabled',
+                                   relief=tk.FLAT,
+                                   bg='white')
+        self_define_entry.pack(pady=(10, 0), fill=tk.X)
+
         # 确认按钮
-        tk.Button(custom_frame, text="确认", command=on_confirm).pack(side=tk.LEFT, padx=(10, 0))
-        
-        # 添加按键绑定函数
+        confirm_button = ttk.Button(options_frame,
+                                  text="确认修改",
+                                  command=on_confirm,
+                                  style='Custom.TButton')
+        confirm_button.pack(pady=20)
+
+        # 添加按键绑定
         def handle_keypress(event):
             if event.char in ['1', '2', '3']:
                 choice_var.set(event.char)
@@ -341,11 +422,11 @@ def revision_use():
                 else:
                     self_define_entry.config(state='normal')
                     self_define_entry.focus()
-            elif event.keysym == 'Return':  # 添加回车键绑定
+            elif event.keysym == 'Return':
                 on_confirm()
-        
+
         dialog.bind('<Key>', handle_keypress)
-        
+
         def wait_for_dialog():
             dialog_done.set(False)
             while not dialog_done.get():

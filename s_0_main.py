@@ -98,7 +98,7 @@ class StartPage(tk.Frame):
         clear_button.pack(pady=10)
         
         config_button = tk.Button(self, text="配置设置",
-                                command=self.open_config,
+                                command=self.show_config_page,
                                 width=20, height=2)
         config_button.pack(pady=10)
         
@@ -106,6 +106,165 @@ class StartPage(tk.Frame):
                               command=self.quit_app,
                               width=20, height=2)
         exit_button.pack(pady=10)
+
+        # 创建配置页面（初始隐藏）
+        self.config_frame = tk.Frame(self)
+        self.create_config_page()
+    
+    def show_config_page(self):
+        """显示配置页面"""
+        # 隐藏主页面的所有组件
+        for widget in self.winfo_children():
+            if widget != self.config_frame:
+                widget.pack_forget()
+        
+        # 显示配置页面
+        self.config_frame.pack(fill="both", expand=True)
+        
+        # 加载配置
+        self.load_config()
+    
+    def create_config_page(self):
+        """创建配置页面"""
+        import s_4_config_use
+        
+        # 标题
+        title = tk.Label(self.config_frame, text="配置设置", font=("Helvetica", 24))
+        title.pack(pady=20)
+        
+        # 配置项定义
+        self.config_keys = list(s_4_config_use.label_names.keys())
+        self.config_vars = {key: tk.StringVar() for key in self.config_keys}
+        
+        # 创建配置项输入界面
+        for i, key in enumerate(self.config_keys):
+            if key != "prompt":
+                frame = tk.Frame(self.config_frame)
+                frame.pack(fill="x", padx=20, pady=5)
+                
+                tk.Label(frame, text=f"{s_4_config_use.label_names[key]}:",
+                        width=s_4_config_use.label_width).pack(side="left")
+                
+                if key == "module_type":
+                    options = s_4_config_use.module_list
+                    self.config_vars[key].set(options[0])
+                    option_menu = tk.OptionMenu(frame, self.config_vars[key], *options)
+                    option_menu.config(width=s_4_config_use.option_menu_width)
+                    option_menu.pack(side="left", fill="x", expand=True)
+                elif key == "has_review_table":
+                    options = ["Y", "N"]
+                    self.config_vars[key].set(options[0])
+                    option_menu = tk.OptionMenu(frame, self.config_vars[key], *options)
+                    option_menu.config(width=s_4_config_use.option_menu_width)
+                    option_menu.pack(side="left", fill="x", expand=True)
+                else:
+                    tk.Entry(frame, textvariable=self.config_vars[key],
+                            width=s_4_config_use.entry_width).pack(side="left", fill="x", expand=True)
+        
+        # Prompt 输入区域
+        prompt_frame = tk.Frame(self.config_frame)
+        prompt_frame.pack(fill="both", expand=True, padx=20, pady=5)
+        
+        tk.Label(prompt_frame, text=f"{s_4_config_use.label_names['prompt']}:",
+                width=s_4_config_use.label_width).pack(side="top", anchor="w")
+        
+        self.prompt_text = scrolledtext.ScrolledText(prompt_frame,
+                                                   height=s_4_config_use.prompt_text_height,
+                                                   width=s_4_config_use.prompt_text_width)
+        self.prompt_text.pack(fill="both", expand=True, pady=5)
+        
+        # 按钮区域
+        button_frame = tk.Frame(self.config_frame)
+        button_frame.pack(pady=20)
+        
+        save_button = tk.Button(button_frame, text="保存配置",
+                              command=self.save_config,
+                              width=15)
+        save_button.pack(side="left", padx=5)
+        
+        back_button = tk.Button(button_frame, text="返回主页",
+                              command=self.show_main_page,
+                              width=15)
+        back_button.pack(side="left", padx=5)
+    
+    def show_main_page(self):
+        """返回主页面"""
+        # 隐藏配置页面
+        self.config_frame.pack_forget()
+        
+        # 重新显示主页面组件
+        title = tk.Label(self, text="AI审校助手", font=("Helvetica", 24))
+        title.pack(pady=50)
+        
+        process_button = tk.Button(self, text="开始处理",
+                                 command=lambda: self.master.master.show_frame(ProcessPage),
+                                 width=20, height=2)
+        process_button.pack(pady=10)
+        
+        clear_button = tk.Button(self, text="清理文件",
+                               command=self.clear_files,
+                               width=20, height=2)
+        clear_button.pack(pady=10)
+        
+        config_button = tk.Button(self, text="配置设置",
+                                command=self.show_config_page,
+                                width=20, height=2)
+        config_button.pack(pady=10)
+        
+        exit_button = tk.Button(self, text="退出程序",
+                              command=self.quit_app,
+                              width=20, height=2)
+        exit_button.pack(pady=10)
+    
+    def load_config(self):
+        """加载配置"""
+        import s_4_config_use
+        try:
+            config_file_path = s_4_config_use.get_config_file_path()
+            with open(config_file_path, 'r', encoding='utf-8') as file:
+                config_data = json.load(file)
+            
+            # 加载 API 密钥
+            api_keys = config_data.get('api_keys', {})
+            self.config_vars['openai_api_key'].set(api_keys.get('openai', ''))
+            self.config_vars['tyqw_api_key'].set(api_keys.get('tyqw', ''))
+            
+            # 加载其他配置
+            self.config_vars['module_type'].set(config_data.get('module_type', ''))
+            self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', False) else 'N')
+            
+            # 加载 prompt
+            self.prompt_text.delete('1.0', tk.END)
+            self.prompt_text.insert('1.0', config_data.get('prompt', ''))
+            
+        except Exception as e:
+            messagebox.showerror("错误", f"无法加载配置：{str(e)}")
+    
+    def save_config(self):
+        """保存配置"""
+        import s_4_config_use
+        try:
+            config_data = {
+                "api_keys": {
+                    "openai": self.config_vars["openai_api_key"].get(),
+                    "tyqw": self.config_vars["tyqw_api_key"].get()
+                },
+                "module_type": self.config_vars["module_type"].get(),
+                "prompt": self.prompt_text.get('1.0', tk.END).strip(),
+                "has_review_table": self.config_vars["has_review_table"].get() == 'Y'
+            }
+            
+            config_file_path = s_4_config_use.get_config_file_path()
+            os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+            
+            with open(config_file_path, 'w', encoding='utf-8') as file:
+                json.dump(config_data, file, indent=4)
+            
+            messagebox.showinfo("成功", "配置已保存")
+            self.show_main_page()
+            
+        except Exception as e:
+            messagebox.showerror("错误", f"无法保存配置：{str(e)}")
     
     def clear_files(self):
         """运行清理文件脚本"""
@@ -134,98 +293,6 @@ class StartPage(tk.Frame):
         """退出应用程序"""
         if messagebox.askokcancel("退出", "确定要退出程序吗？"):
             self.quit()
-    
-    def open_config(self):
-        """运行配置脚本"""
-        try:
-            # 导入模块
-            import s_4_config_use
-            # 创建配置窗口
-            config_root = tk.Toplevel()
-            config_root.title("Config Editor")
-            
-            # 配置项定义
-            config_keys = list(s_4_config_use.label_names.keys())
-            self.config_vars = {key: tk.StringVar() for key in config_keys}
-            
-            # 配置项输入界面
-            for i, key in enumerate(config_keys):
-                tk.Label(config_root, text=f"{s_4_config_use.label_names[key]}:", width=s_4_config_use.label_width).grid(row=i, column=0, sticky='w')
-                
-                if key == "module_type":
-                    options = s_4_config_use.module_list
-                    self.config_vars[key].set(options[0])
-                    option_menu = tk.OptionMenu(config_root, self.config_vars[key], *options)
-                    option_menu.config(width=s_4_config_use.option_menu_width)
-                    option_menu.grid(row=i, column=1, sticky='ew')
-                elif key == "has_review_table":
-                    options = ["Y", "N"]
-                    self.config_vars[key].set(options[0])
-                    option_menu = tk.OptionMenu(config_root, self.config_vars[key], *options)
-                    option_menu.config(width=s_4_config_use.option_menu_width)
-                    option_menu.grid(row=i, column=1, sticky='ew')
-                elif key != "prompt":
-                    tk.Entry(config_root, textvariable=self.config_vars[key], width=s_4_config_use.entry_width).grid(row=i, column=1, sticky='ew')
-            
-            # 多行文本字段处理
-            prompt_label = tk.Label(config_root, text=f"{s_4_config_use.label_names['prompt']}:", width=s_4_config_use.label_width)
-            self.prompt_text = scrolledtext.ScrolledText(config_root, height=s_4_config_use.prompt_text_height, width=s_4_config_use.prompt_text_width)
-            self.prompt_text.grid(row=config_keys.index("prompt"), column=1, sticky='ew')
-            
-            def save_config():
-                """保存配置"""
-                try:
-                    config_data = {
-                        "api_keys": {
-                            "openai": self.config_vars["openai_api_key"].get(),
-                            "tyqw": self.config_vars["tyqw_api_key"].get()
-                        },
-                        "module_type": self.config_vars["module_type"].get(),
-                        "prompt": self.prompt_text.get('1.0', tk.END).strip(),
-                        "has_review_table": self.config_vars["has_review_table"].get() == 'Y'
-                    }
-                    
-                    config_file_path = s_4_config_use.get_config_file_path()
-                    os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
-                    
-                    with open(config_file_path, 'w', encoding='utf-8') as file:
-                        json.dump(config_data, file, indent=4)
-                    
-                    messagebox.showinfo("Information", "Configuration Saved Successfully")
-                except Exception as e:
-                    messagebox.showerror("Error", f"Unable to save configuration: {str(e)}")
-            
-            # 保存按钮
-            save_button = tk.Button(config_root, text="Save Configuration", command=save_config)
-            save_button.grid(row=len(config_keys) + 1, column=0, columnspan=2, pady=s_4_config_use.button_pad_y)
-            
-            # 加载配置文件
-            try:
-                config_file_path = s_4_config_use.get_config_file_path()
-                with open(config_file_path, 'r', encoding='utf-8') as file:
-                    config_data = json.load(file)
-                
-                # 加载 API 密钥
-                api_keys = config_data.get('api_keys', {})
-                self.config_vars['openai_api_key'].set(api_keys.get('openai', ''))
-                self.config_vars['tyqw_api_key'].set(api_keys.get('tyqw', ''))
-                
-                # 加载其他配置
-                self.config_vars['module_type'].set(config_data.get('module_type', ''))
-                self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', False) else 'N')
-                
-                # 加载 prompt
-                self.prompt_text.delete('1.0', tk.END)
-                self.prompt_text.insert('1.0', config_data.get('prompt', ''))
-            except Exception as e:
-                messagebox.showerror("Error", f"Unable to load configuration: {str(e)}")
-            
-            # 设置模态对话框
-            config_root.transient(config_root.master)
-            config_root.grab_set()
-            config_root.mainloop()
-        except Exception as e:
-            messagebox.showerror("错误", f"打开配置界面时出错：{str(e)}")
 
 class ProcessPage(tk.Frame):
     def __init__(self, parent, controller):
