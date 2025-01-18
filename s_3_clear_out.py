@@ -1,5 +1,4 @@
 import os
-import time
 from time_lock import check_date
 check_date()
 
@@ -9,12 +8,10 @@ def delete_files_and_folders_in_directory(directory_path):
 
     # 检查路径是否存在
     if not os.path.exists(directory_path):
-        print(f"'{directory_path}' 不存在.")
-        return error_names
+        return f"'{directory_path}' 不存在."
 
     if not os.path.isdir(directory_path):
-        print(f"'{directory_path}' 不是一个文件夹.")
-        return error_names
+        return f"'{directory_path}' 不是一个文件夹."
 
     # 遍历文件夹中的所有文件和子文件夹
     for root, dirs, files in os.walk(directory_path, topdown=False):
@@ -22,9 +19,7 @@ def delete_files_and_folders_in_directory(directory_path):
             file_path = os.path.join(root, name)
             try:
                 os.remove(file_path)
-                print(f"'{file_path}' 已被删除.")
             except Exception as e:
-                print(f"删除 '{file_path}' 时出错: {e}")
                 error_names.append(file_path)
 
         for name in dirs:
@@ -33,9 +28,7 @@ def delete_files_and_folders_in_directory(directory_path):
                 os.rmdir(dir_path)
                 if os.path.isdir(dir_path):  # 检查文件夹是否真的被删除
                     raise Exception("文件夹未完全删除")
-                print(f"'{dir_path}' 已被删除.")
             except Exception as e:
-                print(f"删除 '{dir_path}' 时出错: {e}")
                 error_names.append(dir_path)
 
     return error_names
@@ -46,16 +39,15 @@ all_error_names = []
 
 for dir_path in directories_to_clean:
     error_names = delete_files_and_folders_in_directory(dir_path)
-    all_error_names.extend(error_names)
+    if isinstance(error_names, str):  # 如果返回错误信息字符串
+        all_error_names.append(error_names)
+    else:
+        all_error_names.extend(error_names)
 
-# 检查是否有删除失败的文件或文件夹
+# 返回清理结果
 if not all_error_names:
-    print("已删除所有文档, 无需其他操作")
+    result = "已成功清理所有文件！"
 else:
-    print("以下文件或文件夹删除失败:")
-    for name in all_error_names:
-        print(name)
-    print("其他文件或文件夹已删除")
-print("程序将在10秒后自动关闭...")
+    result = "以下文件或文件夹清理失败：\n" + "\n".join(all_error_names)
 
-time.sleep(10)
+print(result)  # 为了调试目的保留

@@ -3,6 +3,7 @@ from tkinter import messagebox, ttk
 import os
 import sys
 import subprocess
+from w6_1_key_generator import SECRET_KEY  # 导入密钥
 
 class KeyVerifyPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -28,20 +29,17 @@ class KeyVerifyPage(tk.Frame):
             if not key:
                 messagebox.showerror("错误", "请输入密钥！")
                 return
-                
-            # 运行密钥验证脚本
-            process = subprocess.run([sys.executable, "w6_2_key_verifier.py", key],
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE,
-                                  text=True,
-                                  timeout=5)  # 添加超时限制
             
-            if process.returncode == 0:
-                controller.show_frame(StartPage)
-            else:
-                messagebox.showerror("错误", "无效的密钥！")
-        except subprocess.TimeoutExpired:
-            messagebox.showerror("错误", "验证超时，请重试！")
+            # 导入验证模块
+            try:
+                import w6_2_key_verifier
+                if w6_2_key_verifier.verify_key(key, SECRET_KEY):
+                    controller.show_frame(StartPage)
+                else:
+                    messagebox.showerror("错误", "无效的密钥！")
+            except ImportError:
+                messagebox.showerror("错误", "无法加载验证模块！")
+                
         except Exception as e:
             messagebox.showerror("错误", f"验证过程出错：{str(e)}")
 
@@ -107,7 +105,17 @@ class StartPage(tk.Frame):
     def clear_files(self):
         """运行清理文件脚本"""
         try:
-            subprocess.run([sys.executable, "s_3_clear_out.py"])
+            result = subprocess.run([sys.executable, "s_3_clear_out.py"], 
+                                 capture_output=True, 
+                                 text=True, 
+                                 encoding='gbk')
+            output = result.stdout
+            if output:
+                messagebox.showinfo("清理完成", output.strip())
+            else:
+                messagebox.showinfo("清理完成", "文件清理已完成")
+        except UnicodeDecodeError:
+            messagebox.showinfo("清理完成", "文件清理已完成")
         except Exception as e:
             messagebox.showerror("错误", f"清理文件时出错：{str(e)}")
     
