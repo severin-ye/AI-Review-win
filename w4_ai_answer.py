@@ -11,7 +11,7 @@ import dashscope
 from config import tyqw_api_key
 
 # 从s_config_use.py中导入模型列表
-from s_config_use import module_list
+from s_4_config_use import module_list
 
 # 共用的配置
 prompt = prompt

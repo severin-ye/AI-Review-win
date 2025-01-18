@@ -90,10 +90,6 @@ def process_file(file_name, file_type):
 
 # 主程序入口
 if __name__ == "__main__":
-    check_date()  # 检查日期
-
-    # 验证密钥
-    key_verifier_main()
     # 遍历文件夹，获取文件名和文件类型列表
     file_name_list, file_type_list = traverse_folder(os.path.join(os.getcwd(), "_1_原文件"))
     print(file_name_list)  # 打印文件名列表
