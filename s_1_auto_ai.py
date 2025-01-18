@@ -4,6 +4,7 @@ import time  # 时间相关功能模块
 import re  # 正则表达式模块，用于字符串匹配和替换
 import sys  # 系统特定参数和功能模块
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 from docx import Document  # 处理Word文档的模块
 from lxml import etree  # 用于处理XML和HTML的模块
@@ -17,7 +18,7 @@ from w4_ai_answer import ai_answer  # 自定义模块，AI回答功能
 from w5_same_find import find_diff_sentences  # 自定义模块，查找不同句子
 
 # 定义处理文件的函数
-def process_file(file_name, file_type):
+def process_file(file_name, file_type, progress_callback=None):
     print(f"File Name: {file_name}, File Type: {file_type}")  # 输出文件名和文件类型
     # 生成各路径变量
     begin_path, no_table, path_extract, md_path, ai_path, word_path_1, word_path_2, final_path_1, final_path_2, select_path_1, select_path_2 = generate_path(file_name)
@@ -36,7 +37,6 @@ def process_file(file_name, file_type):
             # 转换DOCX文件为MD文件
             convert_file_md(no_table, md_path)  # 转换文件为md格式
 
-            
         elif file_type == 'md':  # 如果文件类型是md
             pass  # 不做任何处理
         else:
@@ -61,6 +61,8 @@ def process_file(file_name, file_type):
         # 打开AI结果文件写入模式
         with open(ai_path, 'w', encoding='utf-8') as f:
             paragraph_num = 0  # 初始化段落编号
+            total_paragraphs = len(input_list)  # 获取总段落数
+            
             for question in input_list:  # 遍历分割后的文本
                 try:
                     output = ai_answer(question)  # 获取AI回答
@@ -81,6 +83,10 @@ def process_file(file_name, file_type):
                 f.write(f"**差异对比如下**:\n\n")  # 写入差异对比
                 for num, diff in enumerate(differences, 1):
                     f.write(f'原文段{num}: {diff[0]}\n\n修订段{num}: {diff[1]}\n\n')
+                
+                # 更新进度
+                if progress_callback:
+                    progress_callback(paragraph_num / total_paragraphs)
 
         print(f"{file_name} 已完成AI校对")  # 完成处理提示
     except Exception as e:
@@ -93,7 +99,7 @@ if __name__ == "__main__":
     # 遍历文件夹，获取文件名和文件类型列表
     file_name_list, file_type_list = traverse_folder(os.path.join(os.getcwd(), "_1_原文件"))
     print(file_name_list)  # 打印文件名列表
-
+    
     for file_name, file_type in zip(file_name_list, file_type_list):  # 遍历文件名和文件类型
         process_file(file_name, file_type)  # 处理每个文件
 

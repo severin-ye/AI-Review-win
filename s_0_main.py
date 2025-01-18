@@ -6,6 +6,8 @@ import subprocess
 from w6_1_key_generator import SECRET_KEY  # 导入密钥
 import time
 import json
+import threading
+import queue
 
 class KeyVerifyPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -229,6 +231,9 @@ class ProcessPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         
+        # 创建消息队列用于线程间通信
+        self.progress_queue = queue.Queue()
+        
         title = tk.Label(self, text="处理文件", font=("Helvetica", 24))
         title.pack(pady=50)
         
@@ -247,19 +252,137 @@ class ProcessPage(tk.Frame):
                               width=20, height=2)
         back_button.pack(pady=10)
     
+    class ProgressWindow:
+        def __init__(self, total_files):
+            self.root = tk.Toplevel()
+            self.root.title("处理进度")
+            self.root.geometry("400x200")  # 增加窗口高度以容纳更多信息
+            
+            # 设置窗口在屏幕中央
+            screen_width = self.root.winfo_screenwidth()
+            screen_height = self.root.winfo_screenheight()
+            x = (screen_width - 400) // 2
+            y = (screen_height - 200) // 2
+            self.root.geometry(f"400x200+{x}+{y}")
+            
+            # 创建文件总进度条
+            self.file_progress_label = tk.Label(self.root, text="总体进度:")
+            self.file_progress_label.pack(pady=(20,5))
+            
+            self.file_progress_var = tk.DoubleVar()
+            self.file_progress_bar = ttk.Progressbar(
+                self.root, 
+                variable=self.file_progress_var,
+                maximum=total_files,
+                length=300,
+                mode='determinate'
+            )
+            self.file_progress_bar.pack(pady=5)
+            
+            # 创建当前文件进度条
+            self.current_progress_label = tk.Label(self.root, text="当前文件进度:")
+            self.current_progress_label.pack(pady=(10,5))
+            
+            self.current_progress_var = tk.DoubleVar()
+            self.current_progress_bar = ttk.Progressbar(
+                self.root, 
+                variable=self.current_progress_var,
+                maximum=100,
+                length=300,
+                mode='determinate'
+            )
+            self.current_progress_bar.pack(pady=5)
+            
+            # 创建标签显示当前处理的文件
+            self.label_var = tk.StringVar()
+            self.label = tk.Label(self.root, textvariable=self.label_var)
+            self.label.pack(pady=10)
+            
+            # 创建百分比标签
+            self.percent_var = tk.StringVar()
+            self.percent_label = tk.Label(self.root, textvariable=self.percent_var)
+            self.percent_label.pack(pady=5)
+            
+            # 设置窗口置顶
+            self.root.lift()
+            self.root.attributes('-topmost', True)
+            
+        def update_progress(self, current_file, file_name, current_progress=0):
+            self.file_progress_var.set(current_file)
+            self.current_progress_var.set(current_progress * 100)
+            self.label_var.set(f"正在处理: {file_name}")
+            total_percentage = ((current_file - 1 + current_progress) / self.file_progress_bar['maximum']) * 100
+            self.percent_var.set(f"总进度: {total_percentage:.1f}%")
+            self.root.update()
+            
+        def close(self):
+            self.root.destroy()
+    
+    def process_files_thread(self, file_name_list, file_type_list):
+        """在新线程中处理文件"""
+        import s_1_auto_ai
+        for index, (file_name, file_type) in enumerate(zip(file_name_list, file_type_list), 1):
+            current_progress = {"value": 0}
+            
+            def update_progress(progress):
+                current_progress["value"] = progress
+                self.progress_queue.put((index, file_name, progress))
+            
+            s_1_auto_ai.process_file(file_name, file_type, progress_callback=update_progress)
+            # 确保最后一次进度更新为100%
+            self.progress_queue.put((index, file_name, 1.0))
+            
+        # 处理完成，发送结束信号
+        self.progress_queue.put(None)
+    
+    def update_progress_from_queue(self, progress_window):
+        """从队列中更新进度"""
+        try:
+            # 非阻塞方式获取队列消息
+            message = self.progress_queue.get_nowait()
+            if message is None:
+                # 处理完成
+                progress_window.close()
+                time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                if messagebox.askyesno("完成", f"AI程序执行完毕, 当前时间: {time_now}\n是否退出程序?"):
+                    return
+            else:
+                # 更新进度
+                index, file_name, current_progress = message
+                progress_window.update_progress(index, file_name, current_progress)
+                # 继续检查队列
+                self.after(100, lambda: self.update_progress_from_queue(progress_window))
+        except queue.Empty:
+            # 队列为空，继续等待
+            self.after(100, lambda: self.update_progress_from_queue(progress_window))
+    
     def auto_process(self):
         """运行自动处理脚本"""
         try:
             # 导入模块
             import s_1_auto_ai
-            # 获取文件列表并处理
-            file_name_list, file_type_list = s_1_auto_ai.traverse_folder(os.path.join(os.getcwd(), "_1_原文件"))
-            for file_name, file_type in zip(file_name_list, file_type_list):
-                s_1_auto_ai.process_file(file_name, file_type)
             
-            time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            if messagebox.askyesno("完成", f"AI程序执行完毕, 当前时间: {time_now}\n是否退出程序?"):
+            # 获取文件列表
+            file_name_list, file_type_list = s_1_auto_ai.traverse_folder(os.path.join(os.getcwd(), "_1_原文件"))
+            
+            if not file_name_list:
+                messagebox.showwarning("警告", "没有找到需要处理的文件！")
                 return
+            
+            # 创建进度条窗口
+            progress_window = self.ProgressWindow(len(file_name_list))
+            
+            # 创建并启动处理线程
+            process_thread = threading.Thread(
+                target=self.process_files_thread,
+                args=(file_name_list, file_type_list),
+                daemon=True
+            )
+            process_thread.start()
+            
+            # 开始从队列更新进度
+            self.after(100, lambda: self.update_progress_from_queue(progress_window))
+            
         except Exception as e:
             messagebox.showerror("错误", f"自动处理时出错：{str(e)}")
     
