@@ -502,19 +502,21 @@ def revision_use():
         write_to_new_file(select_path_1, updated_texts_1)
         write_to_new_file(select_path_2, updated_texts_2)
 
-        messagebox.showinfo("处理完成", "本文档审校结束")
-        
         convert_md_to_docx(select_path_1, word_path_1)
         convert_md_to_docx(select_path_2, word_path_2)
 
         replace_placeholders_with_tables(word_path_1, path_extract, final_path_1)
         replace_placeholders_with_tables(word_path_2, path_extract, final_path_2)
-        messagebox.showinfo("转换完成", f"{file_name} 已经转换为word文档")
         
         add_tab_indent_to_paragraphs(final_path_1, final_path_1)
         add_tab_indent_to_paragraphs(final_path_2, final_path_2)
 
-        messagebox.showinfo("修订统计", f"采用修订数量: {adopt_count}")
+        # 合并所有信息到一个消息框
+        summary_message = f"处理完成！\n\n" \
+                         f"• 文档人工审校已结束\n" \
+                         f"• {file_name} 已转换为Word文档\n" \
+                         f"• 采用修订数量: {adopt_count}"
+        messagebox.showinfo("处理结果汇总", summary_message)
 
     root.destroy()
 

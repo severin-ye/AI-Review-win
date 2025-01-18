@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, scrolledtext
+from tkinter import messagebox, ttk, scrolledtext
 import os
 import importlib.util
 import sys
@@ -84,43 +84,117 @@ label_names = {
 if __name__ == "__main__":
     # 主窗口设置
     root = tk.Tk()
-    root.title("Config Editor")
-
+    root.title("配置编辑器")
+    root.geometry("800x600")
+    
+    # 定义颜色主题
+    COLORS = {
+        'primary': '#2196F3',    # 主色调 - 蓝色
+        'secondary': '#FFC107',  # 次要色调 - 琥珀色
+        'background': '#F5F5F5', # 背景色 - 浅灰
+        'text': '#333333',       # 文本色 - 深灰
+        'button': '#1976D2',     # 按钮色 - 深蓝
+        'button_hover': '#1565C0', # 按钮悬停色
+        'border': '#E0E0E0'      # 边框色 - 灰色
+    }
+    
+    # 设置窗口背景色
+    root.configure(bg=COLORS['background'])
+    
+    # 创建主框架
+    main_frame = tk.Frame(root, bg=COLORS['background'])
+    main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+    
+    # 创建标题
+    title = ttk.Label(main_frame,
+                     text="配置编辑器",
+                     font=('Microsoft YaHei UI', 24, 'bold'),
+                     background=COLORS['background'],
+                     foreground=COLORS['primary'])
+    title.pack(pady=20)
+    
+    # 配置全局样式
+    style = ttk.Style()
+    style.configure('Config.TLabel',
+                   font=('Microsoft YaHei UI', 10),
+                   background=COLORS['background'])
+    
+    style.configure('Config.TButton',
+                   font=('Microsoft YaHei UI', 10),
+                   padding=(20, 10))
+    
     # 配置项定义
     config_keys = list(label_names.keys())
     config_vars = {key: tk.StringVar() for key in config_keys}
-
+    
+    # 创建配置项框架
+    config_frame = tk.Frame(main_frame, bg=COLORS['background'])
+    config_frame.pack(fill=tk.X, pady=10)
+    
     # 配置项输入界面
     for i, key in enumerate(config_keys):
-        tk.Label(root, text=f"{label_names[key]}:", width=label_width).grid(row=i, column=0, sticky='w')
-
-        if key == "module_type":
-            options = module_list
-            config_vars[key].set(options[0])
-            option_menu = tk.OptionMenu(root, config_vars[key], *options)
-            option_menu.config(width=option_menu_width)
-            option_menu.grid(row=i, column=1, sticky='ew')
-        elif key == "has_review_table":
-            options = ["Y", "N"]
-            config_vars[key].set(options[0])
-            option_menu = tk.OptionMenu(root, config_vars[key], *options)
-            option_menu.config(width=option_menu_width)
-            option_menu.grid(row=i, column=1, sticky='ew')
-        elif key != "prompt":
-            tk.Entry(root, textvariable=config_vars[key], width=entry_width).grid(row=i, column=1, sticky='ew')
-
-    # 多行文本字段处理
-    prompt_label = tk.Label(root, text=f"{label_names['prompt']}:", width=label_width) # 标签
-    prompt_text = scrolledtext.ScrolledText(root, height=prompt_text_height, width=prompt_text_width) # 多行文本输入框
-    prompt_text.grid(row=config_keys.index("prompt"), column=1, sticky='ew')  # 前
-
-    # 保存按钮
-    save_button = tk.Button(root, text="Save Configuration", command=lambda: save_config(get_config_file_path()))
-    save_button.grid(row=len(config_keys) + 1, column=0, columnspan=2, pady=button_pad_y)
-
+        if key != "prompt":
+            frame = tk.Frame(config_frame, bg=COLORS['background'])
+            frame.pack(fill=tk.X, pady=5)
+            
+            label = ttk.Label(frame,
+                            text=f"{label_names[key]}:",
+                            width=label_width,
+                            style='Config.TLabel')
+            label.pack(side=tk.LEFT)
+            
+            if key == "module_type":
+                options = module_list
+                config_vars[key].set(options[0])
+                option_menu = ttk.OptionMenu(frame, config_vars[key], options[0], *options)
+                option_menu.config(width=option_menu_width)
+                option_menu.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            elif key == "has_review_table":
+                options = ["Y", "N"]
+                config_vars[key].set(options[0])
+                option_menu = ttk.OptionMenu(frame, config_vars[key], options[0], *options)
+                option_menu.config(width=option_menu_width)
+                option_menu.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            else:
+                entry = ttk.Entry(frame,
+                                textvariable=config_vars[key],
+                                width=entry_width,
+                                font=('Microsoft YaHei UI', 10))
+                entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+    
+    # Prompt 输入区域
+    prompt_frame = tk.Frame(main_frame, bg=COLORS['background'])
+    prompt_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+    
+    prompt_label = ttk.Label(prompt_frame,
+                           text=f"{label_names['prompt']}:",
+                           style='Config.TLabel')
+    prompt_label.pack(anchor=tk.W)
+    
+    prompt_text = scrolledtext.ScrolledText(
+        prompt_frame,
+        height=prompt_text_height,
+        width=prompt_text_width,
+        font=('Microsoft YaHei UI', 10),
+        bg='white'
+    )
+    prompt_text.pack(fill=tk.BOTH, expand=True, pady=5)
+    
+    # 按钮区域
+    button_frame = tk.Frame(main_frame, bg=COLORS['background'])
+    button_frame.pack(pady=20)
+    
+    save_button = ttk.Button(
+        button_frame,
+        text="保存配置",
+        style='Config.TButton',
+        command=lambda: save_config(get_config_file_path())
+    )
+    save_button.pack()
+    
     # 加载配置文件
     config_file_path = get_config_file_path()
     load_config(config_file_path)
-
+    
     # 主循环
     root.mainloop()
