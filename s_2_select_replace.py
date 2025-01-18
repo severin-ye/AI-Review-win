@@ -152,13 +152,29 @@ def apply_revisions(section):
                 dialog = tk.Toplevel()
                 dialog.title("审校选择")
                 dialog.geometry("800x600")
+
+                # 添加按键绑定函数
+                def handle_keypress(event):
+                    if event.char in ['1', '2', '3']:
+                        choice_var.set(event.char)
+                        if event.char != '3':
+                            dialog.quit()
+                        else:
+                            self_define_entry.config(state='normal')
+                            self_define_entry.focus()
+                    elif event.keysym == 'Return':  # 添加回车键绑定
+                        on_confirm()
+
+                # 绑定按键事件
+                dialog.bind('<Key>', handle_keypress)
                 
                 # 显示原文和修订内容
                 text_display = tk.Text(dialog, height=20, width=80)
                 text_display.insert(tk.END, f'本段原文:\n{text_mark}\n\n')
                 text_display.insert(tk.END, f'----------------------------\n')
                 text_display.insert(tk.END, f'原文段:\n{original_part}\n\n')
-                text_display.insert(tk.END, f'修订段:\n{revised_part}')
+                text_display.insert(tk.END, f'修订段:\n{revised_part}\n\n')
+                text_display.insert(tk.END, f'按键说明：\n1 - 保留原文\n2 - 采纳修订\n3 - 自定义')
                 text_display.pack(pady=10)
                 text_display.config(state='disabled')
                 
@@ -230,6 +246,65 @@ def revision_use():
     root = tk.Tk()
     root.withdraw()  # 隐藏主窗口
     
+    # 创建一个可重用的对话框
+    dialog = tk.Toplevel()
+    dialog.title("审校选择")
+    dialog.geometry("800x600")
+    
+    # 创建界面元素
+    text_display = tk.Text(dialog, height=20, width=80)
+    text_display.pack(pady=10)
+    
+    choice_var = tk.StringVar()
+    self_define_text = tk.StringVar()
+    dialog_done = tk.BooleanVar(value=False)
+    
+    def on_choice():
+        if choice_var.get() == '3':
+            self_define_entry.config(state='normal')
+            self_define_entry.focus()
+        else:
+            self_define_entry.config(state='disabled')
+            dialog_done.set(True)
+    
+    # 选择按钮
+    tk.Radiobutton(dialog, text="保留原文", variable=choice_var, value='1', command=on_choice).pack()
+    tk.Radiobutton(dialog, text="采纳修订", variable=choice_var, value='2', command=on_choice).pack()
+    tk.Radiobutton(dialog, text="自定义", variable=choice_var, value='3', command=on_choice).pack()
+    
+    # 自定义输入框
+    self_define_entry = tk.Entry(dialog, textvariable=self_define_text, width=60, state='disabled')
+    self_define_entry.pack(pady=10)
+    
+    # 确认按钮
+    def on_confirm():
+        if choice_var.get() == '3' and not self_define_text.get():
+            messagebox.showerror("错误", "请输入自定义文本")
+            return
+        dialog_done.set(True)
+    
+    tk.Button(dialog, text="确认", command=on_confirm).pack(pady=10)
+    
+    # 添加按键绑定函数
+    def handle_keypress(event):
+        if event.char in ['1', '2', '3']:
+            choice_var.set(event.char)
+            if event.char != '3':
+                dialog_done.set(True)
+            else:
+                self_define_entry.config(state='normal')
+                self_define_entry.focus()
+        elif event.keysym == 'Return':  # 添加回车键绑定
+            on_confirm()
+    
+    dialog.bind('<Key>', handle_keypress)
+    
+    def wait_for_dialog():
+        dialog_done.set(False)
+        while not dialog_done.get():
+            dialog.update()
+            time.sleep(0.1)
+    
     for file_path in find_reviewed_md_files_recursive(r'.\hide_file\中间文件'):
         file_name = os.path.basename(file_path)
         file_name_original = file_name.replace("_审校后_.md", "")
@@ -245,14 +320,63 @@ def revision_use():
         updated_texts_2 = []
 
         for section in sections:
-            updated_text = apply_revisions(section)
-            
-            if updated_text[0] == 0:
+            match_groups = get_match_groups(section)
+            if not match_groups:
                 messagebox.showinfo("提示", "上一段无差异，已经跳过")
-            elif updated_text[0] == 1:
-                updated_texts_1.append(updated_text[1] + '\n')
-                updated_texts_2.append(updated_text[2] + '\n')
-                adopt_count += updated_text[3]
+                continue
+                
+            original_title, original_text, gpt_text, diff_text = match_groups
+            diff_list = get_diff_list(diff_text)
+            if diff_list == []:
+                updated_texts_1.append(original_text + '\n')
+                updated_texts_2.append(original_text + '\n')
+                continue
+
+            text_change_1 = original_text
+            text_change_2 = original_text
+
+            for diff in diff_list:
+                original_part = list(diff[0].values())[0]
+                revised_part = list(diff[1].values())[0]
+                
+                text_mark = wrap_text_segment(original_text, original_part)
+                
+                # 更新对话框内容
+                text_display.config(state='normal')
+                text_display.delete('1.0', tk.END)
+                text_display.insert(tk.END, f'本段原文:\n{text_mark}\n\n')
+                text_display.insert(tk.END, f'----------------------------\n')
+                text_display.insert(tk.END, f'原文段:\n{original_part}\n\n')
+                text_display.insert(tk.END, f'修订段:\n{revised_part}\n\n')
+                text_display.insert(tk.END, f'按键说明：\n1 - 保留原文\n2 - 采纳修订\n3 - 自定义')
+                text_display.config(state='disabled')
+                
+                # 重置选项和输入框
+                choice_var.set('')
+                self_define_text.set('')
+                self_define_entry.config(state='disabled')
+                
+                dialog.deiconify()  # 显示对话框
+                dialog.focus_force()
+                dialog.grab_set()
+                
+                wait_for_dialog()
+                
+                choice = choice_var.get()
+                
+                if choice == '2': 
+                    text_change_1 = update_text_change(original_part, revised_part, text_change_1)
+                    text_change_2 = update_text_change_both(original_part, revised_part, text_change_2)
+                    adopt_count += 1
+                elif choice == '1':
+                    pass
+                elif choice == '3':
+                    self_define = self_define_text.get()
+                    text_change_1 = update_text_change(original_part, self_define, text_change_1)
+                    text_change_2 = update_text_change_self_define(original_part, self_define, text_change_2)
+            
+            updated_texts_1.append(text_change_1 + '\n')
+            updated_texts_2.append(text_change_2 + '\n')
 
         write_to_new_file(select_path_1, updated_texts_1)
         write_to_new_file(select_path_2, updated_texts_2)
@@ -271,7 +395,7 @@ def revision_use():
 
         messagebox.showinfo("修订统计", f"采用修订数量: {adopt_count}")
 
-    messagebox.showinfo("完成", "所有文档审校结束")
+    dialog.destroy()
     root.destroy()
 
 
