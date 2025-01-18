@@ -7,8 +7,7 @@ import time
 import platform
 from docx import Document
 from docx.shared import Inches
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from time_lock import check_date
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT # 这个是设置段落对齐方式的
 
 from w2_docx_to_md import convert_md_to_docx
 from w1_table_about import replace_placeholders_with_tables

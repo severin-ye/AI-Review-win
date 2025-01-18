@@ -34,6 +34,7 @@ class KeyVerifyPage(tk.Frame):
             try:
                 import w6_2_key_verifier
                 if w6_2_key_verifier.verify_key(key, SECRET_KEY):
+                    os.environ['AI_REVIEW_VERIFIED'] = 'TRUE'  # 设置验证通过的环境变量
                     controller.show_frame(StartPage)
                 else:
                     messagebox.showerror("错误", "无效的密钥！")
@@ -144,7 +145,7 @@ class ConfigPage(tk.Frame):
     def open_config(self):
         """运行配置脚本"""
         try:
-            subprocess.run([sys.executable, "s_4_config_use.py"])
+            subprocess.run([sys.executable, "s_4_config_use.py"], env=os.environ)
         except Exception as e:
             messagebox.showerror("错误", f"打开配置界面时出错：{str(e)}")
 
@@ -173,14 +174,14 @@ class ProcessPage(tk.Frame):
     def auto_process(self):
         """运行自动处理脚本"""
         try:
-            subprocess.run([sys.executable, "s_1_auto_ai.py"])
+            subprocess.run([sys.executable, "s_1_auto_ai.py"], env=os.environ)
         except Exception as e:
             messagebox.showerror("错误", f"自动处理时出错：{str(e)}")
     
     def manual_process(self):
         """运行人工审校脚本"""
         try:
-            subprocess.run([sys.executable, "s_2_select_replace.py"])
+            subprocess.run([sys.executable, "s_2_select_replace.py"], env=os.environ)
         except Exception as e:
             messagebox.showerror("错误", f"人工审校时出错：{str(e)}")
 

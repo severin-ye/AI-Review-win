@@ -5,7 +5,6 @@ import re  # 正则表达式模块，用于字符串匹配和替换
 import sys  # 系统特定参数和功能模块
 from docx import Document  # 处理Word文档的模块
 from lxml import etree  # 用于处理XML和HTML的模块
-from time_lock import check_date  # 自定义模块，用于检查日期
 from config import has_review_table  # 配置模块，导入是否有审查表的配置项
 
 from w0_file_path import traverse_folder, generate_path, remove_middle_folder  # 自定义模块，文件路径相关功能
