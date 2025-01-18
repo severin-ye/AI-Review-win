@@ -24,10 +24,7 @@ openai_api_key = data["api_keys"]["openai"]
 tyqw_api_key = data["api_keys"]["tyqw"]
 module_type = data["module_type"]
 prompt = data["prompt"]
-max_length = data["max_length"]
 has_review_table = 'Y' if data["has_review_table"] else 'N'
-
-
 
 # 以下代码用于测试
 if __name__ == '__main__':
@@ -35,7 +32,6 @@ if __name__ == '__main__':
     print(f"tyqw_api_key: {tyqw_api_key}")
     print(f"module_type: {module_type}")
     print(f"prompt: {prompt}")
-    print(f"max_length: {max_length}")
     print(f"has_review_table: {has_review_table}")
 
 

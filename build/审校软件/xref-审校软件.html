@@ -213,6 +213,8 @@ imports:
  &#8226;   <a href="#tkinter.ttk">tkinter.ttk</a>
  &#8226;   <a href="#traceback">traceback</a>
  &#8226;   <a href="#types">types</a>
+ &#8226;   <a href="#w6_1_key_generator">w6_1_key_generator</a>
+ &#8226;   <a href="#w6_2_key_verifier">w6_2_key_verifier</a>
  &#8226;   <a href="#warnings">warnings</a>
  &#8226;   <a href="#weakref">weakref</a>
 
@@ -513,6 +515,7 @@ imported by:
   <tt>_hashlib</tt> <span class="moduletype"><tt>C:\Users\6seve\AppData\Local\Programs\Python\Python312\DLLs\_hashlib.pyd</tt></span>  <div class="import">
 imported by:
     <a href="#hashlib">hashlib</a>
+ &#8226;   <a href="#hmac">hmac</a>
 
   </div>
 
@@ -628,7 +631,8 @@ imported by:
   <a name="_operator"></a>
   <tt>_operator</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
 imported by:
-    <a href="#operator">operator</a>
+    <a href="#hmac">hmac</a>
+ &#8226;   <a href="#operator">operator</a>
 
   </div>
 
@@ -1125,6 +1129,8 @@ imported by:
  &#8226;   <a href="#email.base64mime">email.base64mime</a>
  &#8226;   <a href="#email.encoders">email.encoders</a>
  &#8226;   <a href="#encodings.base64_codec">encodings.base64_codec</a>
+ &#8226;   <a href="#w6_1_key_generator">w6_1_key_generator</a>
+ &#8226;   <a href="#w6_2_key_verifier">w6_2_key_verifier</a>
 
   </div>
 
@@ -1599,6 +1605,8 @@ imported by:
     <a href="#_strptime">_strptime</a>
  &#8226;   <a href="#calendar">calendar</a>
  &#8226;   <a href="#email.utils">email.utils</a>
+ &#8226;   <a href="#w6_1_key_generator">w6_1_key_generator</a>
+ &#8226;   <a href="#w6_2_key_verifier">w6_2_key_verifier</a>
 
   </div>
 
@@ -4900,7 +4908,10 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#random">random</a>
+    <a href="#hmac">hmac</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#w6_1_key_generator">w6_1_key_generator</a>
+ &#8226;   <a href="#w6_2_key_verifier">w6_2_key_verifier</a>
 
   </div>
 
@@ -4918,6 +4929,26 @@ imports:
 imported by:
     <a href="#collections">collections</a>
  &#8226;   <a href="#s_0_main.py">s_0_main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="hmac"></a>
+  <a target="code" href="///C:/Users/6seve/AppData/Local/Programs/Python/Python312/Lib/hmac.py" type="text/plain"><tt>hmac</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#_hashlib">_hashlib</a>
+ &#8226;   <a href="#_operator">_operator</a>
+ &#8226;   <a href="#hashlib">hashlib</a>
+ &#8226;   <a href="#warnings">warnings</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#w6_1_key_generator">w6_1_key_generator</a>
+ &#8226;   <a href="#w6_2_key_verifier">w6_2_key_verifier</a>
 
   </div>
 
@@ -6683,6 +6714,7 @@ imported by:
  &#8226;   <a href="#traceback">traceback</a>
  &#8226;   <a href="#types">types</a>
  &#8226;   <a href="#typing">typing</a>
+ &#8226;   <a href="#w6_2_key_verifier">w6_2_key_verifier</a>
  &#8226;   <a href="#warnings">warnings</a>
  &#8226;   <a href="#weakref">weakref</a>
  &#8226;   <a href="#zipfile">zipfile</a>
@@ -7141,6 +7173,47 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="w6_1_key_generator"></a>
+  <a target="code" href="///C:/Users/6seve/CodeLib_win/AI-Review-win/w6_1_key_generator.py" type="text/plain"><tt>w6_1_key_generator</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#base64">base64</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#hashlib">hashlib</a>
+ &#8226;   <a href="#hmac">hmac</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#s_0_main.py">s_0_main.py</a>
+ &#8226;   <a href="#w6_2_key_verifier">w6_2_key_verifier</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="w6_2_key_verifier"></a>
+  <a target="code" href="///C:/Users/6seve/CodeLib_win/AI-Review-win/w6_2_key_verifier.py" type="text/plain"><tt>w6_2_key_verifier</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#base64">base64</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#hashlib">hashlib</a>
+ &#8226;   <a href="#hmac">hmac</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#w6_1_key_generator">w6_1_key_generator</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#s_0_main.py">s_0_main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="warnings"></a>
   <a target="code" href="///C:/Users/6seve/AppData/Local/Programs/Python/Python312/Lib/warnings.py" type="text/plain"><tt>warnings</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -7165,6 +7238,7 @@ imported by:
  &#8226;   <a href="#enum">enum</a>
  &#8226;   <a href="#gettext">gettext</a>
  &#8226;   <a href="#gzip">gzip</a>
+ &#8226;   <a href="#hmac">hmac</a>
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>

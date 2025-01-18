@@ -13,7 +13,6 @@ from time_lock import check_date
 from w2_docx_to_md import convert_md_to_docx
 from w1_table_about import replace_placeholders_with_tables
 from w0_file_path import generate_path
-from w6_2_key_verifier import main as key_verifier_main
 
 
 

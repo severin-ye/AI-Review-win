@@ -6,7 +6,7 @@ import sys  # 系统特定参数和功能模块
 from docx import Document  # 处理Word文档的模块
 from lxml import etree  # 用于处理XML和HTML的模块
 from time_lock import check_date  # 自定义模块，用于检查日期
-from config import max_length, has_review_table  # 配置模块，导入最大长度和是否有审查表的配置项
+from config import has_review_table  # 配置模块，导入是否有审查表的配置项
 
 from w0_file_path import traverse_folder, generate_path, remove_middle_folder  # 自定义模块，文件路径相关功能
 from w1_table_about import extract_tables_from_word, replace_tables, replace_placeholders_with_tables, remove_first_table  # 自定义模块，处理Word文档中的表格
@@ -14,7 +14,6 @@ from w2_docx_to_md import convert_file_md # 自定义模块，处理Word文档�
 from w3_smart_divide import divide_text_with_indent  # 自定义模块，分割文本
 from w4_ai_answer import ai_answer  # 自定义模块，AI回答功能
 from w5_same_find import find_diff_sentences  # 自定义模块，查找不同句子
-from w6_2_key_verifier import main as key_verifier_main  # 自定义模块，验证密钥
 
 # 定义处理文件的函数
 def process_file(file_name, file_type):
