@@ -344,8 +344,8 @@ class ProcessPage(tk.Frame):
                 # 处理完成
                 progress_window.close()
                 time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                if messagebox.askyesno("完成", f"AI程序执行完毕, 当前时间: {time_now}\n是否退出程序?"):
-                    return
+                messagebox.showinfo("完成", f"AI程序执行完毕, 当前时间: {time_now}")
+                return
             else:
                 # 更新进度
                 index, file_name, current_progress = message

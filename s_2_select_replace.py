@@ -169,17 +169,23 @@ def apply_revisions(section):
                 dialog.bind('<Key>', handle_keypress)
                 
                 # 显示原文和修订内容
-                text_display = tk.Text(dialog, height=20, width=80)
-                text_display.insert(tk.END, f'本段原文:\n{text_mark}\n\n')
-                text_display.insert(tk.END, f'----------------------------\n')
-                text_display.insert(tk.END, f'原文段:\n{original_part}\n\n')
-                text_display.insert(tk.END, f'修订段:\n{revised_part}\n\n')
-                text_display.insert(tk.END, f'按键说明：\n1 - 保留原文\n2 - 采纳修订\n3 - 自定义')
+                frame = tk.Frame(dialog)
+                frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+                
+                # 左侧文本框
+                left_frame = tk.Frame(frame)
+                left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+                
+                text_display = tk.Text(left_frame, height=20, width=80)
                 text_display.pack(pady=10)
-                text_display.config(state='disabled')
+                
+                # 右侧按钮
+                right_frame = tk.Frame(frame)
+                right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(10, 0))
                 
                 choice_var = tk.StringVar()
                 self_define_text = tk.StringVar()
+                dialog_done = tk.BooleanVar(value=False)
                 
                 def on_choice():
                     if choice_var.get() == '3':
@@ -188,23 +194,34 @@ def apply_revisions(section):
                         self_define_entry.config(state='disabled')
                         dialog.quit()
                 
-                # 选择按钮
-                tk.Radiobutton(dialog, text="保留原文", variable=choice_var, value='1', command=on_choice).pack()
-                tk.Radiobutton(dialog, text="采纳修订", variable=choice_var, value='2', command=on_choice).pack()
-                tk.Radiobutton(dialog, text="自定义", variable=choice_var, value='3', command=on_choice).pack()
-                
-                # 自定义输入框
-                self_define_entry = tk.Entry(dialog, textvariable=self_define_text, width=60, state='disabled')
-                self_define_entry.pack(pady=10)
-                
-                # 确认按钮
+                # 确认按钮函数
                 def on_confirm():
                     if choice_var.get() == '3' and not self_define_text.get():
                         messagebox.showerror("错误", "请输入自定义文本")
                         return
                     dialog.quit()
                 
-                tk.Button(dialog, text="确认", command=on_confirm).pack(pady=10)
+                # 创建选项框架
+                options_frame = tk.Frame(dialog)
+                options_frame.pack(fill=tk.X, padx=10)
+                
+                # 使用grid布局来纵向排列选项
+                tk.Radiobutton(options_frame, text="保留原文", variable=choice_var, value='1', command=on_choice).grid(row=0, column=0, sticky='w')
+                tk.Radiobutton(options_frame, text="采纳修订", variable=choice_var, value='2', command=on_choice).grid(row=1, column=0, sticky='w')
+                
+                # 创建一个框架来容纳自定义选项、输入框和确认按钮
+                custom_frame = tk.Frame(options_frame)
+                custom_frame.grid(row=2, column=0, sticky='w')
+                
+                # 自定义选项按钮
+                tk.Radiobutton(custom_frame, text="自定义", variable=choice_var, value='3', command=on_choice).pack(side=tk.LEFT)
+                
+                # 自定义输入框
+                self_define_entry = tk.Entry(custom_frame, textvariable=self_define_text, width=40, state='disabled')
+                self_define_entry.pack(side=tk.LEFT, padx=(10, 0))
+                
+                # 确认按钮
+                tk.Button(custom_frame, text="确认", command=on_confirm).pack(side=tk.LEFT, padx=(10, 0))
                 
                 dialog.protocol("WM_DELETE_WINDOW", lambda: None)  # 禁用关闭按钮
                 dialog.transient(dialog.master)
@@ -245,66 +262,7 @@ def revision_use():
     # 创建主窗口
     root = tk.Tk()
     root.withdraw()  # 隐藏主窗口
-    
-    # 创建一个可重用的对话框
-    dialog = tk.Toplevel()
-    dialog.title("审校选择")
-    dialog.geometry("800x600")
-    
-    # 创建界面元素
-    text_display = tk.Text(dialog, height=20, width=80)
-    text_display.pack(pady=10)
-    
-    choice_var = tk.StringVar()
-    self_define_text = tk.StringVar()
-    dialog_done = tk.BooleanVar(value=False)
-    
-    def on_choice():
-        if choice_var.get() == '3':
-            self_define_entry.config(state='normal')
-            self_define_entry.focus()
-        else:
-            self_define_entry.config(state='disabled')
-            dialog_done.set(True)
-    
-    # 选择按钮
-    tk.Radiobutton(dialog, text="保留原文", variable=choice_var, value='1', command=on_choice).pack()
-    tk.Radiobutton(dialog, text="采纳修订", variable=choice_var, value='2', command=on_choice).pack()
-    tk.Radiobutton(dialog, text="自定义", variable=choice_var, value='3', command=on_choice).pack()
-    
-    # 自定义输入框
-    self_define_entry = tk.Entry(dialog, textvariable=self_define_text, width=60, state='disabled')
-    self_define_entry.pack(pady=10)
-    
-    # 确认按钮
-    def on_confirm():
-        if choice_var.get() == '3' and not self_define_text.get():
-            messagebox.showerror("错误", "请输入自定义文本")
-            return
-        dialog_done.set(True)
-    
-    tk.Button(dialog, text="确认", command=on_confirm).pack(pady=10)
-    
-    # 添加按键绑定函数
-    def handle_keypress(event):
-        if event.char in ['1', '2', '3']:
-            choice_var.set(event.char)
-            if event.char != '3':
-                dialog_done.set(True)
-            else:
-                self_define_entry.config(state='normal')
-                self_define_entry.focus()
-        elif event.keysym == 'Return':  # 添加回车键绑定
-            on_confirm()
-    
-    dialog.bind('<Key>', handle_keypress)
-    
-    def wait_for_dialog():
-        dialog_done.set(False)
-        while not dialog_done.get():
-            dialog.update()
-            time.sleep(0.1)
-    
+
     for file_path in find_reviewed_md_files_recursive(r'.\hide_file\中间文件'):
         file_name = os.path.basename(file_path)
         file_name_original = file_name.replace("_审校后_.md", "")
@@ -312,6 +270,87 @@ def revision_use():
 
         if not messagebox.askyesno("开始审校", f"是否开始审校文档: {file_name}?"):
             continue
+
+        # 创建一个可重用的对话框
+        dialog = tk.Toplevel()
+        dialog.title("审校选择")
+        dialog.geometry("800x600")
+        
+        # 创建界面元素
+        frame = tk.Frame(dialog)
+        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # 左侧文本框
+        left_frame = tk.Frame(frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        text_display = tk.Text(left_frame, height=20, width=80)
+        text_display.pack(pady=10)
+        
+        # 右侧按钮
+        right_frame = tk.Frame(frame)
+        right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(10, 0))
+        
+        choice_var = tk.StringVar()
+        self_define_text = tk.StringVar()
+        dialog_done = tk.BooleanVar(value=False)
+        
+        def on_choice():
+            if choice_var.get() == '3':
+                self_define_entry.config(state='normal')
+                self_define_entry.focus()
+            else:
+                self_define_entry.config(state='disabled')
+                dialog_done.set(True)
+        
+        # 确认按钮函数
+        def on_confirm():
+            if choice_var.get() == '3' and not self_define_text.get():
+                messagebox.showerror("错误", "请输入自定义文本")
+                return
+            dialog_done.set(True)
+        
+        # 创建选项框架
+        options_frame = tk.Frame(dialog)
+        options_frame.pack(fill=tk.X, padx=10)
+        
+        # 使用grid布局来纵向排列选项
+        tk.Radiobutton(options_frame, text="保留原文", variable=choice_var, value='1', command=on_choice).grid(row=0, column=0, sticky='w')
+        tk.Radiobutton(options_frame, text="采纳修订", variable=choice_var, value='2', command=on_choice).grid(row=1, column=0, sticky='w')
+        
+        # 创建一个框架来容纳自定义选项、输入框和确认按钮
+        custom_frame = tk.Frame(options_frame)
+        custom_frame.grid(row=2, column=0, sticky='w')
+        
+        # 自定义选项按钮
+        tk.Radiobutton(custom_frame, text="自定义", variable=choice_var, value='3', command=on_choice).pack(side=tk.LEFT)
+        
+        # 自定义输入框
+        self_define_entry = tk.Entry(custom_frame, textvariable=self_define_text, width=40, state='disabled')
+        self_define_entry.pack(side=tk.LEFT, padx=(10, 0))
+        
+        # 确认按钮
+        tk.Button(custom_frame, text="确认", command=on_confirm).pack(side=tk.LEFT, padx=(10, 0))
+        
+        # 添加按键绑定函数
+        def handle_keypress(event):
+            if event.char in ['1', '2', '3']:
+                choice_var.set(event.char)
+                if event.char != '3':
+                    dialog_done.set(True)
+                else:
+                    self_define_entry.config(state='normal')
+                    self_define_entry.focus()
+            elif event.keysym == 'Return':  # 添加回车键绑定
+                on_confirm()
+        
+        dialog.bind('<Key>', handle_keypress)
+        
+        def wait_for_dialog():
+            dialog_done.set(False)
+            while not dialog_done.get():
+                dialog.update()
+                time.sleep(0.1)
 
         adopt_count = 0
         doc_text = read_file(file_path)
@@ -348,7 +387,6 @@ def revision_use():
                 text_display.insert(tk.END, f'----------------------------\n')
                 text_display.insert(tk.END, f'原文段:\n{original_part}\n\n')
                 text_display.insert(tk.END, f'修订段:\n{revised_part}\n\n')
-                text_display.insert(tk.END, f'按键说明：\n1 - 保留原文\n2 - 采纳修订\n3 - 自定义')
                 text_display.config(state='disabled')
                 
                 # 重置选项和输入框
@@ -378,6 +416,8 @@ def revision_use():
             updated_texts_1.append(text_change_1 + '\n')
             updated_texts_2.append(text_change_2 + '\n')
 
+        dialog.destroy()
+
         write_to_new_file(select_path_1, updated_texts_1)
         write_to_new_file(select_path_2, updated_texts_2)
 
@@ -395,7 +435,6 @@ def revision_use():
 
         messagebox.showinfo("修订统计", f"采用修订数量: {adopt_count}")
 
-    dialog.destroy()
     root.destroy()
 
 

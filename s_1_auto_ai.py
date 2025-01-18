@@ -106,5 +106,5 @@ if __name__ == "__main__":
     time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))  # 获取当前时间
     root = tk.Tk()
     root.withdraw()
-    if messagebox.askyesno("完成", f"AI程序执行完毕, 当前时间: {time_now}\n是否退出程序?"):
-        sys.exit(0)
+    messagebox.showinfo("完成", f"AI程序执行完毕, 当前时间: {time_now}")
+    sys.exit(0)
