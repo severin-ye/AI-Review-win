@@ -435,4 +435,45 @@ exe = EXE(
                     raise Exception(f"删除原有安装目录失败: {str(e)}")
             
             # 创建安装目录
-           
+            self.update_progress(5, "正在创建安装目录...")
+            os.makedirs(install_path)
+            
+            # 复制程序文件
+            self.update_progress(10, "正在复制程序文件...")
+            if not self.copy_program_files():
+                raise Exception("复制程序文件失败")
+            
+            # 创建必要的文件夹
+            total_folders = len(self.folders)
+            for i, (folder, description) in enumerate(self.folders.items(), 1):
+                progress = 40 + (i / total_folders * 30)
+                self.update_progress(progress, f"正在创建: {folder}")
+                result = self.create_folder(folder, description)
+                self.log_message(result)
+                self.root.after(200)  # 短暂延迟以显示进度
+            
+            # 创建快捷方式
+            if self.create_shortcut_var.get():
+                self.update_progress(90, "正在创建桌面快捷方式...")
+                if not self.create_shortcut():
+                    self.log_message("警告: 创建快捷方式失败")
+            
+            # 安装完成
+            self.update_progress(100, "安装完成！")
+            messagebox.showinfo("安装完成", 
+                              f"AI审校助手已成功安装到：\n{self.install_path.get()}\n\n" +
+                              "现在可以运行程序了！")
+            
+        except Exception as e:
+            self.log_message(f"安装过程出错: {str(e)}")
+            messagebox.showerror("错误", f"安装过程中出现错误：\n{str(e)}")
+        finally:
+            self.install_button.config(state='normal')
+    
+    def run(self):
+        """运行安装程序"""
+        self.root.mainloop()
+
+if __name__ == "__main__":
+    installer = InstallerGUI()
+    installer.run() 
