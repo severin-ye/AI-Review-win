@@ -211,8 +211,8 @@ class StartPage(tk.Frame):
                     option_menu.pack(side="left", fill="x", expand=True)
                 elif key == "has_review_table":
                     options = ["Y", "N"]
-                    self.config_vars[key].set(options[0])
-                    option_menu = ttk.OptionMenu(frame, self.config_vars[key], *options)
+                    self.config_vars[key].set(options[0])  # 设置默认值为 "Y"
+                    option_menu = ttk.OptionMenu(frame, self.config_vars[key], options[0], *options)
                     option_menu.config(width=s_4_config_use.option_menu_width)
                     option_menu.pack(side="left", fill="x", expand=True)
                 else:
@@ -300,7 +300,7 @@ class StartPage(tk.Frame):
             
             # 加载其他配置
             self.config_vars['module_type'].set(config_data.get('module_type', ''))
-            self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', False) else 'N')
+            self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', True) else 'N')
             
             # 加载 prompt
             self.prompt_text.delete('1.0', tk.END)

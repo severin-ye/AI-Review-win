@@ -22,7 +22,7 @@ def load_config(json_path):
         # 加载其他配置
         config_vars['module_type'].set(config_data.get('module_type', ''))
         # config_vars['max_length'].set(str(config_data.get('max_length', '')))
-        config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', False) else 'N')
+        config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', True) else 'N')
         
         # 加载 prompt
         prompt_text.delete('1.0', tk.END)
