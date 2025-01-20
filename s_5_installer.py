@@ -304,97 +304,135 @@ exe = EXE(
     def create_shortcut(self):
         """创建桌面快捷方式"""
         try:
-            # 获取桌面路径
+            # 获取所有可能的桌面路径
+            desktop_paths = []
             try:
-                desktop = os.path.join(os.path.expanduser("~"), "Desktop")
-                if not os.path.exists(desktop):
-                    desktop = os.path.join(os.path.expanduser("~"), "桌面")
-            except Exception:
-                self.log_message("警告: 无法获取桌面路径")
+                # 本地桌面
+                local_desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+                if os.path.exists(local_desktop):
+                    desktop_paths.append(local_desktop)
+                local_desktop_cn = os.path.join(os.path.expanduser("~"), "桌面")
+                if os.path.exists(local_desktop_cn):
+                    desktop_paths.append(local_desktop_cn)
+                
+                # OneDrive 桌面
+                onedrive_desktop = os.path.join(os.path.expanduser("~"), "OneDrive", "Desktop")
+                if os.path.exists(onedrive_desktop):
+                    desktop_paths.append(onedrive_desktop)
+                onedrive_desktop_cn = os.path.join(os.path.expanduser("~"), "OneDrive", "桌面")
+                if os.path.exists(onedrive_desktop_cn):
+                    desktop_paths.append(onedrive_desktop_cn)
+                
+                if not desktop_paths:
+                    raise Exception("找不到任何可用的桌面路径")
+                
+                self.log_message(f"找到的桌面路径: {', '.join(desktop_paths)}")
+            except Exception as e:
+                self.log_message(f"警告: 无法获取桌面路径: {str(e)}")
                 return False
             
             # 检查目标文件是否存在
-            target_exe = os.path.join(self.install_path.get(), self.main_exe)
+            target_exe = os.path.abspath(os.path.join(self.install_path.get(), self.main_exe))
             if not os.path.exists(target_exe):
                 self.log_message(f"警告: 目标程序不存在: {target_exe}")
                 return False
+            else:
+                self.log_message(f"目标程序路径: {target_exe}")
+                self.log_message(f"目标程序大小: {os.path.getsize(target_exe)} 字节")
             
             # 检查工作目录是否存在
-            work_dir = self.install_path.get()
+            work_dir = os.path.abspath(self.install_path.get())
             if not os.path.exists(work_dir):
                 self.log_message(f"警告: 工作目录不存在: {work_dir}")
                 return False
+            else:
+                self.log_message(f"工作目录: {work_dir}")
             
-            # 创建快捷方式路径
-            shortcut_path = os.path.join(desktop, "AI审校助手.lnk")
-            
-            # 如果快捷方式已存在，先删除
-            if os.path.exists(shortcut_path):
+            success = False
+            # 在每个桌面路径上创建快捷方式
+            for desktop in desktop_paths:
                 try:
-                    os.remove(shortcut_path)
-                    # 等待文件系统更新
-                    self.root.after(1000)
-                except Exception as e:
-                    self.log_message(f"警告: 无法删除已存在的快捷方式: {str(e)}")
-                    # 尝试使用不同的文件名
-                    shortcut_path = os.path.join(desktop, "AI审校助手_新.lnk")
-            
-            try:
-                import winshell
-                from win32com.client import Dispatch
-                
-                # 最多尝试3次
-                max_retries = 3
-                for attempt in range(max_retries):
+                    shortcut_path = os.path.join(desktop, "AI审校助手.lnk")
+                    self.log_message(f"\n尝试在以下位置创建快捷方式: {shortcut_path}")
+                    
+                    # 如果快捷方式已存在，先删除
+                    if os.path.exists(shortcut_path):
+                        try:
+                            os.remove(shortcut_path)
+                            self.log_message("已删除旧的快捷方式")
+                            # 等待文件系统更新
+                            self.root.after(1000)
+                        except Exception as e:
+                            self.log_message(f"警告: 无法删除已存在的快捷方式: {str(e)}")
+                            continue
+                    
                     try:
-                        shell = Dispatch('WScript.Shell')
+                        # 直接使用 win32com 创建快捷方式
+                        import win32com.client
+                        shell = win32com.client.Dispatch("WScript.Shell")
                         shortcut = shell.CreateShortCut(shortcut_path)
                         
                         # 设置快捷方式属性
-                        shortcut.Targetpath = target_exe
+                        shortcut.TargetPath = target_exe
                         shortcut.WorkingDirectory = work_dir
                         shortcut.IconLocation = target_exe
                         shortcut.Description = "AI审校助手"
                         
                         # 保存快捷方式
-                        shortcut.save()
+                        self.log_message("正在保存快捷方式...")
+                        shortcut.Save()
                         
-                        # 验证快捷方式是否创建成功
-                        if os.path.exists(shortcut_path):
-                            self.log_message("快捷方式创建成功")
-                            return True
-                        
-                        # 如果创建失败但没有抛出异常，等待后重试
+                        # 等待文件系统更新
                         self.root.after(1000)
                         
-                    except Exception as e:
-                        if attempt < max_retries - 1:
-                            self.log_message(f"第{attempt + 1}次创建快捷方式失败，正在重试...")
-                            self.root.after(2000)  # 等待2秒后重试
+                        # 检查快捷方式是否真的创建成功
+                        if os.path.exists(shortcut_path):
+                            size = os.path.getsize(shortcut_path)
+                            self.log_message(f"快捷方式创建成功，文件大小: {size} 字节")
+                            success = True
                         else:
-                            raise  # 最后一次尝试失败，抛出异常
-                
-                self.log_message("警告: 快捷方式创建失败")
-                return False
-                
-            except ImportError:
-                self.log_message("警告: 缺少创建快捷方式所需的模块")
-                return False
-            except Exception as e:
-                self.log_message(f"警告: 创建快捷方式时出错: {str(e)}")
-                
-                # 尝试使用替代方法创建快捷方式
-                try:
-                    import subprocess
-                    cmd = f'powershell "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut(\'{shortcut_path}\'); $s.TargetPath = \'{target_exe}\'; $s.WorkingDirectory = \'{work_dir}\'; $s.IconLocation = \'{target_exe}\'; $s.Description = \'AI审校助手\'; $s.Save()"'
-                    subprocess.run(cmd, shell=True, check=True)
-                    
-                    if os.path.exists(shortcut_path):
-                        self.log_message("使用PowerShell成功创建快捷方式")
-                        return True
-                except Exception as e2:
-                    self.log_message(f"警告: PowerShell创建快捷方式也失败了: {str(e2)}")
-                return False
+                            raise Exception("快捷方式文件不存在")
+                        
+                    except Exception as e:
+                        self.log_message(f"警告: 使用win32com创建快捷方式失败: {str(e)}")
+                        
+                        try:
+                            # 使用 subprocess 直接执行 PowerShell 命令
+                            ps_command = f'''
+                            $shell = New-Object -ComObject WScript.Shell;
+                            $shortcut = $shell.CreateShortcut('{shortcut_path}');
+                            $shortcut.TargetPath = '{target_exe}';
+                            $shortcut.WorkingDirectory = '{work_dir}';
+                            $shortcut.IconLocation = '{target_exe}';
+                            $shortcut.Description = 'AI审校助手';
+                            $shortcut.Save();
+                            '''
+                            
+                            self.log_message("尝试使用PowerShell创建快捷方式...")
+                            result = subprocess.run(['powershell', '-Command', ps_command], 
+                                                 capture_output=True, text=True)
+                            
+                            if result.returncode != 0:
+                                self.log_message(f"PowerShell错误输出: {result.stderr}")
+                                raise Exception(f"PowerShell返回错误代码: {result.returncode}")
+                            
+                            # 检查快捷方式是否创建成功
+                            if os.path.exists(shortcut_path) and os.path.getsize(shortcut_path) > 0:
+                                size = os.path.getsize(shortcut_path)
+                                self.log_message(f"使用PowerShell成功创建快捷方式，文件大小: {size} 字节")
+                                success = True
+                            else:
+                                raise Exception("快捷方式创建失败：文件不存在或大小为0")
+                            
+                        except Exception as e2:
+                            self.log_message(f"警告: 在此位置创建快捷方式失败: {str(e2)}")
+                            continue
+                            
+                except Exception as e:
+                    self.log_message(f"警告: 在 {desktop} 创建快捷方式失败: {str(e)}")
+                    continue
+            
+            return success
             
         except Exception as e:
             self.log_message(f"警告: 创建快捷方式过程出错: {str(e)}")
