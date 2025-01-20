@@ -6,30 +6,72 @@ import sys
 import json
 
 # 模块列表
-module_list =  ['gpt-4o', 'gpt-4o-mini', '通义千问']
+module_list = ['gpt-4o', 'gpt-4o-mini', '通义千问']
 
-def load_config(json_path):
-    """加载配置文件并更新GUI"""
-    try:
-        with open(json_path, 'r', encoding='utf-8') as file:
-            config_data = json.load(file)
-
-        # 加载 API 密钥
-        api_keys = config_data.get('api_keys', {})
-        config_vars['openai_api_key'].set(api_keys.get('openai', ''))
-        config_vars['tyqw_api_key'].set(api_keys.get('tyqw', ''))
-
-        # 加载其他配置
-        config_vars['module_type'].set(config_data.get('module_type', ''))
-        # config_vars['max_length'].set(str(config_data.get('max_length', '')))
-        config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', True) else 'N')
-        
-        # 加载 prompt
-        prompt_text.delete('1.0', tk.END)
-        prompt_text.insert('1.0', config_data.get('prompt', ''))
-
-    except Exception as e:
-        messagebox.showerror("Error", f"Unable to load configuration: {e}")
+class ConfigManager:
+    def __init__(self):
+        self.config_vars = {}
+        self.prompt_text = None
+    
+    def set_widgets(self, config_vars, prompt_text=None):
+        """设置配置变量和prompt文本框"""
+        self.config_vars = config_vars
+        self.prompt_text = prompt_text
+    
+    def load_config(self):
+        """加载配置文件"""
+        try:
+            config_file_path = get_config_file_path()
+            with open(config_file_path, 'r', encoding='utf-8') as file:
+                config_data = json.load(file)
+            
+            # 加载 API 密钥
+            api_keys = config_data.get('api_keys', {})
+            self.config_vars['openai_api_key'].set(api_keys.get('openai', ''))
+            self.config_vars['tyqw_api_key'].set(api_keys.get('tyqw', ''))
+            
+            # 加载其他配置
+            self.config_vars['module_type'].set(config_data.get('module_type', ''))
+            self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', True) else 'N')
+            
+            # 加载 prompt
+            if self.prompt_text:
+                self.prompt_text.delete('1.0', tk.END)
+                self.prompt_text.insert('1.0', config_data.get('prompt', ''))
+            
+            return True
+            
+        except Exception as e:
+            messagebox.showerror("错误", f"无法加载配置：{str(e)}")
+            return False
+    
+    def save_config(self):
+        """保存配置到文件"""
+        try:
+            config_data = {
+                "api_keys": {
+                    "openai": self.config_vars["openai_api_key"].get(),
+                    "tyqw": self.config_vars["tyqw_api_key"].get()
+                },
+                "module_type": self.config_vars["module_type"].get(),
+                "has_review_table": self.config_vars["has_review_table"].get() == 'Y'
+            }
+            
+            if self.prompt_text:
+                config_data["prompt"] = self.prompt_text.get('1.0', tk.END).strip()
+            
+            config_file_path = get_config_file_path()
+            os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+            
+            with open(config_file_path, 'w', encoding='utf-8') as file:
+                json.dump(config_data, file, indent=4)
+            
+            messagebox.showinfo("成功", "配置已保存")
+            return True
+            
+        except Exception as e:
+            messagebox.showerror("错误", f"无法保存配置：{str(e)}")
+            return False
 
 def get_config_file_path():
     if getattr(sys, 'frozen', False):
@@ -40,27 +82,6 @@ def get_config_file_path():
         application_path = os.getcwd()  # 作为默认路径
 
     return os.path.join(application_path, "hide_file", "配置文件", "config.json")
-
-def save_config(json_path):
-    """保存更改回配置文件"""
-    try:
-        config_data = {
-            "api_keys": {
-                "openai": config_vars["openai_api_key"].get(),
-                "tyqw": config_vars["tyqw_api_key"].get()
-            },
-            "module_type": config_vars["module_type"].get(),
-            "prompt": prompt_text.get('1.0', tk.END).strip(),
-            # "max_length": int(config_vars["max_length"].get()),
-            "has_review_table": config_vars["has_review_table"].get() == 'Y'
-        }
-
-        with open(json_path, 'w', encoding='utf-8') as file:
-            json.dump(config_data, file, indent=4)
-
-        messagebox.showinfo("Information", "Configuration Saved Successfully")
-    except IOError as e:
-        messagebox.showerror("Error", f"Unable to save file: {os.path.basename(json_path)}\n{e}")
 
 # 界面布局和大小参数
 label_width = 20            # 标签控件的宽度（例如"OpenAI API Key"标签的宽度）
@@ -76,10 +97,11 @@ label_names = {
     "tyqw_api_key": "通义千问 API Key",
     "module_type": "Module Type",
     "prompt": "Prompt",
-    # "max_length": "单次审校最大字数",
     "has_review_table": "有无审校表格"
 }
 
+# 创建全局配置管理器实例
+config_manager = ConfigManager()
 
 if __name__ == "__main__":
     # 主窗口设置
@@ -188,13 +210,13 @@ if __name__ == "__main__":
         button_frame,
         text="保存配置",
         style='Config.TButton',
-        command=lambda: save_config(get_config_file_path())
+        command=lambda: config_manager.save_config()
     )
     save_button.pack()
     
     # 加载配置文件
-    config_file_path = get_config_file_path()
-    load_config(config_file_path)
+    config_manager.set_widgets(config_vars, prompt_text)
+    config_manager.load_config()
     
     # 主循环
     root.mainloop()

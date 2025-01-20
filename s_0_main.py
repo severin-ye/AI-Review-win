@@ -127,6 +127,10 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.configure(bg=controller.colors['background'])
         
+        # 创建配置管理器实例
+        import s_4_config_use
+        self.config_manager = s_4_config_use.config_manager
+        
         # 创建标题
         title = ttk.Label(self, 
                          text="AI审校助手",
@@ -167,7 +171,7 @@ class StartPage(tk.Frame):
         self.config_frame.pack(fill="both", expand=True)
         
         # 加载配置
-        self.load_config()
+        self.config_manager.load_config()
     
     def create_config_page(self):
         """创建配置页面"""
@@ -206,7 +210,7 @@ class StartPage(tk.Frame):
                 if key == "module_type":
                     options = s_4_config_use.module_list
                     self.config_vars[key].set(options[0])
-                    option_menu = ttk.OptionMenu(frame, self.config_vars[key], *options)
+                    option_menu = ttk.OptionMenu(frame, self.config_vars[key], options[0], *options)
                     option_menu.config(width=s_4_config_use.option_menu_width)
                     option_menu.pack(side="left", fill="x", expand=True)
                 elif key == "has_review_table":
@@ -255,6 +259,9 @@ class StartPage(tk.Frame):
                                style='Main.TButton',
                                command=self.show_main_page)
         back_button.pack(side="left", padx=5)
+        
+        # 设置配置管理器的widgets
+        self.config_manager.set_widgets(self.config_vars, self.prompt_text)
     
     def show_main_page(self):
         """返回主页面"""
@@ -285,55 +292,10 @@ class StartPage(tk.Frame):
                               width=20, height=2)
         exit_button.pack(pady=10)
     
-    def load_config(self):
-        """加载配置"""
-        import s_4_config_use
-        try:
-            config_file_path = s_4_config_use.get_config_file_path()
-            with open(config_file_path, 'r', encoding='utf-8') as file:
-                config_data = json.load(file)
-            
-            # 加载 API 密钥
-            api_keys = config_data.get('api_keys', {})
-            self.config_vars['openai_api_key'].set(api_keys.get('openai', ''))
-            self.config_vars['tyqw_api_key'].set(api_keys.get('tyqw', ''))
-            
-            # 加载其他配置
-            self.config_vars['module_type'].set(config_data.get('module_type', ''))
-            self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', True) else 'N')
-            
-            # 加载 prompt
-            self.prompt_text.delete('1.0', tk.END)
-            self.prompt_text.insert('1.0', config_data.get('prompt', ''))
-            
-        except Exception as e:
-            messagebox.showerror("错误", f"无法加载配置：{str(e)}")
-    
     def save_config(self):
-        """保存配置"""
-        import s_4_config_use
-        try:
-            config_data = {
-                "api_keys": {
-                    "openai": self.config_vars["openai_api_key"].get(),
-                    "tyqw": self.config_vars["tyqw_api_key"].get()
-                },
-                "module_type": self.config_vars["module_type"].get(),
-                "prompt": self.prompt_text.get('1.0', tk.END).strip(),
-                "has_review_table": self.config_vars["has_review_table"].get() == 'Y'
-            }
-            
-            config_file_path = s_4_config_use.get_config_file_path()
-            os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
-            
-            with open(config_file_path, 'w', encoding='utf-8') as file:
-                json.dump(config_data, file, indent=4)
-            
-            messagebox.showinfo("成功", "配置已保存")
+        """保存配置并返回主页面"""
+        if self.config_manager.save_config():
             self.show_main_page()
-            
-        except Exception as e:
-            messagebox.showerror("错误", f"无法保存配置：{str(e)}")
     
     def clear_files(self):
         """运行清理文件脚本"""
