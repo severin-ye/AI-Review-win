@@ -1,4 +1,4 @@
-from w6_1_key_generator import generate_key, SECRET_KEY
+from src.security.key_generator_legacy import generate_key, SECRET_KEY
 import tkinter as tk
 from tkinter import messagebox, ttk
 import pyperclip  # 用于复制到剪贴板

@@ -10,29 +10,59 @@ from docx import Document  # 处理Word文档的模块
 from lxml import etree  # 用于处理XML和HTML的模块
 from config import has_review_table  # 配置模块，导入是否有审查表的配置项
 
-from src.utils import (
-    file_path,
-    table_about,
-    docx_to_md,
-    smart_divide,
-    ai_answer,
-    same_find
-)
+# 导入工具模块
+from src.utils.file_utils import traverse_folder, generate_path, remove_middle_folder
+from src.utils.table_utils import extract_tables_from_word, replace_tables, replace_placeholders_with_tables, remove_first_table
+from src.utils.docx_utils import convert_file_md
+from src.utils.text_utils import divide_text_with_indent
+from src.utils.ai_utils import ai_answer
+from src.utils.similarity_utils import find_diff_sentences
 
-# 从各个模块导入所需函数
-traverse_folder = file_path.traverse_folder
-generate_path = file_path.generate_path
-remove_middle_folder = file_path.remove_middle_folder
-
-extract_tables_from_word = table_about.extract_tables_from_word
-replace_tables = table_about.replace_tables
-replace_placeholders_with_tables = table_about.replace_placeholders_with_tables
-remove_first_table = table_about.remove_first_table
-
-convert_file_md = docx_to_md.convert_file_md
-divide_text_with_indent = smart_divide.divide_text_with_indent
-ai_answer = ai_answer.ai_answer
-find_diff_sentences = same_find.find_diff_sentences
+class AIReviewer:
+    """AI审校类，用于处理文本审校功能"""
+    
+    def __init__(self):
+        """初始化AI审校器"""
+        pass
+    
+    def review_text(self, text):
+        """审校单个文本
+        
+        Args:
+            text (str): 待审校的文本
+            
+        Returns:
+            str: 审校结果
+        """
+        try:
+            result = ai_answer(text)
+            if result is None:
+                raise Exception("AI审校返回空结果")
+            return result
+        except Exception as e:
+            print(f"处理文本时出错: {e}")
+            return None
+    
+    def batch_review(self, texts):
+        """批量审校文本
+        
+        Args:
+            texts (list): 待审校的文本列表
+            
+        Returns:
+            list: 审校结果列表
+        """
+        results = []
+        for text in texts:
+            try:
+                result = self.review_text(text)
+                if result is None:
+                    raise Exception("AI审校返回空结果")
+                results.append(result)
+            except Exception as e:
+                print(f"处理文本时出错: {e}")
+                results.append(None)
+        return results
 
 # 定义处理文件的函数
 def process_file(file_name, file_type, progress_callback=None):

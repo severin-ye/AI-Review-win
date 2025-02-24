@@ -8,10 +8,35 @@ import json
 # 模块列表
 module_list = ['gpt-4o', 'gpt-4o-mini', '通义千问']
 
+# 界面布局和大小参数
+label_width = 20            # 标签控件的宽度（例如"OpenAI API Key"标签的宽度）
+entry_width = 30            # 文本输入框的宽度，用于API密钥等单行文本输入
+prompt_text_height = 10     # 多行文本输入框（如用于"Prompt"）的高度
+prompt_text_width = 50      # 多行文本输入框的宽度
+button_pad_y = 30           # 保存按钮周围的垂直内边距，决定按钮与其他元素的空间间隔
+option_menu_width = entry_width      # 下拉选项菜单的宽度，例如"Module Type"和"Has Review Table"的选择菜单
+
+# 标签名称
+label_names = {
+    "openai_api_key": "OpenAI API Key",
+    "tyqw_api_key": "通义千问 API Key",
+    "module_type": "Module Type",
+    "prompt": "Prompt",
+    "has_review_table": "有无审校表格"
+}
+
 class ConfigManager:
     def __init__(self):
         self.config_vars = {}
         self.prompt_text = None
+        self.module_list = module_list
+        self.label_names = label_names
+        self.label_width = label_width
+        self.entry_width = entry_width
+        self.prompt_text_height = prompt_text_height
+        self.prompt_text_width = prompt_text_width
+        self.button_pad_y = button_pad_y
+        self.option_menu_width = option_menu_width
     
     def set_widgets(self, config_vars, prompt_text=None):
         """设置配置变量和prompt文本框"""
@@ -82,23 +107,6 @@ def get_config_file_path():
         application_path = os.getcwd()  # 作为默认路径
 
     return os.path.join(application_path, "hide_file", "配置文件", "config.json")
-
-# 界面布局和大小参数
-label_width = 20            # 标签控件的宽度（例如"OpenAI API Key"标签的宽度）
-entry_width = 30            # 文本输入框的宽度，用于API密钥等单行文本输入
-prompt_text_height = 10     # 多行文本输入框（如用于"Prompt"）的高度
-prompt_text_width = 50      # 多行文本输入框的宽度
-button_pad_y = 30           # 保存按钮周围的垂直内边距，决定按钮与其他元素的空间间隔
-option_menu_width = entry_width      # 下拉选项菜单的宽度，例如"Module Type"和"Has Review Table"的选择菜单
-
-# 标签名称
-label_names = {
-    "openai_api_key": "OpenAI API Key",
-    "tyqw_api_key": "通义千问 API Key",
-    "module_type": "Module Type",
-    "prompt": "Prompt",
-    "has_review_table": "有无审校表格"
-}
 
 # 创建全局配置管理器实例
 config_manager = ConfigManager()

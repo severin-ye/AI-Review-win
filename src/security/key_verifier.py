@@ -4,7 +4,7 @@ import hmac
 import base64
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from src.security.key_generator_legacy import SECRET_KEY # 导入共享密钥
 
 def verify_key(input_key, secret_key):
@@ -12,7 +12,7 @@ def verify_key(input_key, secret_key):
     if os.environ.get('AI_REVIEW_VERIFIED') == 'TRUE':
         return True
         
-    current_date = datetime.utcnow().strftime('%Y-%m-%d')  # 获取当前UTC日期
+    current_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')  # 获取当前UTC日期
     message = current_date.encode()
     key = secret_key.encode()
     hash = hmac.new(key, message, hashlib.sha256)

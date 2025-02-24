@@ -12,9 +12,9 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from tkinter import font as tkfont
 
-from w2_docx_to_md import convert_md_to_docx
-from w1_table_about import replace_placeholders_with_tables
-from w0_file_path import generate_path
+from src.utils.docx_utils import convert_md_to_docx
+from src.utils.table_utils import replace_placeholders_with_tables
+from src.utils.file_utils import generate_path
 
 
 
