@@ -43,6 +43,25 @@ class ConfigManager:
         self.config_vars = config_vars
         self.prompt_text = prompt_text
     
+    def validate_api_key(self, api_key, key_type):
+        """验证 API 密钥的格式
+        
+        Args:
+            api_key (str): API 密钥
+            key_type (str): 密钥类型 ('openai' 或 'tyqw')
+            
+        Returns:
+            bool: 密钥格式是否有效
+        """
+        if not api_key:
+            return True  # 允许空密钥
+            
+        if key_type == 'openai':
+            return api_key.startswith('sk-') and len(api_key) > 20
+        elif key_type == 'tyqw':
+            return len(api_key) > 20
+        return False
+
     def load_config(self):
         """加载配置文件"""
         try:
@@ -52,18 +71,39 @@ class ConfigManager:
             
             # 加载 API 密钥
             api_keys = config_data.get('api_keys', {})
-            self.config_vars['openai_api_key'].set(api_keys.get('openai', ''))
-            self.config_vars['tyqw_api_key'].set(api_keys.get('tyqw', ''))
+            openai_key = api_keys.get('openai', '')
+            tyqw_key = api_keys.get('tyqw', '')
+            
+            # 验证 API 密钥
+            if not self.validate_api_key(openai_key, 'openai'):
+                messagebox.showwarning("警告", "OpenAI API 密钥格式无效")
+            if not self.validate_api_key(tyqw_key, 'tyqw'):
+                messagebox.showwarning("警告", "通义千问 API 密钥格式无效")
+            
+            # 设置 API 密钥
+            self.config_vars['openai_api_key'].set(openai_key)
+            self.config_vars['tyqw_api_key'].set(tyqw_key)
             
             # 加载其他配置
-            self.config_vars['module_type'].set(config_data.get('module_type', ''))
+            self.config_vars['module_type'].set(config_data.get('module_type', 'gpt-4o'))
             self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', True) else 'N')
             
             # 加载 prompt
             if self.prompt_text:
                 self.prompt_text.delete('1.0', tk.END)
-                self.prompt_text.insert('1.0', config_data.get('prompt', ''))
+                self.prompt_text.insert('1.0', config_data.get('prompt', '你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。'))
             
+            return True
+            
+        except FileNotFoundError:
+            # 如果配置文件不存在，使用默认值
+            self.config_vars['openai_api_key'].set('')
+            self.config_vars['tyqw_api_key'].set('')
+            self.config_vars['module_type'].set('gpt-4o')
+            self.config_vars['has_review_table'].set('Y')
+            if self.prompt_text:
+                self.prompt_text.delete('1.0', tk.END)
+                self.prompt_text.insert('1.0', '你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。')
             return True
             
         except Exception as e:
@@ -73,23 +113,45 @@ class ConfigManager:
     def save_config(self):
         """保存配置到文件"""
         try:
+            # 验证 API 密钥
+            openai_key = self.config_vars["openai_api_key"].get().strip()
+            tyqw_key = self.config_vars["tyqw_api_key"].get().strip()
+            
+            if not self.validate_api_key(openai_key, 'openai'):
+                messagebox.showerror("错误", "OpenAI API 密钥格式无效")
+                return False
+                
+            if not self.validate_api_key(tyqw_key, 'tyqw'):
+                messagebox.showerror("错误", "通义千问 API 密钥格式无效")
+                return False
+
+            # 获取 prompt 内容
+            prompt_content = ""
+            if self.prompt_text:
+                try:
+                    prompt_content = self.prompt_text.get('1.0', tk.END).strip()
+                except Exception as e:
+                    print(f"获取 prompt 内容时出错：{str(e)}")
+                    prompt_content = "你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。"
+
+            # 构建配置数据
             config_data = {
                 "api_keys": {
-                    "openai": self.config_vars["openai_api_key"].get(),
-                    "tyqw": self.config_vars["tyqw_api_key"].get()
+                    "openai": openai_key,
+                    "tyqw": tyqw_key
                 },
                 "module_type": self.config_vars["module_type"].get(),
-                "has_review_table": self.config_vars["has_review_table"].get() == 'Y'
+                "has_review_table": self.config_vars["has_review_table"].get() == 'Y',
+                "prompt": prompt_content
             }
             
-            if self.prompt_text:
-                config_data["prompt"] = self.prompt_text.get('1.0', tk.END).strip()
-            
+            # 获取配置文件路径并确保目录存在
             config_file_path = get_config_file_path()
             os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
             
+            # 保存配置
             with open(config_file_path, 'w', encoding='utf-8') as file:
-                json.dump(config_data, file, indent=4)
+                json.dump(config_data, file, indent=4, ensure_ascii=False)
             
             messagebox.showinfo("成功", "配置已保存")
             return True
@@ -99,14 +161,36 @@ class ConfigManager:
             return False
 
 def get_config_file_path():
+    """获取配置文件的路径"""
     if getattr(sys, 'frozen', False):
+        # 如果是打包后的可执行文件
         application_path = os.path.dirname(sys.executable)
-    elif __file__:
-        application_path = os.path.dirname(__file__)
     else:
-        application_path = os.getcwd()  # 作为默认路径
-
-    return os.path.join(application_path, "hide_file", "配置文件", "config.json")
+        # 如果是开发环境
+        application_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    config_dir = os.path.join(application_path, "hide_file", "配置文件")
+    config_file = os.path.join(config_dir, "config.json")
+    
+    # 确保配置目录存在
+    os.makedirs(config_dir, exist_ok=True)
+    
+    # 如果配置文件不存在，创建默认配置
+    if not os.path.exists(config_file):
+        default_config = {
+            "api_keys": {
+                "openai": "",
+                "tyqw": ""
+            },
+            "module_type": "gpt-4o",
+            "has_review_table": True,
+            "prompt": "你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。"
+        }
+        
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(default_config, f, indent=4, ensure_ascii=False)
+    
+    return config_file
 
 # 创建全局配置管理器实例
 config_manager = ConfigManager()

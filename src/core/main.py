@@ -13,7 +13,10 @@ from src.security.key_generator_legacy import SECRET_KEY
 from src.security import key_verifier
 from src.utils import cleanup_utils
 from src.core import ai_review, text_processor
-from config import config_manager
+from config.config_manager import ConfigManager
+
+# 创建配置管理器实例
+config_manager = ConfigManager()
 
 class KeyVerifyPage(tk.Frame):
     def __init__(self, parent, controller):
