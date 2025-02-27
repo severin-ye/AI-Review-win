@@ -6,10 +6,141 @@ import sys
 import subprocess
 import winreg
 import json
+import traceback
+import logging
 from pathlib import Path
+from datetime import datetime
+
+'''
+AI审校助手安装程序
+
+使用说明:
+1. 确保安装包中包含以下文件:
+   - AI审校助手.exe (主程序)
+   - material/1-logo.ico (安装程序图标)
+   - material/2-logo.ico (主程序图标)
+
+2. 打包命令:
+   pyinstaller --noconfirm installer.spec
+
+注意事项:
+- 安装程序不会在用户电脑上尝试打包主程序
+- 安装前会检查必要文件是否存在
+- 如果缺少图标文件，将使用默认图标
+'''
+
+# 设置日志记录
+def setup_logging():
+    """设置日志记录"""
+    log_dir = os.path.join(os.path.expanduser("~"), "AI审校助手_logs")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    log_file = os.path.join(log_dir, f"installer_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+    
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
+    return log_file
+
+def main():
+    """主函数"""
+    try:
+        log_file = setup_logging()
+        logging.info("安装程序启动")
+        logging.info(f"Python 版本: {sys.version}")
+        logging.info(f"工作目录: {os.getcwd()}")
+        logging.info(f"系统平台: {sys.platform}")
+        logging.info(f"命令行参数: {sys.argv}")
+        
+        installer = InstallerGUI()
+        installer.run()
+    except Exception as e:
+        error_msg = f"发生错误:\n{str(e)}\n\n详细错误信息已保存到:\n{log_file}"
+        logging.error(f"未处理的异常: {str(e)}")
+        logging.error(f"错误详情:\n{traceback.format_exc()}")
+        
+        try:
+            # 尝试使用 tkinter 显示错误
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showerror("错误", error_msg)
+            root.destroy()
+        except:
+            # 如果 tkinter 失败，使用命令行显示错误
+            print("\n" + "="*50)
+            print("错误:")
+            print(error_msg)
+            print("="*50)
+            input("\n按回车键退出...")
+
+def get_resource_path(relative_path, required=False):
+    """获取资源文件的绝对路径"""
+    try:
+        # PyInstaller创建临时文件夹,将路径存储在_MEIPASS中
+        base_path = sys._MEIPASS
+    except Exception:
+        # 如果不是打包后的运行，则使用当前目录
+        base_path = os.path.abspath(os.path.dirname(__file__))
+        # 如果是在scripts目录下，则需要回到上一级目录
+        if os.path.basename(base_path) == 'scripts':
+            base_path = os.path.dirname(base_path)
+    
+    # 构建完整路径
+    full_path = os.path.join(base_path, relative_path)
+    
+    # 检查文件是否存在
+    if not os.path.exists(full_path):
+        # 尝试在material子目录中查找
+        alt_path = os.path.join(base_path, 'material', os.path.basename(relative_path))
+        if os.path.exists(alt_path):
+            return alt_path
+            
+        # 尝试在当前目录的material子目录中查找
+        current_dir_path = os.path.join(os.getcwd(), 'material', os.path.basename(relative_path))
+        if os.path.exists(current_dir_path):
+            return current_dir_path
+            
+        # 如果还是找不到，且不是必需的，返回None
+        if not required:
+            logging.warning(f"找不到资源文件(非必需): {relative_path}")
+            return None
+            
+        # 如果是必需的，则记录详细信息并抛出异常
+        error_msg = (
+            f"找不到资源文件: {relative_path}\n"
+            f"尝试的路径:\n"
+            f"1. {full_path}\n"
+            f"2. {alt_path}\n"
+            f"3. {current_dir_path}\n"
+            f"当前目录: {os.getcwd()}\n"
+            f"基础路径: {base_path}\n"
+            f"_MEIPASS: {getattr(sys, '_MEIPASS', '未定义')}\n"
+            f"可用文件列表:\n"
+        )
+        
+        # 列出基础路径下的所有文件
+        try:
+            files = []
+            for root, dirs, filenames in os.walk(base_path):
+                rel_path = os.path.relpath(root, base_path)
+                for f in filenames:
+                    files.append(os.path.join(rel_path, f))
+            error_msg += "\n".join(files)
+        except Exception as e:
+            error_msg += f"无法列出文件: {str(e)}"
+            
+        raise FileNotFoundError(error_msg)
+        
+    return full_path
 
 class InstallerGUI:
     def __init__(self):
+        logging.info("初始化安装程序界面")
         self.root = tk.Tk()
         self.root.title("AI审校助手 - 安装程序")
         
@@ -110,176 +241,20 @@ class InstallerGUI:
         
         # 检查是否存在打包好的exe文件
         if not os.path.exists(self.main_exe):
-            self.build_exe()
-    
-    def build_exe(self):
-        """使用PyInstaller打包主程序"""
+            self.log_message(f"警告: 找不到主程序文件 {self.main_exe}，将在安装时查找")
+            # 不再调用build_exe方法
+        
+        # 设置窗口图标
         try:
-            self.log_message("正在打包主程序...")
-            self.update_progress(5, "准备打包环境...")
-            
-            # 创建spec文件内容
-            spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
-
-block_cipher = None
-
-a = Analysis(
-    ['src/core/main.py'],
-    pathex=[],
-    binaries=[],
-    datas=[],
-    hiddenimports=[
-        'tkinter',
-        'tkinter.ttk',
-        'tkinter.messagebox',
-        'tkinter.scrolledtext',
-        'win32com.client',
-        'winshell',
-        'json',
-        'subprocess',
-        'shutil'
-    ],
-    hookspath=[],
-    hooksconfig={{}},
-    runtime_hooks=[],
-    excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
-    noarchive=False,
-)
-
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    [],
-    name='AI审校助手',
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    icon=['material/2-logo.ico'],
-    collect_all=['s_1_auto_ai', 's_2_select_replace', 's_3_clear_out', 's_4_config_use',
-                'w0_file_path', 'w1_table_about', 'w2_docx_to_md', 'w3_smart_divide',
-                'w4_ai_answer', 'w5_same_find', 'w6_1_key_generator', 'w6_2_key_verifier',
-                'config', 'time_lock']
-)
-'''
-            # 写入spec文件
-            with open('ai_review.spec', 'w', encoding='utf-8') as f:
-                f.write(spec_content)
-            
-            self.update_progress(10, "正在分析依赖关系...")
-            
-            # 运行PyInstaller
-            pyinstaller_cmd = [
-                'pyinstaller',
-                '--noconfirm',
-                'ai_review.spec'
-            ]
-            
-            process = subprocess.Popen(
-                pyinstaller_cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
-                universal_newlines=True,
-                shell=False
-            )
-            
-            # 定义关键阶段和对应的进度
-            stages = {
-                'Analyzing dependencies': (15, "正在分析程序依赖..."),
-                'Analyzing': (20, "正在分析文件..."),
-                'Processing': (30, "正在处理文件..."),
-                'Searching': (40, "正在搜索依赖..."),
-                'Loading module': (50, "正在加载模块..."),
-                'Building EXE': (60, "正在构建可执行文件..."),
-                'Building PYZ': (70, "正在打包Python模块..."),
-                'Building PKG': (80, "正在打包资源文件..."),
-                'Copying': (90, "正在复制必要文件...")
-            }
-            
-            # 用于存储当前阶段的计数器
-            stage_counters = {}
-            last_progress = 10
-            
-            # 实时读取输出并更新进度
-            while True:
-                # 读取标准输出
-                line = process.stdout.readline()
-                if not line and process.poll() is not None:
-                    break
-                
-                line = line.strip()
-                if line:
-                    print(line)  # 直接打印到控制台
-                    self.log_message(line)
-                    
-                    # 检查是否进入新阶段
-                    for stage, (base_progress, message) in stages.items():
-                        if stage in line:
-                            if stage not in stage_counters:
-                                stage_counters[stage] = 0
-                            stage_counters[stage] += 1
-                            
-                            # 计算当前阶段的进度
-                            stage_progress = min(5, stage_counters[stage])
-                            current_progress = base_progress + stage_progress
-                            
-                            # 确保进度不会后退
-                            if current_progress > last_progress:
-                                last_progress = current_progress
-                                self.update_progress(current_progress, f"{message} ({stage_counters[stage]})")
-                            break
-                
-                # 读取错误输出
-                error = process.stderr.readline()
-                if error:
-                    error = error.strip()
-                    if error:
-                        print(f"错误: {error}")  # 直接打印到控制台
-                        self.log_message(f"错误: {error}")
-                
-                # 更新界面
-                self.root.update()
-            
-            # 检查进程返回值
-            if process.returncode != 0:
-                error_output = process.stderr.read()
-                print("错误输出:")  # 直接打印到控制台
-                print(error_output)
-                self.log_message("错误输出:")
-                self.log_message(error_output)
-                raise Exception("PyInstaller打包失败")
-            
-            # 复制生成的exe文件
-            self.update_progress(95, "正在完成打包...")
-            dist_exe = os.path.join('dist', 'AI审校助手.exe')
-            if os.path.exists(dist_exe):
-                shutil.copy2(dist_exe, self.main_exe)
-                self.update_progress(100, "打包完成！")
-                self.log_message("主程序打包完成！")
+            icon_path = get_resource_path("1-logo.ico", required=False)
+            if icon_path and os.path.exists(icon_path):
+                self.root.iconbitmap(icon_path)
+                self.log_message(f"成功加载图标: {icon_path}")
             else:
-                raise Exception("找不到生成的exe文件")
-                
+                self.log_message("未找到图标文件，使用默认图标")
         except Exception as e:
-            self.log_message(f"打包主程序时出错: {str(e)}")
-            raise
+            self.log_message(f"设置窗口图标失败: {str(e)}")
+            # 不显示错误对话框，只记录日志
     
     def browse_path(self):
         """浏览并选择安装路径"""
@@ -290,6 +265,7 @@ exe = EXE(
     
     def log_message(self, message):
         """添加日志消息到详细信息框"""
+        logging.info(message)
         self.detail_text.insert(tk.END, message + "\n")
         self.detail_text.see(tk.END)
         self.root.update()
@@ -298,7 +274,6 @@ exe = EXE(
         """更新进度条和信息标签"""
         self.progress_var.set(value)
         self.info_label.config(text=message)
-        self.log_message(message)
         self.root.update()
     
     def create_folder(self, folder_path, description):
@@ -313,31 +288,115 @@ exe = EXE(
         except Exception as e:
             return f"创建文件夹 {folder_path} 失败: {str(e)}"
     
+    def ensure_exe_icon(self, exe_path, icon_path):
+        """确保可执行文件具有正确的图标"""
+        try:
+            import win32api
+            import win32gui
+            import win32con
+            
+            # 检查文件是否存在
+            if not os.path.exists(exe_path):
+                self.log_message(f"警告: 目标程序不存在: {exe_path}")
+                return False
+            
+            if not os.path.exists(icon_path):
+                self.log_message(f"警告: 图标文件不存在: {icon_path}")
+                return False
+            
+            try:
+                # 获取当前图标句柄
+                large, small = win32gui.ExtractIconEx(exe_path, 0)
+                if large:
+                    for handle in large:
+                        win32gui.DestroyIcon(handle)
+                if small:
+                    for handle in small:
+                        win32gui.DestroyIcon(handle)
+                
+                # 设置新图标
+                icon_handle = win32gui.LoadImage(
+                    0, icon_path, win32con.IMAGE_ICON,
+                    0, 0, win32con.LR_LOADFROMFILE
+                )
+                
+                if icon_handle:
+                    self.log_message(f"成功加载图标: {icon_path}")
+                    win32gui.SendMessage(
+                        win32gui.GetDesktopWindow(),
+                        win32con.WM_SETICON,
+                        win32con.ICON_BIG,
+                        icon_handle
+                    )
+                    self.log_message(f"成功设置程序图标: {exe_path}")
+                    return True
+                else:
+                    self.log_message("加载图标失败")
+                    return False
+                
+            except Exception as e:
+                self.log_message(f"设置图标失败: {str(e)}")
+                return False
+                
+        except Exception as e:
+            self.log_message(f"设置程序图标时出错: {str(e)}")
+            return False
+
     def copy_program_files(self):
         """复制程序文件到安装目录"""
         try:
-            current_dir = os.getcwd()
+            # 获取安装路径
+            install_dir = self.install_path.get()
+            self.log_message(f"正在复制程序文件到: {install_dir}")
             
-            # 复制主程序exe
-            if os.path.exists(self.main_exe):
-                dst_exe = os.path.join(self.install_path.get(), self.main_exe)
-                shutil.copy2(self.main_exe, dst_exe)
-                self.log_message(f"复制文件: {self.main_exe}")
-            else:
-                raise Exception("找不到主程序exe文件")
+            # 创建安装目录
+            os.makedirs(install_dir, exist_ok=True)
             
-            # 复制图标文件
-            icon_src = os.path.join('material', '2-logo.ico')
-            if os.path.exists(icon_src):
-                icon_dst = os.path.join(self.install_path.get(), '2-logo.ico')
-                shutil.copy2(icon_src, icon_dst)
-                self.log_message(f"复制文件: {icon_src}")
-            else:
-                raise Exception("找不到图标文件")
+            # 查找主程序文件
+            exe_found = False
+            exe_search_paths = [
+                get_resource_path(self.main_exe, required=False),
+                os.path.join(".", self.main_exe),
+                os.path.join(os.getcwd(), self.main_exe),
+                os.path.join(os.path.dirname(sys.executable), self.main_exe),
+                os.path.join("dist", self.main_exe),
+                os.path.join(os.path.dirname(sys.executable), "dist", self.main_exe),
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), self.main_exe)
+            ]
             
+            # 尝试复制主程序文件
+            for src_path in exe_search_paths:
+                if src_path and os.path.exists(src_path):
+                    dst_path = os.path.join(install_dir, self.main_exe)
+                    try:
+                        shutil.copy2(src_path, dst_path)
+                        self.log_message(f"已复制主程序: {src_path} -> {dst_path}")
+                        self.log_message(f"文件大小: {os.path.getsize(dst_path)} 字节")
+                        exe_found = True
+                        break
+                    except Exception as e:
+                        self.log_message(f"复制主程序文件失败: {str(e)}")
+            
+            if not exe_found:
+                self.log_message("错误: 未找到主程序文件，安装无法继续")
+                messagebox.showerror("安装错误", 
+                                  "未找到主程序文件，请确保安装包完整。\n\n" +
+                                  "请检查以下位置是否存在主程序文件:\n" +
+                                  f"1. 当前目录: {os.getcwd()}\n" +
+                                  f"2. 程序目录: {os.path.dirname(sys.executable)}")
+                return False
+            
+            # 确保图标文件存在
+            if not self.ensure_icon_files():
+                self.log_message("警告: 图标文件准备失败，但安装将继续")
+            
+            # 创建快捷方式
+            self.create_shortcut()
+            
+            self.log_message("程序文件复制完成")
             return True
         except Exception as e:
-            self.log_message(f"复制文件时出错: {str(e)}")
+            self.log_message(f"复制程序文件时出错: {str(e)}")
             return False
     
     def create_shortcut(self):
@@ -381,9 +440,21 @@ exe = EXE(
             
             # 检查图标文件是否存在
             icon_file = os.path.abspath(os.path.join(self.install_path.get(), '2-logo.ico'))
-            if not os.path.exists(icon_file):
+            has_icon = os.path.exists(icon_file)
+            if not has_icon:
                 self.log_message(f"警告: 图标文件不存在: {icon_file}")
-                return False
+                # 尝试查找其他可能的图标位置
+                alt_icon_paths = [
+                    os.path.join(os.path.dirname(target_exe), "material", "2-logo.ico"),
+                    os.path.join(os.getcwd(), "material", "2-logo.ico"),
+                    os.path.join(os.path.dirname(sys.executable), "material", "2-logo.ico")
+                ]
+                for alt_path in alt_icon_paths:
+                    if os.path.exists(alt_path):
+                        icon_file = alt_path
+                        has_icon = True
+                        self.log_message(f"找到替代图标文件: {icon_file}")
+                        break
             else:
                 self.log_message(f"图标文件路径: {icon_file}")
             
@@ -422,7 +493,8 @@ exe = EXE(
                         # 设置快捷方式属性
                         shortcut.TargetPath = target_exe
                         shortcut.WorkingDirectory = work_dir
-                        shortcut.IconLocation = icon_file
+                        if has_icon:
+                            shortcut.IconLocation = icon_file
                         shortcut.Description = "AI审校助手"
                         
                         # 保存快捷方式
@@ -450,7 +522,13 @@ exe = EXE(
                             $shortcut = $shell.CreateShortcut('{shortcut_path}');
                             $shortcut.TargetPath = '{target_exe}';
                             $shortcut.WorkingDirectory = '{work_dir}';
-                            $shortcut.IconLocation = '{icon_file}';
+                            '''
+                            
+                            # 只有在图标文件存在时才设置图标
+                            if has_icon:
+                                ps_command += f"$shortcut.IconLocation = '{icon_file}';\n"
+                                
+                            ps_command += '''
                             $shortcut.Description = 'AI审校助手';
                             $shortcut.Save();
                             '''
@@ -491,10 +569,20 @@ exe = EXE(
             self.install_button.config(state='disabled')
             self.detail_text.delete(1.0, tk.END)
             
+            # 检查安装包完整性
+            self.update_progress(0, "正在检查安装包完整性...")
+            if not self.check_installation_integrity():
+                self.update_progress(0, "安装包不完整，无法继续安装")
+                messagebox.showerror("安装错误", 
+                                  "安装包不完整，缺少必要文件。\n\n" +
+                                  "请重新下载完整的安装包后再试。")
+                self.install_button.config(state='normal')
+                return
+            
             # 检查并删除已存在的安装目录
             install_path = self.install_path.get()
             if os.path.exists(install_path):
-                self.update_progress(0, "正在删除已存在的安装目录...")
+                self.update_progress(5, "正在删除已存在的安装目录...")
                 try:
                     # 首先尝试删除可能被占用的exe文件
                     exe_path = os.path.join(install_path, self.main_exe)
@@ -545,13 +633,17 @@ exe = EXE(
                     raise Exception(f"删除原有安装目录失败: {str(e)}")
             
             # 创建安装目录
-            self.update_progress(5, "正在创建安装目录...")
+            self.update_progress(10, "正在创建安装目录...")
             os.makedirs(install_path, exist_ok=True)
             
             # 复制程序文件
-            self.update_progress(10, "正在复制程序文件...")
+            self.update_progress(15, "正在复制程序文件...")
             if not self.copy_program_files():
                 raise Exception("复制程序文件失败")
+            
+            # 确保图标文件存在
+            self.update_progress(30, "正在准备图标文件...")
+            self.ensure_icon_files()
             
             # 创建必要的文件夹
             total_folders = len(self.folders)
@@ -586,6 +678,159 @@ exe = EXE(
         """运行安装程序"""
         self.root.mainloop()
 
+    def show_error(self, title, message):
+        """显示错误对话框"""
+        messagebox.showerror(title, message)
+
+    def ensure_icon_files(self):
+        """确保图标文件存在于安装目录中"""
+        self.log_message("正在准备图标文件...")
+        
+        # 创建图标目录
+        icon_dir = os.path.join(self.install_path.get(), "material")
+        os.makedirs(icon_dir, exist_ok=True)
+        
+        # 图标文件列表
+        icon_files = ["1-logo.ico", "2-logo.ico"]
+        icons_copied = []
+        
+        # 尝试复制图标文件
+        for icon in icon_files:
+            # 尝试查找图标文件
+            icon_path = get_resource_path(icon, required=False)
+            if not icon_path:
+                icon_path = os.path.join("material", icon)
+            
+            # 目标路径
+            target_path = os.path.join(icon_dir, icon)
+            
+            # 如果找到图标文件，复制它
+            if icon_path and os.path.exists(icon_path):
+                try:
+                    shutil.copy2(icon_path, target_path)
+                    self.log_message(f"已复制图标文件: {icon}")
+                    icons_copied.append(icon)
+                except Exception as e:
+                    self.log_message(f"复制图标文件失败: {icon}, 错误: {str(e)}")
+            else:
+                self.log_message(f"未找到图标文件: {icon}，将创建空白图标")
+        
+        # 检查是否所有图标都已复制
+        missing_icons = [icon for icon in icon_files if icon not in icons_copied]
+        
+        # 为缺失的图标创建空白图标
+        if missing_icons:
+            self.log_message("正在创建空白图标文件...")
+            for icon in missing_icons:
+                target_path = os.path.join(icon_dir, icon)
+                try:
+                    self.create_blank_icon(target_path)
+                    self.log_message(f"已创建空白图标: {icon}")
+                except Exception as e:
+                    self.log_message(f"创建空白图标失败: {icon}, 错误: {str(e)}")
+        
+        return True
+        
+    def create_blank_icon(self, filepath, size=32):
+        """创建一个空白的图标文件"""
+        try:
+            # 尝试导入PIL库
+            from PIL import Image
+            
+            # 创建空白图像
+            img = Image.new('RGBA', (size, size), color=(255, 255, 255, 0))
+            
+            # 保存为ICO文件
+            img.save(filepath, format='ICO')
+            return True
+        except ImportError:
+            self.log_message("警告: 未安装PIL库，无法创建空白图标")
+            # 创建一个空文件作为替代
+            with open(filepath, 'wb') as f:
+                # 写入最小的有效ICO文件头
+                f.write(bytes.fromhex('00 00 01 00 01 00 10 10 00 00 01 00 04 00 28 01 00 00 16 00 00 00 28 00 00 00 10 00 00 00 20 00 00 00 01 00 04 00 00 00 00 00 80 00 00 00 00 00 00 00 00 00 00 00 10 00 00 00 00 00 00 00'))
+            return True
+        except Exception as e:
+            self.log_message(f"创建空白图标时出错: {str(e)}")
+            return False
+
+    def check_installation_integrity(self):
+        """检查安装包完整性"""
+        self.log_message("正在检查安装包完整性...")
+        
+        # 检查主程序文件
+        exe_found = False
+        exe_search_paths = [
+            get_resource_path(self.main_exe, required=False),
+            os.path.join(".", self.main_exe),
+            os.path.join(os.getcwd(), self.main_exe),
+            os.path.join(os.path.dirname(sys.executable), self.main_exe),
+            os.path.join("dist", self.main_exe),
+            os.path.join(os.path.dirname(sys.executable), "dist", self.main_exe),
+            os.path.join(os.path.dirname(os.path.dirname(sys.executable)), self.main_exe)
+        ]
+        
+        self.log_message(f"正在以下位置查找主程序文件 {self.main_exe}:")
+        for i, path in enumerate(exe_search_paths, 1):
+            self.log_message(f"  {i}. {path}")
+            if path and os.path.exists(path):
+                self.log_message(f"✓ 找到主程序: {path}")
+                self.log_message(f"  文件大小: {os.path.getsize(path)} 字节")
+                exe_found = True
+                break
+            else:
+                self.log_message(f"✗ 未找到")
+        
+        if not exe_found:
+            self.log_message("警告: 未找到主程序文件，安装可能无法完成")
+            
+        # 检查图标文件
+        icons_found = []
+        icon_files = ["1-logo.ico", "2-logo.ico"]
+        
+        self.log_message("正在查找图标文件:")
+        for icon in icon_files:
+            icon_search_paths = [
+                get_resource_path(icon, required=False),
+                os.path.join("material", icon),
+                os.path.join(os.getcwd(), "material", icon),
+                os.path.join(os.path.dirname(sys.executable), "material", icon),
+                os.path.join(os.path.dirname(os.path.dirname(sys.executable)), "material", icon),
+                os.path.join(".", icon)
+            ]
+            
+            icon_found = False
+            self.log_message(f"  正在查找图标: {icon}")
+            for path in icon_search_paths:
+                if path and os.path.exists(path):
+                    self.log_message(f"  ✓ 找到图标文件: {path}")
+                    icons_found.append(icon)
+                    icon_found = True
+                    break
+            
+            if not icon_found:
+                self.log_message(f"  ✗ 未找到图标: {icon}")
+        
+        if len(icons_found) < len(icon_files):
+            missing_icons = [icon for icon in icon_files if icon not in icons_found]
+            self.log_message(f"警告: 未找到以下图标文件: {', '.join(missing_icons)}")
+            self.log_message("将使用默认图标或创建空白图标")
+        
+        # 检查系统环境
+        self.log_message("\n系统环境信息:")
+        self.log_message(f"  操作系统: {sys.platform}")
+        self.log_message(f"  Python版本: {sys.version}")
+        self.log_message(f"  当前目录: {os.getcwd()}")
+        self.log_message(f"  程序目录: {os.path.dirname(sys.executable)}")
+        self.log_message(f"  临时目录: {getattr(sys, '_MEIPASS', '未定义')}")
+        
+        # 返回检查结果
+        if exe_found:
+            self.log_message("✓ 安装包完整性检查通过")
+            return True
+        else:
+            self.log_message("✗ 安装包完整性检查失败: 缺少主程序文件")
+            return False
+
 if __name__ == "__main__":
-    installer = InstallerGUI()
-    installer.run() 
+    main() 
