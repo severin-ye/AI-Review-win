@@ -124,7 +124,7 @@ class InstallerGUI:
 block_cipher = None
 
 a = Analysis(
-    ['s_0_main.py'],
+    ['src/core/main.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -185,11 +185,8 @@ exe = EXE(
             self.update_progress(10, "正在分析依赖关系...")
             
             # 运行PyInstaller
-            python_exe = sys.executable
             pyinstaller_cmd = [
-                python_exe,
-                '-m',
-                'PyInstaller',
+                'pyinstaller',
                 '--noconfirm',
                 'ai_review.spec'
             ]
@@ -200,7 +197,8 @@ exe = EXE(
                 stderr=subprocess.PIPE,
                 text=True,
                 bufsize=1,
-                universal_newlines=True
+                universal_newlines=True,
+                shell=False
             )
             
             # 定义关键阶段和对应的进度
@@ -229,6 +227,7 @@ exe = EXE(
                 
                 line = line.strip()
                 if line:
+                    print(line)  # 直接打印到控制台
                     self.log_message(line)
                     
                     # 检查是否进入新阶段
@@ -253,7 +252,8 @@ exe = EXE(
                 if error:
                     error = error.strip()
                     if error:
-                        self.log_message(f"警告: {error}")
+                        print(f"错误: {error}")  # 直接打印到控制台
+                        self.log_message(f"错误: {error}")
                 
                 # 更新界面
                 self.root.update()
@@ -261,6 +261,8 @@ exe = EXE(
             # 检查进程返回值
             if process.returncode != 0:
                 error_output = process.stderr.read()
+                print("错误输出:")  # 直接打印到控制台
+                print(error_output)
                 self.log_message("错误输出:")
                 self.log_message(error_output)
                 raise Exception("PyInstaller打包失败")
@@ -494,14 +496,57 @@ exe = EXE(
             if os.path.exists(install_path):
                 self.update_progress(0, "正在删除已存在的安装目录...")
                 try:
-                    shutil.rmtree(install_path)
+                    # 首先尝试删除可能被占用的exe文件
+                    exe_path = os.path.join(install_path, self.main_exe)
+                    if os.path.exists(exe_path):
+                        try:
+                            os.chmod(exe_path, 0o777)  # 尝试修改文件权限
+                            os.remove(exe_path)
+                            self.log_message("已删除旧的exe文件")
+                        except Exception as e:
+                            self.log_message(f"警告: 无法删除exe文件，可能正在运行: {str(e)}")
+                            messagebox.showwarning("警告", 
+                                               "请关闭正在运行的AI审校助手程序后再继续安装。\n" +
+                                               "点击确定后重试...")
+                            # 等待一段时间后重试
+                            self.root.after(2000)
+                            try:
+                                os.remove(exe_path)
+                            except Exception as e2:
+                                raise Exception(f"无法删除程序文件，请手动关闭程序后重试: {str(e2)}")
+                    
+                    # 然后删除整个目录
+                    for root, dirs, files in os.walk(install_path, topdown=False):
+                        for name in files:
+                            try:
+                                file_path = os.path.join(root, name)
+                                os.chmod(file_path, 0o777)
+                                os.remove(file_path)
+                            except Exception as e:
+                                self.log_message(f"警告: 无法删除文件 {name}: {str(e)}")
+                        for name in dirs:
+                            try:
+                                dir_path = os.path.join(root, name)
+                                os.rmdir(dir_path)
+                            except Exception as e:
+                                self.log_message(f"警告: 无法删除目录 {name}: {str(e)}")
+                    
+                    # 最后删除根目录
+                    try:
+                        os.rmdir(install_path)
+                    except Exception as e:
+                        self.log_message(f"警告: 无法删除根目录: {str(e)}")
+                        # 如果目录非空，强制删除
+                        import shutil
+                        shutil.rmtree(install_path, ignore_errors=True)
+                    
                     self.log_message(f"已删除原有安装目录: {install_path}")
                 except Exception as e:
                     raise Exception(f"删除原有安装目录失败: {str(e)}")
             
             # 创建安装目录
             self.update_progress(5, "正在创建安装目录...")
-            os.makedirs(install_path)
+            os.makedirs(install_path, exist_ok=True)
             
             # 复制程序文件
             self.update_progress(10, "正在复制程序文件...")
@@ -528,6 +573,8 @@ exe = EXE(
             messagebox.showinfo("安装完成", 
                               f"AI审校助手已成功安装到：\n{self.install_path.get()}\n\n" +
                               "现在可以运行程序了！")
+            # 安装完成后自动退出
+            self.root.quit()
             
         except Exception as e:
             self.log_message(f"安装过程出错: {str(e)}")
