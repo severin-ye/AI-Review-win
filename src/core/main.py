@@ -7,6 +7,7 @@ import time
 import json
 import threading
 import queue
+import shutil
 
 # 从新的模块路径导入
 from src.security.key_generator_legacy import SECRET_KEY
@@ -144,20 +145,42 @@ class StartPage(tk.Frame):
                          style='Title.TLabel')
         title.pack(pady=50)
         
-        # 创建按钮容器
-        button_frame = tk.Frame(self, bg=controller.colors['background'])
-        button_frame.pack(expand=True)
+        # 创建主按钮容器
+        main_button_frame = tk.Frame(self, bg=controller.colors['background'])
+        main_button_frame.pack(expand=True)
         
-        # 创建按钮
-        buttons = [
-            ("开始处理", lambda: controller.show_frame(ProcessPage)),
+        # 创建左侧按钮容器
+        left_button_frame = tk.Frame(main_button_frame, bg=controller.colors['background'])
+        left_button_frame.pack(side=tk.LEFT, padx=20)
+        
+        # 创建右侧按钮容器
+        right_button_frame = tk.Frame(main_button_frame, bg=controller.colors['background'])
+        right_button_frame.pack(side=tk.LEFT, padx=20)
+        
+        # 左侧按钮（文件操作）
+        left_buttons = [
+            ("上传文件", self.upload_file),
             ("清理文件", self.clear_files),
+        ]
+        
+        # 右侧按钮（程序操作）
+        right_buttons = [
+            ("开始处理", lambda: controller.show_frame(ProcessPage)),
             ("配置设置", self.show_config_page),
             ("退出程序", self.quit_app)
         ]
         
-        for text, command in buttons:
-            btn = ttk.Button(button_frame,
+        # 创建左侧按钮
+        for text, command in left_buttons:
+            btn = ttk.Button(left_button_frame,
+                          text=text,
+                          style='Main.TButton',
+                          command=command)
+            btn.pack(pady=10)
+        
+        # 创建右侧按钮
+        for text, command in right_buttons:
+            btn = ttk.Button(right_button_frame,
                           text=text,
                           style='Main.TButton',
                           command=command)
@@ -166,6 +189,41 @@ class StartPage(tk.Frame):
         # 创建配置页面（初始隐藏）
         self.config_frame = tk.Frame(self)
         self.create_config_page()
+    
+    def upload_file(self):
+        """上传文件功能"""
+        from tkinter import filedialog
+        
+        # 打开文件选择对话框
+        files = filedialog.askopenfilenames(
+            title="选择要审校的文件",
+            filetypes=[
+                ("Word文档", "*.docx;*.doc"),
+                ("所有文件", "*.*")
+            ]
+        )
+        
+        if not files:
+            return
+            
+        # 确保目标目录存在
+        target_dir = os.path.join(os.getcwd(), "_1_原文件")
+        os.makedirs(target_dir, exist_ok=True)
+        
+        # 复制选中的文件到目标目录
+        success_count = 0
+        for file_path in files:
+            try:
+                file_name = os.path.basename(file_path)
+                target_path = os.path.join(target_dir, file_name)
+                shutil.copy2(file_path, target_path)
+                success_count += 1
+            except Exception as e:
+                messagebox.showerror("错误", f"复制文件 {file_name} 时出错：{str(e)}")
+        
+        # 显示成功消息
+        if success_count > 0:
+            messagebox.showinfo("上传成功", f"成功上传 {success_count} 个文件到处理目录！")
     
     def show_config_page(self):
         """显示配置页面"""
@@ -224,6 +282,24 @@ class StartPage(tk.Frame):
                     option_menu = ttk.OptionMenu(frame, self.config_vars[key], options[0], *options)
                     option_menu.config(width=config_manager.option_menu_width)
                     option_menu.pack(side="left", fill="x", expand=True)
+                elif key == "output_dir":
+                    # 创建输出目录选择框架
+                    dir_frame = tk.Frame(frame, bg=self.master.master.colors['background'])
+                    dir_frame.pack(side="left", fill="x", expand=True)
+                    
+                    # 创建输入框
+                    entry = ttk.Entry(dir_frame,
+                                    textvariable=self.config_vars[key],
+                                    width=config_manager.entry_width - 10,  # 减小宽度以适应按钮
+                                    font=self.master.master.default_font)
+                    entry.pack(side="left", fill="x", expand=True)
+                    
+                    # 创建浏览按钮
+                    browse_btn = ttk.Button(dir_frame,
+                                          text="浏览",
+                                          command=lambda: self.browse_output_dir(key),
+                                          width=8)
+                    browse_btn.pack(side="left", padx=5)
                 else:
                     entry = ttk.Entry(frame,
                                     textvariable=self.config_vars[key],
@@ -273,34 +349,56 @@ class StartPage(tk.Frame):
         # 隐藏配置页面
         self.config_frame.pack_forget()
         
-        # 重新显示主页面组件
-        title = tk.Label(self, text="AI审校助手", font=("Helvetica", 24))
+        # 创建标题
+        title = ttk.Label(self, 
+                         text="AI审校助手",
+                         style='Title.TLabel')
         title.pack(pady=50)
         
-        process_button = tk.Button(self, text="开始处理",
-                                 command=lambda: self.master.master.show_frame(ProcessPage),
-                                 width=20, height=2)
-        process_button.pack(pady=10)
+        # 创建主按钮容器
+        main_button_frame = tk.Frame(self, bg=self.master.master.colors['background'])
+        main_button_frame.pack(expand=True)
         
-        clear_button = tk.Button(self, text="清理文件",
-                               command=self.clear_files,
-                               width=20, height=2)
-        clear_button.pack(pady=10)
+        # 创建左侧按钮容器
+        left_button_frame = tk.Frame(main_button_frame, bg=self.master.master.colors['background'])
+        left_button_frame.pack(side=tk.LEFT, padx=20)
         
-        config_button = tk.Button(self, text="配置设置",
-                                command=self.show_config_page,
-                                width=20, height=2)
-        config_button.pack(pady=10)
+        # 创建右侧按钮容器
+        right_button_frame = tk.Frame(main_button_frame, bg=self.master.master.colors['background'])
+        right_button_frame.pack(side=tk.LEFT, padx=20)
         
-        exit_button = tk.Button(self, text="退出程序",
-                              command=self.quit_app,
-                              width=20, height=2)
-        exit_button.pack(pady=10)
+        # 左侧按钮（文件操作）
+        left_buttons = [
+            ("上传文件", self.upload_file),
+            ("清理文件", self.clear_files),
+        ]
+        
+        # 右侧按钮（程序操作）
+        right_buttons = [
+            ("开始处理", lambda: self.master.master.show_frame(ProcessPage)),
+            ("配置设置", self.show_config_page),
+            ("退出程序", self.quit_app)
+        ]
+        
+        # 创建左侧按钮
+        for text, command in left_buttons:
+            btn = ttk.Button(left_button_frame,
+                          text=text,
+                          style='Main.TButton',
+                          command=command)
+            btn.pack(pady=10)
+        
+        # 创建右侧按钮
+        for text, command in right_buttons:
+            btn = ttk.Button(right_button_frame,
+                          text=text,
+                          style='Main.TButton',
+                          command=command)
+            btn.pack(pady=10)
     
     def save_config(self):
-        """保存配置并返回主页面"""
-        if self.config_manager.save_config():
-            self.show_main_page()
+        """保存配置"""
+        self.config_manager.save_config()
     
     def clear_files(self):
         """运行清理文件脚本"""
@@ -327,6 +425,25 @@ class StartPage(tk.Frame):
         """退出应用程序"""
         if messagebox.askokcancel("退出", "确定要退出程序吗？"):
             self.quit()
+
+    def browse_output_dir(self, key):
+        """浏览并选择输出目录"""
+        from tkinter import filedialog
+        
+        # 获取当前目录
+        current_dir = self.config_vars[key].get()
+        if not current_dir or not os.path.exists(current_dir):
+            current_dir = os.getcwd()
+        
+        # 打开目录选择对话框
+        selected_dir = filedialog.askdirectory(
+            title="选择输出目录",
+            initialdir=current_dir
+        )
+        
+        # 如果选择了目录，更新配置
+        if selected_dir:
+            self.config_vars[key].set(selected_dir)
 
 class ProcessPage(tk.Frame):
     def __init__(self, parent, controller):

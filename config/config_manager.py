@@ -22,7 +22,8 @@ label_names = {
     "tyqw_api_key": "通义千问 API Key",
     "module_type": "Module Type",
     "prompt": "Prompt",
-    "has_review_table": "有无审校表格"
+    "has_review_table": "有无审校表格",
+    "output_dir": "输出目录"
 }
 
 class ConfigManager:
@@ -37,6 +38,7 @@ class ConfigManager:
         self.prompt_text_width = prompt_text_width
         self.button_pad_y = button_pad_y
         self.option_menu_width = option_menu_width
+        self.default_output_dir = os.path.join(os.getcwd(), "_2_审校后")
     
     def set_widgets(self, config_vars, prompt_text=None):
         """设置配置变量和prompt文本框"""
@@ -87,6 +89,7 @@ class ConfigManager:
             # 加载其他配置
             self.config_vars['module_type'].set(config_data.get('module_type', 'gpt-4o'))
             self.config_vars['has_review_table'].set('Y' if config_data.get('has_review_table', True) else 'N')
+            self.config_vars['output_dir'].set(config_data.get('output_dir', self.default_output_dir))
             
             # 加载 prompt
             if self.prompt_text:
@@ -101,6 +104,7 @@ class ConfigManager:
             self.config_vars['tyqw_api_key'].set('')
             self.config_vars['module_type'].set('gpt-4o')
             self.config_vars['has_review_table'].set('Y')
+            self.config_vars['output_dir'].set(self.default_output_dir)
             if self.prompt_text:
                 self.prompt_text.delete('1.0', tk.END)
                 self.prompt_text.insert('1.0', '你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。')
@@ -142,6 +146,7 @@ class ConfigManager:
                 },
                 "module_type": self.config_vars["module_type"].get(),
                 "has_review_table": self.config_vars["has_review_table"].get() == 'Y',
+                "output_dir": self.config_vars["output_dir"].get(),
                 "prompt": prompt_content
             }
             
@@ -184,6 +189,7 @@ def get_config_file_path():
             },
             "module_type": "gpt-4o",
             "has_review_table": True,
+            "output_dir": os.path.join(os.getcwd(), "_2_审校后"),
             "prompt": "你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。"
         }
         
@@ -269,7 +275,7 @@ if __name__ == "__main__":
                 option_menu = ttk.OptionMenu(frame, config_vars[key], options[0], *options)
                 option_menu.config(width=option_menu_width)
                 option_menu.pack(side=tk.LEFT, fill=tk.X, expand=True)
-            else:
+            elif key == "output_dir":
                 entry = ttk.Entry(frame,
                                 textvariable=config_vars[key],
                                 width=entry_width,
