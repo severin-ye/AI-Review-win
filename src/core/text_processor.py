@@ -266,7 +266,7 @@ def revision_use():
 
     # 导入主题管理器
     try:
-        from src.utils.theme_manager import theme_manager
+        from src.styles.theme_manager import theme_manager
     except ImportError:
         # 如果无法导入，创建一个简化版的主题管理器
         class SimpleThemeManager:
@@ -326,7 +326,7 @@ def revision_use():
                         sys.path.insert(0, project_root)
                     
                     # 导入主题管理器
-                    from src.utils.theme_manager import ThemeManager
+                    from src.styles.theme_manager import ThemeManager
                     
                     # 创建临时主题管理器实例并应用按钮样式
                     temp_theme_manager = ThemeManager()

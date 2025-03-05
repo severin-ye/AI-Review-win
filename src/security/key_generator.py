@@ -5,7 +5,7 @@ import pyperclip  # 用于复制到剪贴板
 import secrets
 import string
 import hashlib
-from src.utils.theme_manager import theme_manager
+from src.styles.theme_manager import theme_manager
 
 def copy_to_clipboard(text):
     pyperclip.copy(text)

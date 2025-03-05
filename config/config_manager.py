@@ -4,7 +4,7 @@ import os
 import importlib.util
 import sys
 import json
-from src.utils.theme_manager import theme_manager
+from src.styles.theme_manager import theme_manager
 
 # 模块列表
 module_list = ['gpt-4o', 'gpt-4o-mini', '通义千问']

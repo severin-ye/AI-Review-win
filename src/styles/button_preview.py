@@ -10,7 +10,7 @@ sys.path.insert(0, project_root)
 
 # 导入主题管理器
 try:
-    from src.utils.theme_manager import theme_manager
+    from src.styles.theme_manager import theme_manager
 except ImportError:
     print("无法导入主题管理器，请确保项目结构正确")
     sys.exit(1)

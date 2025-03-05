@@ -15,7 +15,7 @@ from src.security import key_verifier
 from src.utils import cleanup_utils
 from src.core import ai_review, text_processor
 from config.config_manager import ConfigManager
-from src.utils.theme_manager import theme_manager
+from src.styles.theme_manager import theme_manager
 
 # 创建配置管理器实例
 config_manager = ConfigManager()
