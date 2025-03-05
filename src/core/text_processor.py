@@ -264,32 +264,73 @@ def revision_use():
     root = tk.Tk()
     root.withdraw()  # 隐藏主窗口
 
-    # 定义颜色方案
-    COLORS = {
-        'primary': '#2196F3',  # 主色调
-        'secondary': '#FFC107',  # 次要色调
-        'background': '#F5F5F5',  # 背景色
-        'text': '#333333',  # 文本色
-        'button': '#1976D2',  # 按钮色
-        'button_hover': '#1565C0',  # 按钮悬停色
-        'border': '#E0E0E0'  # 边框色
-    }
+    # 导入主题管理器
+    try:
+        from src.utils.theme_manager import theme_manager
+    except ImportError:
+        # 如果无法导入，创建一个简化版的主题管理器
+        class SimpleThemeManager:
+            def __init__(self):
+                self.theme = {
+                    'colors': {
+                        'primary': '#2196F3',      # 主色调 - 蓝色
+                        'secondary': '#FFC107',    # 次要色调 - 琥珀色
+                        'background': '#F5F5F5',   # 背景色 - 浅灰
+                        'text': '#333333',         # 文本色 - 深灰
+                        'button': '#1976D2',       # 按钮色 - 深蓝
+                        'button_hover': '#1565C0', # 按钮悬停色
+                        'border': '#E0E0E0',       # 边框色 - 灰色
+                    },
+                    'fonts': {
+                        'default': ('Microsoft YaHei UI', 10),
+                        'title': ('Microsoft YaHei UI', 24, 'bold'),
+                        'subtitle': ('Microsoft YaHei UI', 18, 'bold'),
+                        'small': ('Microsoft YaHei UI', 9),
+                        'button': ('Microsoft YaHei UI', 10),
+                        'input': ('Microsoft YaHei UI', 10)
+                    },
+                    'padding': {
+                        'button': (20, 10),
+                        'frame': 20,
+                        'input': 5
+                    }
+                }
+            
+            def get_color(self, color_name):
+                return self.theme['colors'].get(color_name, self.theme['colors']['primary'])
+            
+            def get_font(self, font_name):
+                return self.theme['fonts'].get(font_name, self.theme['fonts']['default'])
+            
+            def get_padding(self, padding_name):
+                return self.theme['padding'].get(padding_name, self.theme['padding']['frame'])
+            
+            def apply_theme(self, root):
+                # 设置窗口背景色
+                root.configure(bg=self.get_color('background'))
+                
+                # 配置全局样式
+                style = ttk.Style()
+                
+                # 配置按钮样式
+                style.configure('Custom.TButton',
+                               font=self.get_font('button'),
+                               padding=self.get_padding('button'))
+                
+                # 配置单选按钮样式
+                style.configure('Custom.TRadiobutton',
+                               font=self.get_font('default'),
+                               background=self.get_color('background'))
+        
+        theme_manager = SimpleThemeManager()
 
     def create_custom_style():
-        style = ttk.Style()
-        style.configure('Custom.TButton',
-                       background=COLORS['button'],
-                       foreground='white',
-                       padding=(10, 5),
-                       font=('Microsoft YaHei UI', 10))
-        style.map('Custom.TButton',
-                 background=[('active', COLORS['button_hover'])])
+        # 应用主题
+        theme_manager.apply_theme(root)
         
-        style.configure('Custom.TRadiobutton',
-                       background=COLORS['background'],
-                       foreground=COLORS['text'],
-                       font=('Microsoft YaHei UI', 10))
-
+    # 创建自定义样式
+    create_custom_style()
+    
     for file_path in find_reviewed_md_files_recursive(r'.\hide_file\中间文件'):
         file_name = os.path.basename(file_path)
         file_name_original = file_name.replace("_审校后_.md", "")
@@ -302,38 +343,38 @@ def revision_use():
         dialog = tk.Toplevel()
         dialog.title("文本审校系统")
         dialog.geometry("1000x700")
-        dialog.configure(bg=COLORS['background'])
+        dialog.configure(bg=theme_manager.get_color('background'))
 
         # 应用自定义样式
         create_custom_style()
         
         # 创建主框架
-        main_frame = tk.Frame(dialog, bg=COLORS['background'])
+        main_frame = tk.Frame(dialog, bg=theme_manager.get_color('background'))
         main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
         # 创建标题
-        title_frame = tk.Frame(main_frame, bg=COLORS['background'])
+        title_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
         title_frame.pack(fill=tk.X, pady=(0, 20))
         
         title_label = tk.Label(title_frame, 
                              text="文本审校系统",
-                             font=('Microsoft YaHei UI', 16, 'bold'),
-                             bg=COLORS['background'],
-                             fg=COLORS['primary'])
+                             font=theme_manager.get_font('title'),
+                             bg=theme_manager.get_color('background'),
+                             fg=theme_manager.get_color('primary'))
         title_label.pack()
 
         # 左侧文本显示区域
-        left_frame = tk.Frame(main_frame, bg=COLORS['background'])
+        left_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # 创建带有自定义样式的文本显示区域
         text_display = tk.Text(left_frame,
                              height=20,
                              width=80,
-                             font=('Microsoft YaHei UI', 11),
+                             font=theme_manager.get_font('default'),
                              wrap=tk.WORD,
                              bg='white',
-                             fg=COLORS['text'],
+                             fg=theme_manager.get_color('text'),
                              padx=10,
                              pady=10,
                              relief=tk.FLAT)
@@ -345,7 +386,7 @@ def revision_use():
         text_display.configure(yscrollcommand=scrollbar.set)
 
         # 右侧控制面板
-        right_frame = tk.Frame(main_frame, bg=COLORS['background'])
+        right_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
         right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(20, 0))
 
         # 选项变量
@@ -368,7 +409,7 @@ def revision_use():
             dialog_done.set(True)
 
         # 选项框架
-        options_frame = tk.Frame(right_frame, bg=COLORS['background'])
+        options_frame = tk.Frame(right_frame, bg=theme_manager.get_color('background'))
         options_frame.pack(fill=tk.X, pady=20)
 
         # 使用自定义样式的单选按钮
@@ -387,7 +428,7 @@ def revision_use():
                        style='Custom.TRadiobutton').pack(pady=10, anchor='w')
 
         # 自定义输入区域
-        custom_frame = tk.Frame(options_frame, bg=COLORS['background'])
+        custom_frame = tk.Frame(options_frame, bg=theme_manager.get_color('background'))
         custom_frame.pack(fill=tk.X, pady=10)
 
         ttk.Radiobutton(custom_frame,
@@ -400,7 +441,7 @@ def revision_use():
         self_define_entry = tk.Entry(custom_frame,
                                    textvariable=self_define_text,
                                    width=30,
-                                   font=('Microsoft YaHei UI', 10),
+                                   font=theme_manager.get_font('input'),
                                    state='disabled',
                                    relief=tk.FLAT,
                                    bg='white')

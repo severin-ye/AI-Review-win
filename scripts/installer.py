@@ -10,6 +10,96 @@ import traceback
 import logging
 from pathlib import Path
 from datetime import datetime
+import time
+import threading
+import tempfile
+import zipfile
+import requests
+import io
+import re
+import platform
+import ctypes
+from PIL import Image, ImageDraw
+
+# 添加项目根目录到系统路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
+
+# 导入主题管理器
+try:
+    from src.utils.theme_manager import theme_manager
+except ImportError:
+    # 如果无法导入，创建一个简化版的主题管理器
+    class SimpleThemeManager:
+        def __init__(self):
+            self.theme = {
+                'colors': {
+                    'primary': '#2196F3',      # 主色调 - 蓝色
+                    'secondary': '#FFC107',    # 次要色调 - 琥珀色
+                    'background': '#F5F5F5',   # 背景色 - 浅灰
+                    'text': '#333333',         # 文本色 - 深灰
+                    'button': '#1976D2',       # 按钮色 - 深蓝
+                    'button_hover': '#1565C0', # 按钮悬停色
+                    'border': '#E0E0E0',       # 边框色 - 灰色
+                    'success': '#4CAF50',      # 成功色 - 绿色
+                    'warning': '#FF9800',      # 警告色 - 橙色
+                    'error': '#F44336',        # 错误色 - 红色
+                    'info': '#2196F3'          # 信息色 - 蓝色
+                },
+                'fonts': {
+                    'default': ('Microsoft YaHei UI', 10),
+                    'title': ('Microsoft YaHei UI', 16, 'bold'),
+                    'subtitle': ('Microsoft YaHei UI', 14, 'bold'),
+                    'small': ('Microsoft YaHei UI', 9),
+                    'button': ('Microsoft YaHei UI', 10),
+                    'input': ('Microsoft YaHei UI', 10)
+                },
+                'padding': {
+                    'button': (20, 10),
+                    'frame': 20,
+                    'input': 5
+                }
+            }
+        
+        def get_color(self, color_name):
+            return self.theme['colors'].get(color_name, self.theme['colors']['primary'])
+        
+        def get_font(self, font_name):
+            return self.theme['fonts'].get(font_name, self.theme['fonts']['default'])
+        
+        def get_padding(self, padding_name):
+            return self.theme['padding'].get(padding_name, self.theme['padding']['frame'])
+        
+        def apply_theme(self, root):
+            # 设置窗口背景色
+            root.configure(bg=self.get_color('background'))
+            
+            # 配置全局样式
+            style = ttk.Style()
+            
+            # 配置按钮样式
+            style.configure('TButton',
+                           font=self.get_font('button'),
+                           padding=self.get_padding('button'))
+            
+            # 配置标题样式
+            style.configure('Title.TLabel',
+                           font=self.get_font('title'),
+                           background=self.get_color('background'),
+                           foreground=self.get_color('primary'))
+            
+            # 配置信息标签样式
+            style.configure('Info.TLabel',
+                           font=self.get_font('default'),
+                           background=self.get_color('background'),
+                           foreground=self.get_color('text'))
+            
+            # 配置进度条样式
+            style.configure('Horizontal.TProgressbar',
+                           thickness=15)
+    
+    theme_manager = SimpleThemeManager()
 
 '''
 AI审校助手安装程序
@@ -153,14 +243,11 @@ class InstallerGUI:
         y = (screen_height - window_height) // 2
         self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
         
-        # 设置样式
-        self.style = ttk.Style()
-        self.style.configure('Title.TLabel', font=('Microsoft YaHei UI', 16, 'bold'))
-        self.style.configure('Info.TLabel', font=('Microsoft YaHei UI', 10))
-        self.style.configure('Progress.Horizontal.TProgressbar', thickness=15)
+        # 应用主题
+        theme_manager.apply_theme(self.root)
         
         # 创建主框架
-        self.main_frame = ttk.Frame(self.root, padding="20")
+        self.main_frame = ttk.Frame(self.root, padding=theme_manager.get_padding('frame'))
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         
         # 标题
@@ -199,7 +286,7 @@ class InstallerGUI:
         self.detail_text = scrolledtext.ScrolledText(self.main_frame, 
                                                    height=8,
                                                    width=60,
-                                                   font=('Microsoft YaHei UI', 9))
+                                                   font=theme_manager.get_font('small'))
         self.detail_text.pack(pady=10)
         
         # 进度条
@@ -207,7 +294,7 @@ class InstallerGUI:
         self.progress_bar = ttk.Progressbar(self.main_frame,
                                           variable=self.progress_var,
                                           maximum=100,
-                                          style='Progress.Horizontal.TProgressbar',
+                                          style='Horizontal.TProgressbar',
                                           length=500)
         self.progress_bar.pack(pady=20)
         

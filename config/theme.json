@@ -1,0 +1,30 @@
+{
+    "colors": {
+        "primary": "#2196F3",
+        "secondary": "#FFC107",
+        "background": "#F5F5F5",
+        "text": "#333333",
+        "button": "#1976D2",
+        "button_hover": "#1565C0",
+        "border": "#E0E0E0",
+        "success": "#4CAF50",
+        "warning": "#FF9800",
+        "error": "#F44336",
+        "info": "#2196F3"
+    },
+    "fonts": {
+        "default": ["Microsoft YaHei UI", 10],
+        "title": ["Microsoft YaHei UI", 24, "bold"],
+        "subtitle": ["Microsoft YaHei UI", 18, "bold"],
+        "small": ["Microsoft YaHei UI", 9],
+        "button": ["Microsoft YaHei UI", 10],
+        "input": ["Microsoft YaHei UI", 10]
+    },
+    "padding": {
+        "button": [20, 10],
+        "frame": 20,
+        "input": 5
+    },
+    "border_radius": 4,
+    "animation_duration": 200
+} 

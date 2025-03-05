@@ -4,6 +4,7 @@ import os
 import importlib.util
 import sys
 import json
+from src.utils.theme_manager import theme_manager
 
 # 模块列表
 module_list = ['gpt-4o', 'gpt-4o-mini', '通义千问']
@@ -207,54 +208,34 @@ if __name__ == "__main__":
     root.title("配置编辑器")
     root.geometry("800x600")
     
-    # 定义颜色主题
-    COLORS = {
-        'primary': '#2196F3',    # 主色调 - 蓝色
-        'secondary': '#FFC107',  # 次要色调 - 琥珀色
-        'background': '#F5F5F5', # 背景色 - 浅灰
-        'text': '#333333',       # 文本色 - 深灰
-        'button': '#1976D2',     # 按钮色 - 深蓝
-        'button_hover': '#1565C0', # 按钮悬停色
-        'border': '#E0E0E0'      # 边框色 - 灰色
-    }
+    # 应用主题
+    theme_manager.apply_theme(root)
     
     # 设置窗口背景色
-    root.configure(bg=COLORS['background'])
+    root.configure(bg=theme_manager.get_color('background'))
     
     # 创建主框架
-    main_frame = tk.Frame(root, bg=COLORS['background'])
-    main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+    main_frame = tk.Frame(root, bg=theme_manager.get_color('background'))
+    main_frame.pack(fill=tk.BOTH, expand=True, padx=theme_manager.get_padding('frame'), pady=theme_manager.get_padding('frame'))
     
     # 创建标题
     title = ttk.Label(main_frame,
                      text="配置编辑器",
-                     font=('Microsoft YaHei UI', 24, 'bold'),
-                     background=COLORS['background'],
-                     foreground=COLORS['primary'])
+                     style='Title.TLabel')
     title.pack(pady=20)
-    
-    # 配置全局样式
-    style = ttk.Style()
-    style.configure('Config.TLabel',
-                   font=('Microsoft YaHei UI', 10),
-                   background=COLORS['background'])
-    
-    style.configure('Config.TButton',
-                   font=('Microsoft YaHei UI', 10),
-                   padding=(20, 10))
     
     # 配置项定义
     config_keys = list(label_names.keys())
     config_vars = {key: tk.StringVar() for key in config_keys}
     
     # 创建配置项框架
-    config_frame = tk.Frame(main_frame, bg=COLORS['background'])
+    config_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
     config_frame.pack(fill=tk.X, pady=10)
     
     # 配置项输入界面
     for i, key in enumerate(config_keys):
         if key != "prompt":
-            frame = tk.Frame(config_frame, bg=COLORS['background'])
+            frame = tk.Frame(config_frame, bg=theme_manager.get_color('background'))
             frame.pack(fill=tk.X, pady=5)
             
             label = ttk.Label(frame,
@@ -283,7 +264,7 @@ if __name__ == "__main__":
                 entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
     
     # Prompt 输入区域
-    prompt_frame = tk.Frame(main_frame, bg=COLORS['background'])
+    prompt_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
     prompt_frame.pack(fill=tk.BOTH, expand=True, pady=10)
     
     prompt_label = ttk.Label(prompt_frame,
@@ -301,7 +282,7 @@ if __name__ == "__main__":
     prompt_text.pack(fill=tk.BOTH, expand=True, pady=5)
     
     # 按钮区域
-    button_frame = tk.Frame(main_frame, bg=COLORS['background'])
+    button_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
     button_frame.pack(pady=20)
     
     save_button = ttk.Button(

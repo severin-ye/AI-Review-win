@@ -15,6 +15,7 @@ from src.security import key_verifier
 from src.utils import cleanup_utils
 from src.core import ai_review, text_processor
 from config.config_manager import ConfigManager
+from src.utils.theme_manager import theme_manager
 
 # 创建配置管理器实例
 config_manager = ConfigManager()
@@ -22,7 +23,7 @@ config_manager = ConfigManager()
 class KeyVerifyPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.configure(bg=controller.colors['background'])
+        self.configure(bg=theme_manager.get_color('background'))
         
         # 创建标题
         title = ttk.Label(self, 
@@ -31,13 +32,13 @@ class KeyVerifyPage(tk.Frame):
         title.pack(pady=50)
         
         # 创建输入框容器
-        entry_frame = tk.Frame(self, bg=controller.colors['background'])
+        entry_frame = tk.Frame(self, bg=theme_manager.get_color('background'))
         entry_frame.pack(pady=20)
         
         # 创建输入框
         self.key_entry = ttk.Entry(entry_frame, 
                                  width=40,
-                                 font=controller.default_font)
+                                 font=theme_manager.get_font('input'))
         self.key_entry.pack(pady=10)
         
         # 创建验证按钮
@@ -79,37 +80,16 @@ class MainApp(tk.Tk):
         # 设置全屏显示
         self.state('zoomed')
         
-        # 定义全局颜色主题
-        self.colors = {
-            'primary': '#2196F3',    # 主色调 - 蓝色
-            'secondary': '#FFC107',  # 次要色调 - 琥珀色
-            'background': '#F5F5F5', # 背景色 - 浅灰
-            'text': '#333333',       # 文本色 - 深灰
-            'button': '#1976D2',     # 按钮色 - 深蓝
-            'button_hover': '#1565C0', # 按钮悬停色
-            'border': '#E0E0E0'      # 边框色 - 灰色
-        }
+        # 应用主题
+        theme_manager.apply_theme(self)
         
-        # 设置全局字体
-        self.default_font = ('Microsoft YaHei UI', 10)
-        self.title_font = ('Microsoft YaHei UI', 24, 'bold')
-        
-        # 配置全局样式
-        self.style = ttk.Style()
-        self.style.configure('Main.TButton',
-                           font=self.default_font,
-                           padding=(20, 10))
-        
-        self.style.configure('Title.TLabel',
-                           font=self.title_font,
-                           background=self.colors['background'],
-                           foreground=self.colors['primary'])
-        
-        # 设置窗口背景色
-        self.configure(bg=self.colors['background'])
+        # 存储主题颜色和字体，方便访问
+        self.colors = theme_manager.theme['colors']
+        self.default_font = theme_manager.get_font('default')
+        self.title_font = theme_manager.get_font('title')
         
         # 创建一个容器来存放所有页面
-        container = tk.Frame(self, bg=self.colors['background'])
+        container = tk.Frame(self, bg=theme_manager.get_color('background'))
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
@@ -134,7 +114,7 @@ class MainApp(tk.Tk):
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.configure(bg=controller.colors['background'])
+        self.configure(bg=theme_manager.get_color('background'))
         
         # 创建配置管理器实例
         self.config_manager = config_manager
@@ -146,15 +126,15 @@ class StartPage(tk.Frame):
         title.pack(pady=50)
         
         # 创建主按钮容器
-        main_button_frame = tk.Frame(self, bg=controller.colors['background'])
+        main_button_frame = tk.Frame(self, bg=theme_manager.get_color('background'))
         main_button_frame.pack(expand=True)
         
         # 创建左侧按钮容器
-        left_button_frame = tk.Frame(main_button_frame, bg=controller.colors['background'])
+        left_button_frame = tk.Frame(main_button_frame, bg=theme_manager.get_color('background'))
         left_button_frame.pack(side=tk.LEFT, padx=20)
         
         # 创建右侧按钮容器
-        right_button_frame = tk.Frame(main_button_frame, bg=controller.colors['background'])
+        right_button_frame = tk.Frame(main_button_frame, bg=theme_manager.get_color('background'))
         right_button_frame.pack(side=tk.LEFT, padx=20)
         
         # 左侧按钮（文件操作）
@@ -448,7 +428,7 @@ class StartPage(tk.Frame):
 class ProcessPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.configure(bg=controller.colors['background'])
+        self.configure(bg=theme_manager.get_color('background'))
         
         # 创建消息队列用于线程间通信
         self.progress_queue = queue.Queue()
@@ -460,7 +440,7 @@ class ProcessPage(tk.Frame):
         title.pack(pady=50)
         
         # 创建按钮容器
-        button_frame = tk.Frame(self, bg=controller.colors['background'])
+        button_frame = tk.Frame(self, bg=theme_manager.get_color('background'))
         button_frame.pack(expand=True)
         
         # 创建按钮
@@ -491,28 +471,25 @@ class ProcessPage(tk.Frame):
             self.root.geometry(f"500x300+{x}+{y}")
             
             # 设置窗口样式
-            self.root.configure(bg='#F5F5F5')
+            self.root.configure(bg=theme_manager.get_color('background'))
             
             # 创建主框架
-            main_frame = tk.Frame(self.root, bg='#F5F5F5')
-            main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+            main_frame = tk.Frame(self.root, bg=theme_manager.get_color('background'))
+            main_frame.pack(fill=tk.BOTH, expand=True, padx=theme_manager.get_padding('frame'), pady=theme_manager.get_padding('frame'))
             
             # 创建标题
             title = ttk.Label(main_frame,
                             text="处理进度",
-                            font=('Microsoft YaHei UI', 18, 'bold'),
-                            background='#F5F5F5',
-                            foreground='#2196F3')
+                            style='Subtitle.TLabel')
             title.pack(pady=(0, 20))
             
             # 创建文件总进度条框架
-            total_frame = tk.Frame(main_frame, bg='#F5F5F5')
+            total_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
             total_frame.pack(fill=tk.X, pady=10)
             
             self.file_progress_label = ttk.Label(total_frame,
                                                text="总体进度:",
-                                               font=('Microsoft YaHei UI', 10),
-                                               background='#F5F5F5')
+                                               style='TLabel')
             self.file_progress_label.pack(anchor='w')
             
             self.file_progress_var = tk.DoubleVar()
@@ -526,13 +503,12 @@ class ProcessPage(tk.Frame):
             self.file_progress_bar.pack(pady=5)
             
             # 创建当前文件进度条框架
-            current_frame = tk.Frame(main_frame, bg='#F5F5F5')
+            current_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
             current_frame.pack(fill=tk.X, pady=10)
             
             self.current_progress_label = ttk.Label(current_frame,
                                                   text="当前文件进度:",
-                                                  font=('Microsoft YaHei UI', 10),
-                                                  background='#F5F5F5')
+                                                  style='TLabel')
             self.current_progress_label.pack(anchor='w')
             
             self.current_progress_var = tk.DoubleVar()
@@ -546,7 +522,7 @@ class ProcessPage(tk.Frame):
             self.current_progress_bar.pack(pady=5)
             
             # 创建信息显示框架
-            info_frame = tk.Frame(main_frame, bg='#F5F5F5')
+            info_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
             info_frame.pack(fill=tk.X, pady=10)
             
             # 创建标签显示当前处理的文件
@@ -554,7 +530,7 @@ class ProcessPage(tk.Frame):
             self.label = ttk.Label(info_frame,
                                 textvariable=self.label_var,
                                 font=('Microsoft YaHei UI', 10),
-                                background='#F5F5F5')
+                                background=theme_manager.get_color('background'))
             self.label.pack(pady=5)
             
             # 创建百分比标签
@@ -562,7 +538,7 @@ class ProcessPage(tk.Frame):
             self.percent_label = ttk.Label(info_frame,
                                         textvariable=self.percent_var,
                                         font=('Microsoft YaHei UI', 10),
-                                        background='#F5F5F5')
+                                        background=theme_manager.get_color('background'))
             self.percent_label.pack(pady=5)
             
             # 设置窗口置顶
