@@ -85,10 +85,8 @@ class ThemeManager:
         # 配置全局样式
         style = ttk.Style()
         
-        # 配置按钮样式
-        style.configure('Main.TButton',
-                       font=self.theme['fonts']['button'],
-                       padding=self.theme['padding']['button'])
+        # 应用按钮样式
+        self.apply_button_styles(style)
         
         # 配置标题样式
         style.configure('Title.TLabel',
@@ -157,6 +155,168 @@ class ThemeManager:
                        font=self.theme['fonts']['default'],
                        background=self.theme['colors']['background'],
                        foreground=self.theme['colors']['success'])
+    
+    def apply_button_styles(self, style):
+        """应用所有按钮样式 - 集中定义所有按钮样式，供其他模块调用"""
+        # 配置按钮样式 - 美化版本
+        style.configure('Main.TButton',
+                       font=self.theme['fonts']['button'],
+                       padding=self.theme['padding']['button'],
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['primary'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['primary'],
+                       highlightcolor=self.theme['colors']['primary'])
+        
+        # 配置按钮悬停和按下状态
+        style.map('Main.TButton',
+                 background=[('active', '#E3F2FD'),
+                            ('pressed', '#E3F2FD')],
+                 foreground=[('active', self.theme['colors']['button_hover']),
+                            ('pressed', self.theme['colors']['button_hover'])],
+                 relief=[('pressed', 'sunken')])
+        
+        # 配置次要按钮样式
+        style.configure('Secondary.TButton',
+                       font=self.theme['fonts']['button'],
+                       padding=self.theme['padding']['button'],
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['secondary'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['secondary'],
+                       highlightcolor=self.theme['colors']['secondary'])
+        
+        # 配置次要按钮悬停和按下状态
+        style.map('Secondary.TButton',
+                 background=[('active', '#FFF8E1'),
+                            ('pressed', '#FFF8E1')],
+                 foreground=[('active', '#E6A800'),
+                            ('pressed', '#E6A800')],
+                 relief=[('pressed', 'sunken')])
+        
+        # 配置危险按钮样式（如删除、退出等）
+        style.configure('Danger.TButton',
+                       font=self.theme['fonts']['button'],
+                       padding=self.theme['padding']['button'],
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['error'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['error'],
+                       highlightcolor=self.theme['colors']['error'])
+        
+        # 配置危险按钮悬停和按下状态
+        style.map('Danger.TButton',
+                 background=[('active', '#FFEBEE'),
+                            ('pressed', '#FFEBEE')],
+                 foreground=[('active', '#D32F2F'),
+                            ('pressed', '#D32F2F')],
+                 relief=[('pressed', 'sunken')])
+        
+        # 配置成功按钮样式（如确认、保存等）
+        style.configure('Success.TButton',
+                       font=self.theme['fonts']['button'],
+                       padding=self.theme['padding']['button'],
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['success'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['success'],
+                       highlightcolor=self.theme['colors']['success'])
+        
+        # 配置成功按钮悬停和按下状态
+        style.map('Success.TButton',
+                 background=[('active', '#E8F5E9'),
+                            ('pressed', '#E8F5E9')],
+                 foreground=[('active', '#388E3C'),
+                            ('pressed', '#388E3C')],
+                 relief=[('pressed', 'sunken')])
+        
+        # 配置小型按钮样式
+        style.configure('Small.TButton',
+                       font=self.theme['fonts']['small'],
+                       padding=(10, 5),
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['primary'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['primary'],
+                       highlightcolor=self.theme['colors']['primary'])
+        
+        # 配置小型按钮悬停和按下状态
+        style.map('Small.TButton',
+                 background=[('active', '#E3F2FD'),
+                            ('pressed', '#E3F2FD')],
+                 foreground=[('active', self.theme['colors']['button_hover']),
+                            ('pressed', self.theme['colors']['button_hover'])],
+                 relief=[('pressed', 'sunken')])
+                 
+        # 配置默认按钮样式 (TButton) - 与Main.TButton相同
+        style.configure('TButton',
+                       font=self.theme['fonts']['button'],
+                       padding=self.theme['padding']['button'],
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['primary'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['primary'],
+                       highlightcolor=self.theme['colors']['primary'])
+        
+        # 配置默认按钮悬停和按下状态
+        style.map('TButton',
+                 background=[('active', '#E3F2FD'),
+                            ('pressed', '#E3F2FD')],
+                 foreground=[('active', self.theme['colors']['button_hover']),
+                            ('pressed', self.theme['colors']['button_hover'])],
+                 relief=[('pressed', 'sunken')])
+        
+        # 配置自定义按钮样式 (Custom.TButton) - 与Main.TButton相同，为了兼容性
+        style.configure('Custom.TButton',
+                       font=self.theme['fonts']['button'],
+                       padding=self.theme['padding']['button'],
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['primary'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['primary'],
+                       highlightcolor=self.theme['colors']['primary'])
+        
+        # 配置自定义按钮悬停和按下状态
+        style.map('Custom.TButton',
+                 background=[('active', '#E3F2FD'),
+                            ('pressed', '#E3F2FD')],
+                 foreground=[('active', self.theme['colors']['button_hover']),
+                            ('pressed', self.theme['colors']['button_hover'])],
+                 relief=[('pressed', 'sunken')])
+                 
+        # 配置操作按钮样式 (Action.TButton) - 为了兼容性
+        style.configure('Action.TButton',
+                       font=self.theme['fonts']['button'],
+                       padding=(15, 8),
+                       background='#FFFFFF',
+                       foreground=self.theme['colors']['primary'],
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=self.theme['colors']['primary'],
+                       highlightcolor=self.theme['colors']['primary'])
+        
+        # 配置操作按钮悬停和按下状态
+        style.map('Action.TButton',
+                 background=[('active', '#E3F2FD'),
+                            ('pressed', '#E3F2FD')],
+                 foreground=[('active', self.theme['colors']['button_hover']),
+                            ('pressed', self.theme['colors']['button_hover'])],
+                 relief=[('pressed', 'sunken')])
     
     def get_color(self, color_name):
         """获取指定的颜色"""

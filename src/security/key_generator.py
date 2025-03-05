@@ -54,14 +54,14 @@ def show_key_dialog(key):
     # 复制按钮
     copy_button = ttk.Button(button_frame, 
                            text="复制密钥", 
-                           style='Main.TButton',
+                           style='Success.TButton',
                            command=lambda: copy_to_clipboard(key))
     copy_button.pack(side=tk.LEFT, padx=10)
     
     # 关闭按钮
     close_button = ttk.Button(button_frame, 
                             text="关闭", 
-                            style='Main.TButton',
+                            style='Secondary.TButton',
                             command=window.destroy)
     close_button.pack(side=tk.LEFT, padx=10)
     

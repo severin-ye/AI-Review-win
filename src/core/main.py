@@ -44,7 +44,7 @@ class KeyVerifyPage(tk.Frame):
         # 创建验证按钮
         verify_button = ttk.Button(self, 
                                 text="验证",
-                                style='Main.TButton',
+                                style='Success.TButton',
                                 command=lambda: self.verify_key(controller))
         verify_button.pack(pady=20)
     
@@ -139,30 +139,30 @@ class StartPage(tk.Frame):
         
         # 左侧按钮（文件操作）
         left_buttons = [
-            ("上传文件", self.upload_file),
-            ("清理文件", self.clear_files),
+            ("上传文件", self.upload_file, 'Main.TButton'),
+            ("清理文件", self.clear_files, 'Secondary.TButton'),
         ]
         
         # 右侧按钮（程序操作）
         right_buttons = [
-            ("开始处理", lambda: controller.show_frame(ProcessPage)),
-            ("配置设置", self.show_config_page),
-            ("退出程序", self.quit_app)
+            ("开始处理", lambda: controller.show_frame(ProcessPage), 'Success.TButton'),
+            ("配置设置", self.show_config_page, 'Main.TButton'),
+            ("退出程序", self.quit_app, 'Danger.TButton')
         ]
         
         # 创建左侧按钮
-        for text, command in left_buttons:
+        for text, command, style in left_buttons:
             btn = ttk.Button(left_button_frame,
                           text=text,
-                          style='Main.TButton',
+                          style=style,
                           command=command)
             btn.pack(pady=10)
         
         # 创建右侧按钮
-        for text, command in right_buttons:
+        for text, command, style in right_buttons:
             btn = ttk.Button(right_button_frame,
                           text=text,
-                          style='Main.TButton',
+                          style=style,
                           command=command)
             btn.pack(pady=10)
         
@@ -305,21 +305,21 @@ class StartPage(tk.Frame):
         )
         self.prompt_text.pack(fill="both", expand=True, pady=5)
         
-        # 按钮区域
+        # 创建保存和返回按钮
         button_frame = tk.Frame(main_frame, bg=self.master.master.colors['background'])
         button_frame.pack(pady=20)
         
         save_button = ttk.Button(button_frame,
                                text="保存配置",
-                               style='Main.TButton',
+                               style='Success.TButton',
                                command=self.save_config)
-        save_button.pack(side="left", padx=5)
+        save_button.pack(side=tk.LEFT, padx=10)
         
         back_button = ttk.Button(button_frame,
                                text="返回主页",
-                               style='Main.TButton',
+                               style='Secondary.TButton',
                                command=self.show_main_page)
-        back_button.pack(side="left", padx=5)
+        back_button.pack(side=tk.LEFT, padx=10)
         
         # 设置配置管理器的widgets
         self.config_manager.set_widgets(self.config_vars, self.prompt_text)
@@ -349,30 +349,30 @@ class StartPage(tk.Frame):
         
         # 左侧按钮（文件操作）
         left_buttons = [
-            ("上传文件", self.upload_file),
-            ("清理文件", self.clear_files),
+            ("上传文件", self.upload_file, 'Main.TButton'),
+            ("清理文件", self.clear_files, 'Secondary.TButton'),
         ]
         
         # 右侧按钮（程序操作）
         right_buttons = [
-            ("开始处理", lambda: self.master.master.show_frame(ProcessPage)),
-            ("配置设置", self.show_config_page),
-            ("退出程序", self.quit_app)
+            ("开始处理", lambda: self.master.master.show_frame(ProcessPage), 'Success.TButton'),
+            ("配置设置", self.show_config_page, 'Main.TButton'),
+            ("退出程序", self.quit_app, 'Danger.TButton')
         ]
         
         # 创建左侧按钮
-        for text, command in left_buttons:
+        for text, command, style in left_buttons:
             btn = ttk.Button(left_button_frame,
                           text=text,
-                          style='Main.TButton',
+                          style=style,
                           command=command)
             btn.pack(pady=10)
         
         # 创建右侧按钮
-        for text, command in right_buttons:
+        for text, command, style in right_buttons:
             btn = ttk.Button(right_button_frame,
                           text=text,
-                          style='Main.TButton',
+                          style=style,
                           command=command)
             btn.pack(pady=10)
     
@@ -445,15 +445,15 @@ class ProcessPage(tk.Frame):
         
         # 创建按钮
         buttons = [
-            ("自动处理", self.auto_process),
-            ("人工审校", self.manual_process),
-            ("返回主页", lambda: controller.show_frame(StartPage))
+            ("自动处理", self.auto_process, 'Success.TButton'),
+            ("人工审校", self.manual_process, 'Main.TButton'),
+            ("返回主页", lambda: controller.show_frame(StartPage), 'Secondary.TButton')
         ]
         
-        for text, command in buttons:
+        for text, command, style in buttons:
             btn = ttk.Button(button_frame,
                           text=text,
-                          style='Main.TButton',
+                          style=style,
                           command=command)
             btn.pack(pady=10)
     

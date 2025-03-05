@@ -78,10 +78,28 @@ except ImportError:
             # 配置全局样式
             style = ttk.Style()
             
-            # 配置按钮样式
-            style.configure('TButton',
-                           font=self.get_font('button'),
-                           padding=self.get_padding('button'))
+            # 尝试导入主题管理器
+            try:
+                # 添加项目根目录到系统路径
+                import sys
+                import os
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                project_root = os.path.dirname(current_dir)
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+                
+                # 导入主题管理器
+                from src.utils.theme_manager import ThemeManager
+                
+                # 创建临时主题管理器实例并应用按钮样式
+                temp_theme_manager = ThemeManager()
+                temp_theme_manager.apply_button_styles(style)
+                
+                print("成功使用主题管理器应用按钮样式")
+            except ImportError:
+                print("无法导入主题管理器，使用本地按钮样式定义")
+                # 如果无法导入主题管理器，则使用本地定义的按钮样式
+                self._apply_local_button_styles(style)
             
             # 配置标题样式
             style.configure('Title.TLabel',
@@ -98,6 +116,108 @@ except ImportError:
             # 配置进度条样式
             style.configure('Horizontal.TProgressbar',
                            thickness=15)
+        
+        def _apply_local_button_styles(self, style):
+            """本地按钮样式定义，仅在无法导入主题管理器时使用"""
+            # 配置按钮样式 - 美化版本
+            style.configure('TButton',
+                           font=self.get_font('button'),
+                           padding=self.get_padding('button'),
+                           background='#FFFFFF',
+                           foreground=self.get_color('button'),
+                           relief=tk.RAISED,
+                           borderwidth=1,
+                           highlightthickness=1,
+                           highlightbackground=self.get_color('primary'),
+                           highlightcolor=self.get_color('primary'))
+            
+            # 配置按钮悬停和按下状态
+            style.map('TButton',
+                     background=[('active', '#E3F2FD'),
+                                ('pressed', '#E3F2FD')],
+                     foreground=[('active', self.get_color('button_hover')),
+                                ('pressed', self.get_color('button_hover'))],
+                     relief=[('pressed', 'sunken')])
+            
+            # 配置主按钮样式
+            style.configure('Main.TButton',
+                           font=self.get_font('button'),
+                           padding=self.get_padding('button'),
+                           background='#FFFFFF',
+                           foreground=self.get_color('button'),
+                           relief=tk.RAISED,
+                           borderwidth=1,
+                           highlightthickness=1,
+                           highlightbackground=self.get_color('primary'),
+                           highlightcolor=self.get_color('primary'))
+            
+            # 配置主按钮悬停和按下状态
+            style.map('Main.TButton',
+                     background=[('active', '#E3F2FD'),
+                                ('pressed', '#E3F2FD')],
+                     foreground=[('active', self.get_color('button_hover')),
+                                ('pressed', self.get_color('button_hover'))],
+                     relief=[('pressed', 'sunken')])
+            
+            # 配置次要按钮样式
+            style.configure('Secondary.TButton',
+                           font=self.get_font('button'),
+                           padding=self.get_padding('button'),
+                           background='#FFFFFF',
+                           foreground=self.get_color('secondary'),
+                           relief=tk.RAISED,
+                           borderwidth=1,
+                           highlightthickness=1,
+                           highlightbackground=self.get_color('secondary'),
+                           highlightcolor=self.get_color('secondary'))
+            
+            # 配置次要按钮悬停和按下状态
+            style.map('Secondary.TButton',
+                     background=[('active', '#FFF8E1'),
+                                ('pressed', '#FFF8E1')],
+                     foreground=[('active', '#E6A800'),
+                                ('pressed', '#E6A800')],
+                     relief=[('pressed', 'sunken')])
+            
+            # 配置危险按钮样式
+            style.configure('Danger.TButton',
+                           font=self.get_font('button'),
+                           padding=self.get_padding('button'),
+                           background='#FFFFFF',
+                           foreground=self.get_color('error'),
+                           relief=tk.RAISED,
+                           borderwidth=1,
+                           highlightthickness=1,
+                           highlightbackground=self.get_color('error'),
+                           highlightcolor=self.get_color('error'))
+            
+            # 配置危险按钮悬停和按下状态
+            style.map('Danger.TButton',
+                     background=[('active', '#FFEBEE'),
+                                ('pressed', '#FFEBEE')],
+                     foreground=[('active', '#D32F2F'),
+                                ('pressed', '#D32F2F')],
+                     relief=[('pressed', 'sunken')])
+            
+            # 配置成功按钮样式
+            style.configure('Success.TButton',
+                           font=self.get_font('button'),
+                           padding=self.get_padding('button'),
+                           background='#FFFFFF',
+                           foreground=self.get_color('success'),
+                           relief=tk.RAISED,
+                           borderwidth=1,
+                           highlightthickness=1,
+                           highlightbackground=self.get_color('success'),
+                           highlightcolor=self.get_color('success'))
+            
+            # 配置成功按钮悬停和按下状态
+            style.map('Success.TButton',
+                     background=[('active', '#E8F5E9'),
+                                ('pressed', '#E8F5E9')],
+                     foreground=[('active', '#388E3C'),
+                                ('pressed', '#388E3C')],
+                     relief=[('pressed', 'sunken')])
     
     theme_manager = SimpleThemeManager()
 
@@ -305,14 +425,16 @@ class InstallerGUI:
         # 安装按钮
         self.install_button = ttk.Button(button_frame,
                                        text="开始安装",
+                                       style='Success.TButton',
                                        command=self.start_installation)
-        self.install_button.pack(side=tk.LEFT, padx=5)
+        self.install_button.pack(side=tk.LEFT, padx=10)
         
         # 退出按钮
         self.exit_button = ttk.Button(button_frame,
                                     text="退出",
-                                    command=self.root.quit)
-        self.exit_button.pack(side=tk.LEFT, padx=5)
+                                    style='Danger.TButton',
+                                    command=self.root.destroy)
+        self.exit_button.pack(side=tk.LEFT, padx=10)
         
         # 需要创建的文件夹列表
         self.folders = {

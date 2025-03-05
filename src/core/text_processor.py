@@ -179,7 +179,7 @@ def apply_revisions(section):
                 
                 text_display = tk.Text(left_frame, height=20, width=80)
                 text_display.pack(pady=10)
-                
+
                 # 右侧按钮
                 right_frame = tk.Frame(frame)
                 right_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(10, 0))
@@ -280,6 +280,9 @@ def revision_use():
                         'button': '#1976D2',       # 按钮色 - 深蓝
                         'button_hover': '#1565C0', # 按钮悬停色
                         'border': '#E0E0E0',       # 边框色 - 灰色
+                        'success': '#4CAF50',      # 成功色 - 绿色
+                        'warning': '#FF9800',      # 警告色 - 橙色
+                        'error': '#F44336',        # 错误色 - 红色
                     },
                     'fonts': {
                         'default': ('Microsoft YaHei UI', 10),
@@ -312,22 +315,122 @@ def revision_use():
                 # 配置全局样式
                 style = ttk.Style()
                 
-                # 配置按钮样式
-                style.configure('Custom.TButton',
-                               font=self.get_font('button'),
-                               padding=self.get_padding('button'))
+                # 尝试导入主题管理器
+                try:
+                    # 添加项目根目录到系统路径
+                    import sys
+                    import os
+                    current_dir = os.path.dirname(os.path.abspath(__file__))
+                    project_root = os.path.dirname(os.path.dirname(current_dir))
+                    if project_root not in sys.path:
+                        sys.path.insert(0, project_root)
+                    
+                    # 导入主题管理器
+                    from src.utils.theme_manager import ThemeManager
+                    
+                    # 创建临时主题管理器实例并应用按钮样式
+                    temp_theme_manager = ThemeManager()
+                    temp_theme_manager.apply_button_styles(style)
+                    
+                    print("成功使用主题管理器应用按钮样式")
+                except ImportError:
+                    print("无法导入主题管理器，使用本地按钮样式定义")
+                    # 如果无法导入主题管理器，则使用本地定义的按钮样式
+                    self._apply_local_button_styles(style)
                 
                 # 配置单选按钮样式
                 style.configure('Custom.TRadiobutton',
                                font=self.get_font('default'),
                                background=self.get_color('background'))
-        
+            
+            def _apply_local_button_styles(self, style):
+                """本地按钮样式定义，仅在无法导入主题管理器时使用"""
+                # 配置按钮样式
+                style.configure('Custom.TButton',
+                               font=self.get_font('button'),
+                               padding=self.get_padding('button'),
+                               background='#FFFFFF',
+                               foreground=self.get_color('button'),
+                               relief=tk.RAISED,
+                               borderwidth=1,
+                               highlightthickness=1,
+                               highlightbackground=self.get_color('primary'),
+                               highlightcolor=self.get_color('primary'))
+                
+                # 配置按钮悬停和按下状态
+                style.map('Custom.TButton',
+                         background=[('active', '#E3F2FD'),
+                                    ('pressed', '#E3F2FD')],
+                         foreground=[('active', self.get_color('button_hover')),
+                                    ('pressed', self.get_color('button_hover'))],
+                         relief=[('pressed', 'sunken')])
+                
+                # 配置成功按钮样式
+                style.configure('Success.TButton',
+                               font=self.get_font('button'),
+                               padding=self.get_padding('button'),
+                               background='#FFFFFF',
+                               foreground=self.get_color('success'),
+                               relief=tk.RAISED,
+                               borderwidth=1,
+                               highlightthickness=1,
+                               highlightbackground=self.get_color('success'),
+                               highlightcolor=self.get_color('success'))
+                
+                # 配置成功按钮悬停和按下状态
+                style.map('Success.TButton',
+                         background=[('active', '#E8F5E9'),
+                                    ('pressed', '#E8F5E9')],
+                         foreground=[('active', '#388E3C'),
+                                    ('pressed', '#388E3C')],
+                         relief=[('pressed', 'sunken')])
+                
+                # 配置危险按钮样式
+                style.configure('Danger.TButton',
+                               font=self.get_font('button'),
+                               padding=self.get_padding('button'),
+                               background='#FFFFFF',
+                               foreground=self.get_color('error'),
+                               relief=tk.RAISED,
+                               borderwidth=1,
+                               highlightthickness=1,
+                               highlightbackground=self.get_color('error'),
+                               highlightcolor=self.get_color('error'))
+                
+                # 配置危险按钮悬停和按下状态
+                style.map('Danger.TButton',
+                         background=[('active', '#FFEBEE'),
+                                    ('pressed', '#FFEBEE')],
+                         foreground=[('active', '#D32F2F'),
+                                    ('pressed', '#D32F2F')],
+                         relief=[('pressed', 'sunken')])
+
         theme_manager = SimpleThemeManager()
 
     def create_custom_style():
         # 应用主题
         theme_manager.apply_theme(root)
         
+        # 添加额外的自定义样式
+        style = ttk.Style()
+        style.configure('Action.TButton',
+                       font=theme_manager.get_font('button'),
+                       padding=(15, 8),
+                       background='#FFFFFF',
+                       foreground=theme_manager.get_color('primary'),
+                       relief=tk.RAISED,
+                       borderwidth=1,
+                       highlightthickness=1,
+                       highlightbackground=theme_manager.get_color('primary'),
+                       highlightcolor=theme_manager.get_color('primary'))
+        
+        style.map('Action.TButton',
+                 background=[('active', '#E3F2FD'),
+                            ('pressed', '#E3F2FD')],
+                 foreground=[('active', theme_manager.get_color('button_hover')),
+                            ('pressed', theme_manager.get_color('button_hover'))],
+                 relief=[('pressed', 'sunken')])
+
     # 创建自定义样式
     create_custom_style()
     
