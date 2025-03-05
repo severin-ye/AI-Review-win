@@ -7,9 +7,9 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
+        ('../dist/AI审校助手.exe', '.'),
         ('../material/1-logo.ico', 'material'),
         ('../material/2-logo.ico', 'material'),
-        ('../AI审校助手.exe', '.'),
     ],
     hiddenimports=[],
     hookspath=[],
@@ -45,4 +45,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon='../material/1-logo.ico',
+    version='file_version_info.txt',
 ) 

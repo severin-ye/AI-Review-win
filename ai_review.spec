@@ -50,9 +50,10 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['material/2-logo.ico'],
+    icon='material/2-logo.ico',
     collect_all=['s_1_auto_ai', 's_2_select_replace', 's_3_clear_out', 's_4_config_use',
                 'w0_file_path', 'w1_table_about', 'w2_docx_to_md', 'w3_smart_divide',
                 'w4_ai_answer', 'w5_same_find', 'w6_1_key_generator', 'w6_2_key_verifier',
-                'config', 'time_lock']
+                'config', 'time_lock'],
+    version='scripts/file_version_info.txt',
 )
