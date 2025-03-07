@@ -1,0 +1,19 @@
+2025-03-08 02:05:08,449 [INFO] 正在启动AI审校助手...
+2025-03-08 02:05:10,192 [ERROR] 程序运行出错：cannot import name 'StartPage' from partially initialized module 'src.ui.pages.start_page' (most likely due to a circular import) (C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py)
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 47, in main
+    from src.ui import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 3, in <module>
+    from src.ui.pages.key_verify_page import KeyVerifyPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\__init__.py", line 6, in <module>
+    from src.ui.pages.start_page import StartPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 8, in <module>
+    from src.ui.pages.process_page import ProcessPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\process_page.py", line 221, in <module>
+    from src.ui.pages.start_page import StartPage
+ImportError: cannot import name 'StartPage' from partially initialized module 'src.ui.pages.start_page' (most likely due to a circular import) (C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py)
+2025-03-08 02:07:09,325 [INFO] 正在启动AI审校助手...
+2025-03-08 02:10:33,849 [INFO] 正在启动AI审校助手...
+2025-03-08 02:10:40,729 [INFO] 程序已退出
