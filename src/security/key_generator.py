@@ -1,6 +1,6 @@
 from src.security.key_generator_legacy import generate_key, SECRET_KEY
-import tkinter as tk
-from tkinter import messagebox, ttk
+import ttkbootstrap as ttk
+from tkinter import messagebox, LEFT, RIGHT, TOP, BOTH, X, Y, W
 import pyperclip  # 用于复制到剪贴板
 import secrets
 import string
@@ -17,7 +17,7 @@ def copy_to_clipboard(text):
 
 def show_key_dialog(key):
     # 创建主窗口
-    window = tk.Tk()
+    window = ttk.Window(themename="litera")
     window.title("密钥生成器")
     window.geometry("500x300")
     
@@ -28,46 +28,46 @@ def show_key_dialog(key):
     y = (screen_height - 300) // 2
     window.geometry(f"500x300+{x}+{y}")
     
-    # 应用主题
-    theme_manager.apply_theme(window)
-    
     # 创建主框架
-    main_frame = tk.Frame(window, bg=theme_manager.get_color('background'))
-    main_frame.pack(fill=tk.BOTH, expand=True, padx=theme_manager.get_padding('frame'), pady=theme_manager.get_padding('frame'))
+    main_frame = ttk.Frame(window)
+    main_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
     
     # 创建标题
     title = ttk.Label(main_frame,
                      text="密钥生成器",
-                     style='Subtitle.TLabel')
+                     font=theme_manager.get_font('subtitle'),
+                     bootstyle="primary")
     title.pack(pady=(0, 30))
     
     # 创建密钥显示框架
-    key_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
-    key_frame.pack(fill=tk.X, pady=10)
+    key_frame = ttk.Frame(main_frame)
+    key_frame.pack(fill=X, pady=10)
     
     # 显示密钥的文本框
-    key_entry = ttk.Entry(key_frame, width=40, font=theme_manager.get_font('input'))
+    key_entry = ttk.Entry(key_frame, 
+                         width=40,
+                         font=theme_manager.get_font('input'))
     key_entry.insert(0, key)
     key_entry.config(state='readonly')
     key_entry.pack(pady=10)
     
     # 创建按钮框架
-    button_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
+    button_frame = ttk.Frame(main_frame)
     button_frame.pack(pady=20)
     
     # 复制按钮
     copy_button = ttk.Button(button_frame, 
                            text="复制密钥", 
-                           style='Success.TButton',
+                           bootstyle="success",
                            command=lambda: copy_to_clipboard(key))
-    copy_button.pack(side=tk.LEFT, padx=10)
+    copy_button.pack(side=LEFT, padx=10)
     
     # 关闭按钮
     close_button = ttk.Button(button_frame, 
                             text="关闭", 
-                            style='Secondary.TButton',
+                            bootstyle="secondary",
                             command=window.destroy)
-    close_button.pack(side=tk.LEFT, padx=10)
+    close_button.pack(side=LEFT, padx=10)
     
     # 运行窗口
     window.mainloop()

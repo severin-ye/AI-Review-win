@@ -1,5 +1,5 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import ttkbootstrap as ttk
+from tkinter import messagebox, LEFT, RIGHT, TOP, BOTH, X, Y, W
 import os
 import threading
 from queue import Queue
@@ -7,10 +7,9 @@ import time
 from src.ui.styles.theme_manager import theme_manager
 from src.core import ai_review, text_processor
 
-class ProcessPage(tk.Frame):
+class ProcessPage(ttk.Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.configure(bg=theme_manager.get_color('background'))
+        super().__init__(parent)
         self.controller = controller  # 保存controller引用
         
         # 创建消息队列用于线程间通信
@@ -19,24 +18,25 @@ class ProcessPage(tk.Frame):
         # 创建标题
         title = ttk.Label(self, 
                          text="处理文件",
-                         style='Title.TLabel')
+                         font=theme_manager.get_font('title'),
+                         bootstyle="primary")
         title.pack(pady=50)
         
         # 创建按钮容器
-        button_frame = tk.Frame(self, bg=theme_manager.get_color('background'))
+        button_frame = ttk.Frame(self)
         button_frame.pack(expand=True)
         
         # 创建按钮
         buttons = [
-            ("自动处理", self.auto_process, 'Success.TButton'),
-            ("人工审校", self.manual_process, 'Main.TButton'),
-            ("返回主页", self.return_to_start, 'Secondary.TButton')
+            ("自动处理", self.auto_process, 'success'),
+            ("人工审校", self.manual_process, 'primary'),
+            ("返回主页", self.return_to_start, 'info')
         ]
         
-        for text, command, style in buttons:
+        for text, command, bootstyle in buttons:
             btn = ttk.Button(button_frame,
                           text=text,
-                          style=style,
+                          bootstyle=bootstyle,
                           command=command)
             btn.pack(pady=10)
     
@@ -47,7 +47,7 @@ class ProcessPage(tk.Frame):
     
     class ProgressWindow:
         def __init__(self, total_files):
-            self.root = tk.Toplevel()
+            self.root = ttk.Toplevel()
             self.root.title("处理进度")
             self.root.geometry("500x300")
             
@@ -58,87 +58,67 @@ class ProcessPage(tk.Frame):
             y = (screen_height - 300) // 2
             self.root.geometry(f"500x300+{x}+{y}")
             
-            # 设置窗口样式
-            self.root.configure(bg=theme_manager.get_color('background'))
-            
             # 创建主框架
-            main_frame = tk.Frame(self.root, bg=theme_manager.get_color('background'))
-            main_frame.pack(fill=tk.BOTH, expand=True, padx=theme_manager.get_padding('frame'), pady=theme_manager.get_padding('frame'))
+            main_frame = ttk.Frame(self.root)
+            main_frame.pack(fill=BOTH, expand=True, padx=theme_manager.get_padding('frame'), pady=theme_manager.get_padding('frame'))
             
             # 创建标题
             title = ttk.Label(main_frame,
                             text="处理进度",
-                            style='Subtitle.TLabel')
+                            font=theme_manager.get_font('subtitle'),
+                            bootstyle="primary")
             title.pack(pady=(0, 20))
             
             # 创建文件总进度条框架
-            total_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
-            total_frame.pack(fill=tk.X, pady=10)
+            total_frame = ttk.Frame(main_frame)
+            total_frame.pack(fill=X, pady=10)
             
             self.file_progress_label = ttk.Label(total_frame,
                                                text="总体进度:",
-                                               style='TLabel')
+                                               bootstyle="primary")
             self.file_progress_label.pack(anchor='w')
             
-            self.file_progress_var = tk.DoubleVar()
+            self.file_progress_var = ttk.DoubleVar()
             self.file_progress_bar = ttk.Progressbar(
                 total_frame,
                 variable=self.file_progress_var,
                 maximum=total_files,
                 length=460,
-                mode='determinate'
+                mode='determinate',
+                bootstyle="primary"
             )
             self.file_progress_bar.pack(pady=5)
             
             # 创建当前文件进度条框架
-            current_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
-            current_frame.pack(fill=tk.X, pady=10)
+            current_frame = ttk.Frame(main_frame)
+            current_frame.pack(fill=X, pady=10)
             
-            self.current_progress_label = ttk.Label(current_frame,
-                                                  text="当前文件进度:",
-                                                  style='TLabel')
-            self.current_progress_label.pack(anchor='w')
+            self.label_var = ttk.StringVar(value="准备开始...")
+            self.current_label = ttk.Label(current_frame,
+                                         textvariable=self.label_var,
+                                         bootstyle="primary")
+            self.current_label.pack(anchor='w')
             
-            self.current_progress_var = tk.DoubleVar()
+            self.current_progress_var = ttk.DoubleVar()
             self.current_progress_bar = ttk.Progressbar(
                 current_frame,
                 variable=self.current_progress_var,
                 maximum=100,
                 length=460,
-                mode='determinate'
+                mode='determinate',
+                bootstyle="success"
             )
             self.current_progress_bar.pack(pady=5)
             
-            # 创建信息显示框架
-            info_frame = tk.Frame(main_frame, bg=theme_manager.get_color('background'))
-            info_frame.pack(fill=tk.X, pady=10)
-            
-            # 创建标签显示当前处理的文件
-            self.label_var = tk.StringVar()
-            self.label = ttk.Label(info_frame,
-                                textvariable=self.label_var,
-                                font=('Microsoft YaHei UI', 10),
-                                background=theme_manager.get_color('background'))
-            self.label.pack(pady=5)
-            
             # 创建百分比标签
-            self.percent_var = tk.StringVar()
-            self.percent_label = ttk.Label(info_frame,
-                                        textvariable=self.percent_var,
-                                        font=('Microsoft YaHei UI', 10),
-                                        background=theme_manager.get_color('background'))
-            self.percent_label.pack(pady=5)
+            self.percent_var = ttk.StringVar(value="总进度: 0.0%")
+            self.percent_label = ttk.Label(main_frame,
+                                         textvariable=self.percent_var,
+                                         font=theme_manager.get_font('default'),
+                                         bootstyle="primary")
+            self.percent_label.pack(pady=10)
             
-            # 设置窗口置顶
-            self.root.lift()
             self.root.attributes('-topmost', True)
-            
-            # 配置进度条样式
-            style = ttk.Style()
-            style.configure("Horizontal.TProgressbar",
-                          troughcolor='#E0E0E0',
-                          background='#2196F3',
-                          thickness=15)
             
         def update_progress(self, current_file, file_name, current_progress=0):
             self.file_progress_var.set(current_file)

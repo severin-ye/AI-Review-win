@@ -1,12 +1,12 @@
-import tkinter as tk
+import ttkbootstrap as ttk
 from src.ui.styles.theme_manager import theme_manager
 from src.ui.pages.key_verify_page import KeyVerifyPage
 from src.ui.pages.start_page import StartPage
 from src.ui.pages.process_page import ProcessPage
 
-class MainApp(tk.Tk):
+class MainApp(ttk.Window):
     def __init__(self):
-        super().__init__()
+        super().__init__(themename="litera")
         
         # 设置窗口标题和大小
         self.title("AI审校助手")
@@ -24,7 +24,7 @@ class MainApp(tk.Tk):
         self.title_font = theme_manager.get_font('title')
         
         # 创建一个容器来存放所有页面
-        container = tk.Frame(self, bg=theme_manager.get_color('background'))
+        container = ttk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)

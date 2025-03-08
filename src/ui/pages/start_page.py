@@ -1,15 +1,14 @@
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog, scrolledtext
+import ttkbootstrap as ttk
+from tkinter import messagebox, filedialog, scrolledtext, LEFT, RIGHT, TOP, BOTH, X, Y, W
 import os
 import shutil
 from src.ui.styles.theme_manager import theme_manager
 from src.utils import cleanup_utils
 from config.managers import config_manager
 
-class StartPage(tk.Frame):
+class StartPage(ttk.Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.configure(bg=theme_manager.get_color('background'))
+        super().__init__(parent)
         self.controller = controller  # 保存controller引用
         
         # 使用全局配置管理器实例
@@ -18,52 +17,53 @@ class StartPage(tk.Frame):
         # 创建标题
         title = ttk.Label(self, 
                          text="AI审校助手",
-                         style='Title.TLabel')
+                         font=theme_manager.get_font('title'),
+                         bootstyle="primary")
         title.pack(pady=50)
         
         # 创建主按钮容器
-        main_button_frame = tk.Frame(self, bg=theme_manager.get_color('background'))
+        main_button_frame = ttk.Frame(self)
         main_button_frame.pack(expand=True)
         
         # 创建左侧按钮容器
-        left_button_frame = tk.Frame(main_button_frame, bg=theme_manager.get_color('background'))
-        left_button_frame.pack(side=tk.LEFT, padx=20)
+        left_button_frame = ttk.Frame(main_button_frame)
+        left_button_frame.pack(side=LEFT, padx=20)
         
         # 创建右侧按钮容器
-        right_button_frame = tk.Frame(main_button_frame, bg=theme_manager.get_color('background'))
-        right_button_frame.pack(side=tk.LEFT, padx=20)
+        right_button_frame = ttk.Frame(main_button_frame)
+        right_button_frame.pack(side=LEFT, padx=20)
         
         # 左侧按钮（文件操作）
         left_buttons = [
-            ("上传文件", self.upload_file, 'Main.TButton'),
-            ("清理文件", self.clear_files, 'Secondary.TButton'),
+            ("上传文件", self.upload_file, 'primary'),
+            ("清理文件", self.clear_files, 'info'),
         ]
         
         # 右侧按钮（程序操作）
         right_buttons = [
-            ("开始处理", self.show_process_page, 'Success.TButton'),
-            ("配置设置", self.show_config_page, 'Main.TButton'),
-            ("退出程序", self.quit_app, 'Danger.TButton')
+            ("开始处理", self.show_process_page, 'success'),
+            ("配置设置", self.show_config_page, 'primary'),
+            ("退出程序", self.quit_app, 'danger')
         ]
         
         # 创建左侧按钮
-        for text, command, style in left_buttons:
+        for text, command, bootstyle in left_buttons:
             btn = ttk.Button(left_button_frame,
                           text=text,
-                          style=style,
+                          bootstyle=bootstyle,
                           command=command)
             btn.pack(pady=10)
         
         # 创建右侧按钮
-        for text, command, style in right_buttons:
+        for text, command, bootstyle in right_buttons:
             btn = ttk.Button(right_button_frame,
                           text=text,
-                          style=style,
+                          bootstyle=bootstyle,
                           command=command)
             btn.pack(pady=10)
         
         # 创建配置页面（初始隐藏）
-        self.config_frame = tk.Frame(self)
+        self.config_frame = ttk.Frame(self)
         self.create_config_page()
     
     def show_process_page(self):
@@ -139,105 +139,101 @@ class StartPage(tk.Frame):
     def create_config_page(self):
         """创建配置页面"""
         # 创建主框架
-        main_frame = tk.Frame(self.config_frame, bg=self.master.master.colors['background'])
+        main_frame = ttk.Frame(self.config_frame)
         main_frame.pack(fill="both", expand=True, padx=20, pady=20)
         
         # 标题
         title = ttk.Label(main_frame,
                          text="配置设置",
-                         style='Title.TLabel')
+                         font=theme_manager.get_font('title'),
+                         bootstyle="primary")
         title.pack(pady=20)
         
         # 创建配置项框架
-        config_frame = tk.Frame(main_frame, bg=self.master.master.colors['background'])
+        config_frame = ttk.Frame(main_frame)
         config_frame.pack(fill="x", pady=10)
         
         # 配置项定义
         self.config_keys = list(self.config_manager.label_names.keys())
-        self.config_vars = {key: tk.StringVar() for key in self.config_keys}
+        self.config_vars = {key: ttk.StringVar() for key in self.config_keys}
         
         # 创建配置项输入界面
         for i, key in enumerate(self.config_keys):
             if key != "prompt":
-                frame = tk.Frame(config_frame, bg=self.master.master.colors['background'])
+                frame = ttk.Frame(config_frame)
                 frame.pack(fill="x", pady=5)
                 
                 label = ttk.Label(frame,
                                 text=f"{self.config_manager.label_names[key]}:",
-                                width=self.config_manager.label_width,
-                                background=self.master.master.colors['background'])
+                                width=self.config_manager.label_width)
                 label.pack(side="left")
                 
                 if key == "module_type":
                     options = self.config_manager.module_list
                     self.config_vars[key].set(options[0])
                     option_menu = ttk.OptionMenu(frame, self.config_vars[key], options[0], *options)
-                    option_menu.config(width=self.config_manager.option_menu_width)
                     option_menu.pack(side="left", fill="x", expand=True)
                 elif key == "has_review_table":
                     options = ["Y", "N"]
                     self.config_vars[key].set(options[0])
                     option_menu = ttk.OptionMenu(frame, self.config_vars[key], options[0], *options)
-                    option_menu.config(width=self.config_manager.option_menu_width)
                     option_menu.pack(side="left", fill="x", expand=True)
                 elif key == "output_dir":
                     # 创建输出目录选择框架
-                    dir_frame = tk.Frame(frame, bg=self.master.master.colors['background'])
+                    dir_frame = ttk.Frame(frame)
                     dir_frame.pack(side="left", fill="x", expand=True)
                     
                     # 创建输入框
                     entry = ttk.Entry(dir_frame,
                                     textvariable=self.config_vars[key],
-                                    width=self.config_manager.entry_width - 10,
-                                    font=self.master.master.default_font)
+                                    width=self.config_manager.entry_width - 10)
                     entry.pack(side="left", fill="x", expand=True)
                     
                     # 创建浏览按钮
                     browse_btn = ttk.Button(dir_frame,
                                           text="浏览",
                                           command=lambda: self.browse_output_dir(key),
-                                          width=8)
+                                          bootstyle='info')
                     browse_btn.pack(side="left", padx=5)
                 else:
                     entry = ttk.Entry(frame,
                                     textvariable=self.config_vars[key],
-                                    width=self.config_manager.entry_width,
-                                    font=self.master.master.default_font)
+                                    width=self.config_manager.entry_width)
                     entry.pack(side="left", fill="x", expand=True)
         
         # Prompt 输入区域
-        prompt_frame = tk.Frame(main_frame, bg=self.master.master.colors['background'])
+        prompt_frame = ttk.Frame(main_frame)
         prompt_frame.pack(fill="both", expand=True, pady=10)
         
         prompt_label = ttk.Label(prompt_frame,
                                text=f"{self.config_manager.label_names['prompt']}:",
-                               background=self.master.master.colors['background'])
+                               bootstyle='primary')
         prompt_label.pack(anchor="w")
         
-        self.prompt_text = tk.scrolledtext.ScrolledText(
+        self.prompt_text = scrolledtext.ScrolledText(
             prompt_frame,
             height=self.config_manager.prompt_text_height,
             width=self.config_manager.prompt_text_width,
-            font=self.master.master.default_font,
+            font=theme_manager.get_font('body'),
             bg='white'
         )
         self.prompt_text.pack(fill="both", expand=True, pady=5)
         
         # 创建保存和返回按钮
-        button_frame = tk.Frame(main_frame, bg=self.master.master.colors['background'])
+        button_frame = ttk.Frame(main_frame)
         button_frame.pack(pady=20)
         
         save_button = ttk.Button(button_frame,
                                text="保存配置",
-                               style='Success.TButton',
+                               bootstyle='success',
                                command=self.save_config)
-        save_button.pack(side=tk.LEFT, padx=10)
+        save_button.pack(side=ttk.LEFT, padx=10)
         
         back_button = ttk.Button(button_frame,
                                text="返回主页",
-                               style='Secondary.TButton',
+                               bootstyle='secondary',
                                command=self.show_main_page)
-        back_button.pack(side=tk.LEFT, padx=10)
+        back_button.pack(side=ttk.LEFT, padx=10)
         
         # 设置配置管理器的widgets
         self.config_manager.set_widgets(self.config_vars, self.prompt_text)
@@ -260,7 +256,7 @@ class StartPage(tk.Frame):
         for widget in self.winfo_children():
             if isinstance(widget, ttk.Label) and widget.cget("text") == "AI审校助手":
                 widget.pack(pady=50)
-            elif isinstance(widget, tk.Frame) and widget != self.config_frame:
+            elif isinstance(widget, ttk.Frame) and widget != self.config_frame:
                 widget.pack(expand=True)
     
     def browse_output_dir(self, key):

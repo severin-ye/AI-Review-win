@@ -1,24 +1,24 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import ttkbootstrap as ttk
+from tkinter import messagebox
 import os
 from src.ui.styles.theme_manager import theme_manager
 from src.security.key_generator_legacy import SECRET_KEY
 from src.security import key_verifier
 
-class KeyVerifyPage(tk.Frame):
+class KeyVerifyPage(ttk.Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.configure(bg=theme_manager.get_color('background'))
+        super().__init__(parent)
         self.controller = controller  # 保存controller引用
         
         # 创建标题
         title = ttk.Label(self, 
                          text="密钥验证",
-                         style='Title.TLabel')
+                         font=theme_manager.get_font('title'),
+                         bootstyle="primary")
         title.pack(pady=50)
         
         # 创建输入框容器
-        entry_frame = tk.Frame(self, bg=theme_manager.get_color('background'))
+        entry_frame = ttk.Frame(self)
         entry_frame.pack(pady=20)
         
         # 创建输入框
@@ -30,7 +30,7 @@ class KeyVerifyPage(tk.Frame):
         # 创建验证按钮
         verify_button = ttk.Button(self, 
                                 text="验证",
-                                style='Success.TButton',
+                                bootstyle="success",
                                 command=self.verify_key)
         verify_button.pack(pady=20)
     
