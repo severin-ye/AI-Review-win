@@ -5,7 +5,11 @@ import pyperclip  # 用于复制到剪贴板
 import secrets
 import string
 import hashlib
-from src.styles.theme_manager import theme_manager
+import os
+import sys
+import json
+from datetime import datetime, timedelta
+from src.ui.styles.theme_manager import theme_manager
 
 def copy_to_clipboard(text):
     pyperclip.copy(text)

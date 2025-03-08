@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import os
 import threading
-import queue
+from queue import Queue
 import time
-from src.styles.theme_manager import theme_manager
+from src.ui.styles.theme_manager import theme_manager
 from src.core import ai_review, text_processor
 
 class ProcessPage(tk.Frame):
@@ -14,7 +14,7 @@ class ProcessPage(tk.Frame):
         self.controller = controller  # 保存controller引用
         
         # 创建消息队列用于线程间通信
-        self.progress_queue = queue.Queue()
+        self.progress_queue = Queue()
         
         # 创建标题
         title = ttk.Label(self, 
@@ -184,7 +184,7 @@ class ProcessPage(tk.Frame):
                 progress_window.update_progress(index, file_name, current_progress)
                 # 继续检查队列
                 self.after(100, lambda: self.update_progress_from_queue(progress_window))
-        except queue.Empty:
+        except Queue.Empty:
             # 队列为空，继续等待
             self.after(100, lambda: self.update_progress_from_queue(progress_window))
     

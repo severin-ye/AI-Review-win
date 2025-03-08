@@ -17,3 +17,137 @@ ImportError: cannot import name 'StartPage' from partially initialized module 's
 2025-03-08 02:07:09,325 [INFO] 正在启动AI审校助手...
 2025-03-08 02:10:33,849 [INFO] 正在启动AI审校助手...
 2025-03-08 02:10:40,729 [INFO] 程序已退出
+2025-03-08 11:25:49,877 [INFO] 正在启动AI审校助手...
+2025-03-08 11:25:49,880 [ERROR] 程序运行出错：No module named 'src.styles'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:25:52,297 [INFO] 程序已退出
+2025-03-08 11:25:52,298 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 122, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:25:54,009 [INFO] 正在启动AI审校助手...
+2025-03-08 11:25:54,012 [ERROR] 程序运行出错：No module named 'src.styles'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:25:56,030 [INFO] 程序已退出
+2025-03-08 11:25:56,032 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 122, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:28:06,034 [INFO] 正在启动AI审校助手...
+2025-03-08 11:28:06,043 [ERROR] 程序运行出错：No module named 'src.styles'
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 3, in <module>
+    from src.ui.pages.key_verify_page import KeyVerifyPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 4, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:28:07,797 [INFO] 程序已退出
+2025-03-08 11:28:07,797 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 122, in <module>
+    main()
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 3, in <module>
+    from src.ui.pages.key_verify_page import KeyVerifyPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 4, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:29:56,279 [INFO] 正在启动AI审校助手...
+2025-03-08 11:29:59,567 [INFO] 程序已退出
+2025-03-08 12:05:46,156 [INFO] 正在启动AI审校助手...
+2025-03-08 12:05:47,362 [ERROR] 程序运行出错：No module named 'src.utils.path_manager'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 5, in <module>
+    from src.ui.pages.process_page import ProcessPage
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\process_page.py", line 8, in <module>
+    from src.core import ai_review, text_processor
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\core\text_processor.py", line 16, in <module>
+    from src.utils.path_manager import path_manager
+ModuleNotFoundError: No module named 'src.utils.path_manager'
+2025-03-08 12:05:48,870 [INFO] 程序已退出
+2025-03-08 12:05:48,870 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 5, in <module>
+    from src.ui.pages.process_page import ProcessPage
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\process_page.py", line 8, in <module>
+    from src.core import ai_review, text_processor
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\core\text_processor.py", line 16, in <module>
+    from src.utils.path_manager import path_manager
+ModuleNotFoundError: No module named 'src.utils.path_manager'
+2025-03-08 12:07:07,175 [INFO] 正在启动AI审校助手...
+2025-03-08 12:07:08,454 [ERROR] 程序运行出错：No module named 'config.config_manager'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 15, in __init__
+    from config.config_manager import ConfigManager
+ModuleNotFoundError: No module named 'config.config_manager'
+2025-03-08 12:07:10,262 [INFO] 程序已退出
+2025-03-08 12:07:10,262 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 15, in __init__
+    from config.config_manager import ConfigManager
+ModuleNotFoundError: No module named 'config.config_manager'
+2025-03-08 12:08:07,422 [INFO] 正在启动AI审校助手...
+2025-03-08 12:08:10,688 [INFO] 程序已退出
+2025-03-08 12:08:16,462 [INFO] 正在启动AI审校助手...
+2025-03-08 12:08:29,489 [INFO] 程序已退出
+2025-03-08 12:08:31,517 [INFO] 正在启动AI审校助手...
+2025-03-08 12:08:47,981 [INFO] 程序已退出

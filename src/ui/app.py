@@ -1,5 +1,5 @@
 import tkinter as tk
-from src.styles.theme_manager import theme_manager
+from src.ui.styles.theme_manager import theme_manager
 from src.ui.pages.key_verify_page import KeyVerifyPage
 from src.ui.pages.start_page import StartPage
 from src.ui.pages.process_page import ProcessPage

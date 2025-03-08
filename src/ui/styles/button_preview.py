@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-import sys
+import json
 import os
+import sys
 
 # 添加项目根目录到系统路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +11,7 @@ sys.path.insert(0, project_root)
 
 # 导入主题管理器
 try:
-    from src.styles.theme_manager import theme_manager
+    from src.ui.styles.theme_manager import theme_manager
 except ImportError:
     print("无法导入主题管理器，请确保项目结构正确")
     sys.exit(1)

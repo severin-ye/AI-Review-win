@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import os
-from src.styles.theme_manager import theme_manager
+from src.ui.styles.theme_manager import theme_manager
 from src.security.key_generator_legacy import SECRET_KEY
 from src.security import key_verifier
 

@@ -2,9 +2,41 @@
 配置管理模块
 """
 
-import json
 import os
 import sys
+import json
+import logging
+from .managers import path_manager, config_manager
+from .constants import *
+from .settings import theme_config
+
+# 加载配置
+try:
+    config_data = config_manager.load_config()
+    has_review_table = config_data.get('has_review_table', True)
+    module_type = config_data.get('module_type', MODULE_LIST[0])
+    openai_api_key = config_data.get('api_keys', {}).get('openai', '')
+    tyqw_api_key = config_data.get('api_keys', {}).get('tyqw', '')
+    prompt = config_data.get('prompt', DEFAULT_PROMPT)
+except Exception as e:
+    logging.error(f"加载配置失败：{str(e)}")
+    has_review_table = True
+    module_type = MODULE_LIST[0]
+    openai_api_key = ''
+    tyqw_api_key = ''
+    prompt = DEFAULT_PROMPT
+
+__all__ = [
+    'path_manager',
+    'config_manager',
+    'theme_config',
+    'has_review_table',
+    'module_type',
+    'openai_api_key',
+    'tyqw_api_key',
+    'prompt',
+    'MODULE_LIST'
+]
 
 def get_config_file_path():
     """获取配置文件的路径"""
@@ -17,13 +49,6 @@ def get_config_file_path():
     
     config_dir = os.path.join(application_path, "hide_file", "配置文件")
     return os.path.join(config_dir, "config.json")
-
-# 初始化默认配置
-has_review_table = True
-module_type = 'gpt-4o'
-openai_api_key = ''
-tyqw_api_key = ''
-prompt = '你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。'
 
 # 加载配置文件
 try:

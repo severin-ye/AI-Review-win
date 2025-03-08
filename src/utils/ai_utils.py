@@ -1,6 +1,12 @@
 # 共用的模块
 import json
-from config import prompt, module_type, openai_api_key, tyqw_api_key
+from config import (
+    prompt,
+    module_type,
+    openai_api_key,
+    tyqw_api_key,
+    MODULE_LIST as module_list
+)
 
 # openai模块
 from openai import OpenAI
@@ -8,12 +14,7 @@ from openai import OpenAI
 from http import HTTPStatus
 import dashscope
 
-# 从配置管理器中导入模型列表
-from config.config_manager import module_list
-
-# 共用的配置
-prompt = prompt
-module_type = module_type
+# 初始化变量
 question = ""  # 在auto_answer.py中动态赋值
 
 # openai 配置

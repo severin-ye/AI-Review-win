@@ -18,14 +18,12 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
+from config import path_manager
+
 def setup_logging():
     """配置日志系统"""
-    # 创建logs目录（如果不存在）
-    logs_dir = os.path.join(project_root, 'logs')
-    os.makedirs(logs_dir, exist_ok=True)
-    
-    # 配置日志文件名（使用当前日期）
-    log_file = os.path.join(logs_dir, f'app_{datetime.now().strftime("%Y%m%d")}.log')
+    # 获取日志文件路径
+    log_file = path_manager.get_log_file()
     
     # 配置日志格式
     logging.basicConfig(
@@ -44,16 +42,8 @@ def check_environment():
         if sys.version_info < (3, 7):
             raise RuntimeError("Python版本必须是3.7或更高")
         
-        # 检查必要目录
-        required_dirs = ['_1_原文件', '_2_审校后', 'hide_file/中间文件']
-        for dir_path in required_dirs:
-            os.makedirs(os.path.join(project_root, dir_path), exist_ok=True)
-        
-        # 检查配置文件
-        config_dir = os.path.join(project_root, 'config')
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
-            logging.warning("配置目录不存在，已创建新目录")
+        # 检查必要目录（现在由 PathManager 自动创建）
+        path_manager._ensure_directories()
         
         return True
     except Exception as e:

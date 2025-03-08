@@ -11,17 +11,22 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT # 这个是设置段落对齐�
 import tkinter as tk
 from tkinter import messagebox, ttk
 from tkinter import font as tkfont
+import logging
+from datetime import datetime
+from config import path_manager
 
 from src.utils.docx_utils import convert_md_to_docx
 from src.utils.table_utils import replace_placeholders_with_tables
 from src.utils.file_utils import generate_path
 
-
+def get_theme_manager():
+    from src.ui.styles.theme_manager import theme_manager
+    return theme_manager
 
 # 找到文件夹中的所有审校后的md文件
 def find_reviewed_md_files_recursive(folder_path):
-    pattern = os.path.join(folder_path, "**/*_审校后_.md")
-    return glob.glob(pattern, recursive=True)
+    """找到文件夹中的所有审校后的md文件"""
+    return path_manager.get_reviewed_md_files()
 
 # 阅读文件内容
 def read_file(file_path):
@@ -263,149 +268,9 @@ def revision_use():
     # 创建主窗口
     root = tk.Tk()
     root.withdraw()  # 隐藏主窗口
-
-    # 导入主题管理器
-    try:
-        from src.styles.theme_manager import theme_manager
-    except ImportError:
-        # 如果无法导入，创建一个简化版的主题管理器
-        class SimpleThemeManager:
-            def __init__(self):
-                self.theme = {
-                    'colors': {
-                        'primary': '#2196F3',      # 主色调 - 蓝色
-                        'secondary': '#FFC107',    # 次要色调 - 琥珀色
-                        'background': '#F5F5F5',   # 背景色 - 浅灰
-                        'text': '#333333',         # 文本色 - 深灰
-                        'button': '#1976D2',       # 按钮色 - 深蓝
-                        'button_hover': '#1565C0', # 按钮悬停色
-                        'border': '#E0E0E0',       # 边框色 - 灰色
-                        'success': '#4CAF50',      # 成功色 - 绿色
-                        'warning': '#FF9800',      # 警告色 - 橙色
-                        'error': '#F44336',        # 错误色 - 红色
-                    },
-                    'fonts': {
-                        'default': ('Microsoft YaHei UI', 10),
-                        'title': ('Microsoft YaHei UI', 24, 'bold'),
-                        'subtitle': ('Microsoft YaHei UI', 18, 'bold'),
-                        'small': ('Microsoft YaHei UI', 9),
-                        'button': ('Microsoft YaHei UI', 10),
-                        'input': ('Microsoft YaHei UI', 10)
-                    },
-                    'padding': {
-                        'button': (20, 10),
-                        'frame': 20,
-                        'input': 5
-                    }
-                }
-            
-            def get_color(self, color_name):
-                return self.theme['colors'].get(color_name, self.theme['colors']['primary'])
-            
-            def get_font(self, font_name):
-                return self.theme['fonts'].get(font_name, self.theme['fonts']['default'])
-            
-            def get_padding(self, padding_name):
-                return self.theme['padding'].get(padding_name, self.theme['padding']['frame'])
-            
-            def apply_theme(self, root):
-                # 设置窗口背景色
-                root.configure(bg=self.get_color('background'))
-                
-                # 配置全局样式
-                style = ttk.Style()
-                
-                # 尝试导入主题管理器
-                try:
-                    # 添加项目根目录到系统路径
-                    import sys
-                    import os
-                    current_dir = os.path.dirname(os.path.abspath(__file__))
-                    project_root = os.path.dirname(os.path.dirname(current_dir))
-                    if project_root not in sys.path:
-                        sys.path.insert(0, project_root)
-                    
-                    # 导入主题管理器
-                    from src.styles.theme_manager import ThemeManager
-                    
-                    # 创建临时主题管理器实例并应用按钮样式
-                    temp_theme_manager = ThemeManager()
-                    temp_theme_manager.apply_button_styles(style)
-                    
-                    print("成功使用主题管理器应用按钮样式")
-                except ImportError:
-                    print("无法导入主题管理器，使用本地按钮样式定义")
-                    # 如果无法导入主题管理器，则使用本地定义的按钮样式
-                    self._apply_local_button_styles(style)
-                
-                # 配置单选按钮样式
-                style.configure('Custom.TRadiobutton',
-                               font=self.get_font('default'),
-                               background=self.get_color('background'))
-            
-            def _apply_local_button_styles(self, style):
-                """本地按钮样式定义，仅在无法导入主题管理器时使用"""
-                # 配置按钮样式
-                style.configure('Custom.TButton',
-                               font=self.get_font('button'),
-                               padding=self.get_padding('button'),
-                               background='#FFFFFF',
-                               foreground=self.get_color('button'),
-                               relief=tk.RAISED,
-                               borderwidth=1,
-                               highlightthickness=1,
-                               highlightbackground=self.get_color('primary'),
-                               highlightcolor=self.get_color('primary'))
-                
-                # 配置按钮悬停和按下状态
-                style.map('Custom.TButton',
-                         background=[('active', '#E3F2FD'),
-                                    ('pressed', '#E3F2FD')],
-                         foreground=[('active', self.get_color('button_hover')),
-                                    ('pressed', self.get_color('button_hover'))],
-                         relief=[('pressed', 'sunken')])
-                
-                # 配置成功按钮样式
-                style.configure('Success.TButton',
-                               font=self.get_font('button'),
-                               padding=self.get_padding('button'),
-                               background='#FFFFFF',
-                               foreground=self.get_color('success'),
-                               relief=tk.RAISED,
-                               borderwidth=1,
-                               highlightthickness=1,
-                               highlightbackground=self.get_color('success'),
-                               highlightcolor=self.get_color('success'))
-                
-                # 配置成功按钮悬停和按下状态
-                style.map('Success.TButton',
-                         background=[('active', '#E8F5E9'),
-                                    ('pressed', '#E8F5E9')],
-                         foreground=[('active', '#388E3C'),
-                                    ('pressed', '#388E3C')],
-                         relief=[('pressed', 'sunken')])
-                
-                # 配置危险按钮样式
-                style.configure('Danger.TButton',
-                               font=self.get_font('button'),
-                               padding=self.get_padding('button'),
-                               background='#FFFFFF',
-                               foreground=self.get_color('error'),
-                               relief=tk.RAISED,
-                               borderwidth=1,
-                               highlightthickness=1,
-                               highlightbackground=self.get_color('error'),
-                               highlightcolor=self.get_color('error'))
-                
-                # 配置危险按钮悬停和按下状态
-                style.map('Danger.TButton',
-                         background=[('active', '#FFEBEE'),
-                                    ('pressed', '#FFEBEE')],
-                         foreground=[('active', '#D32F2F'),
-                                    ('pressed', '#D32F2F')],
-                         relief=[('pressed', 'sunken')])
-
-        theme_manager = SimpleThemeManager()
+    
+    # 获取主题管理器
+    theme_manager = get_theme_manager()
 
     def create_custom_style():
         # 应用主题
@@ -434,10 +299,10 @@ def revision_use():
     # 创建自定义样式
     create_custom_style()
     
-    for file_path in find_reviewed_md_files_recursive(r'.\hide_file\中间文件'):
+    for file_path in path_manager.get_reviewed_md_files():
         file_name = os.path.basename(file_path)
         file_name_original = file_name.replace("_审校后_.md", "")
-        begin_path, no_table, path_extract, md_path, ai_path, word_path_1, word_path_2, final_path_1, final_path_2, select_path_1, select_path_2 = generate_path(file_name_original)
+        paths = path_manager.generate_file_paths(file_name_original)
 
         if not messagebox.askyesno("开始审校", f"是否开始审校文档: {file_name}?"):
             continue
@@ -643,17 +508,17 @@ def revision_use():
 
         dialog.destroy()
 
-        write_to_new_file(select_path_1, updated_texts_1)
-        write_to_new_file(select_path_2, updated_texts_2)
+        write_to_new_file(paths['select_path_1'], updated_texts_1)
+        write_to_new_file(paths['select_path_2'], updated_texts_2)
 
-        convert_md_to_docx(select_path_1, word_path_1)
-        convert_md_to_docx(select_path_2, word_path_2)
+        convert_md_to_docx(paths['select_path_1'], paths['word_path_1'])
+        convert_md_to_docx(paths['select_path_2'], paths['word_path_2'])
 
-        replace_placeholders_with_tables(word_path_1, path_extract, final_path_1)
-        replace_placeholders_with_tables(word_path_2, path_extract, final_path_2)
+        replace_placeholders_with_tables(paths['word_path_1'], paths['path_extract'], paths['final_path_1'])
+        replace_placeholders_with_tables(paths['word_path_2'], paths['path_extract'], paths['final_path_2'])
         
-        add_tab_indent_to_paragraphs(final_path_1, final_path_1)
-        add_tab_indent_to_paragraphs(final_path_2, final_path_2)
+        add_tab_indent_to_paragraphs(paths['final_path_1'], paths['final_path_1'])
+        add_tab_indent_to_paragraphs(paths['final_path_2'], paths['final_path_2'])
 
         # 合并所有信息到一个消息框
         summary_message = f"处理完成！\n\n" \

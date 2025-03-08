@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, scrolledtext
 import os
 import shutil
-from src.styles.theme_manager import theme_manager
+from src.ui.styles.theme_manager import theme_manager
 from src.utils import cleanup_utils
-from config.config_manager import ConfigManager
+from config.managers import config_manager
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -12,8 +12,8 @@ class StartPage(tk.Frame):
         self.configure(bg=theme_manager.get_color('background'))
         self.controller = controller  # 保存controller引用
         
-        # 创建配置管理器实例
-        self.config_manager = ConfigManager()
+        # 使用全局配置管理器实例
+        self.config_manager = config_manager
         
         # 创建标题
         title = ttk.Label(self, 
