@@ -251,8 +251,17 @@ class StartPage(tk.Frame):
         # 隐藏配置页面
         self.config_frame.pack_forget()
         
-        # 重新显示主页面组件
-        self.__init__(self.master, self.master.master)
+        # 重新显示主页面的所有组件
+        for widget in self.winfo_children():
+            if widget != self.config_frame:
+                widget.pack()
+        
+        # 重新排列主要组件
+        for widget in self.winfo_children():
+            if isinstance(widget, ttk.Label) and widget.cget("text") == "AI审校助手":
+                widget.pack(pady=50)
+            elif isinstance(widget, tk.Frame) and widget != self.config_frame:
+                widget.pack(expand=True)
     
     def browse_output_dir(self, key):
         """浏览并选择输出目录"""
