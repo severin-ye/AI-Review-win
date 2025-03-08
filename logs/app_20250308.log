@@ -191,3 +191,139 @@ AttributeError: module 'tkinter.ttk' has no attribute 'LEFT'
 2025-03-08 23:07:33,824 [INFO] 程序已退出
 2025-03-08 23:12:58,980 [INFO] 正在启动AI审校助手...
 2025-03-08 23:13:10,201 [INFO] 程序已退出
+2025-03-08 23:15:52,027 [INFO] 正在启动AI审校助手...
+2025-03-08 23:15:59,404 [INFO] 程序已退出
+2025-03-08 23:16:38,630 [INFO] 正在启动AI审校助手...
+2025-03-08 23:16:47,345 [INFO] 程序已退出
+2025-03-08 23:16:48,440 [INFO] 正在启动AI审校助手...
+2025-03-08 23:16:54,383 [INFO] 程序已退出
+2025-03-08 23:17:12,725 [INFO] 正在启动AI审校助手...
+2025-03-08 23:17:17,349 [INFO] 程序已退出
+2025-03-08 23:17:59,715 [INFO] 正在启动AI审校助手...
+2025-03-08 23:18:06,688 [INFO] 程序已退出
+2025-03-08 23:19:54,273 [INFO] 正在启动AI审校助手...
+2025-03-08 23:20:06,652 [INFO] 程序已退出
+2025-03-08 23:20:27,252 [INFO] 正在启动AI审校助手...
+2025-03-08 23:20:31,489 [INFO] 程序已退出
+2025-03-08 23:20:35,486 [INFO] 正在启动AI审校助手...
+2025-03-08 23:20:38,956 [INFO] 程序已退出
+2025-03-08 23:22:20,349 [INFO] 正在启动AI审校助手...
+2025-03-08 23:22:24,018 [INFO] 程序已退出
+2025-03-08 23:23:18,627 [INFO] 正在启动AI审校助手...
+2025-03-08 23:23:22,862 [INFO] 程序已退出
+2025-03-08 23:23:45,502 [INFO] 正在启动AI审校助手...
+2025-03-08 23:23:58,608 [INFO] 程序已退出
+2025-03-08 23:26:28,294 [INFO] 正在启动AI审校助手...
+2025-03-08 23:26:29,890 [ERROR] 程序运行出错：unknown option "-font"
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 67, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4941, in __init__
+    func(self, *args, **kwargs)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 582, in __init__
+    Widget.__init__(self, master, "ttk::button", kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 527, in __init__
+    tkinter.Widget.__init__(self, master, widgetname, kw=kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2659, in __init__
+    self.tk.call(
+_tkinter.TclError: unknown option "-font"
+2025-03-08 23:26:31,225 [INFO] 程序已退出
+2025-03-08 23:26:31,225 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 67, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4941, in __init__
+    func(self, *args, **kwargs)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 582, in __init__
+    Widget.__init__(self, master, "ttk::button", kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 527, in __init__
+    tkinter.Widget.__init__(self, master, widgetname, kw=kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2659, in __init__
+    self.tk.call(
+_tkinter.TclError: unknown option "-font"
+2025-03-08 23:28:15,207 [INFO] 正在启动AI审校助手...
+2025-03-08 23:28:18,953 [INFO] 程序已退出
+2025-03-08 23:30:04,939 [INFO] 正在启动AI审校助手...
+2025-03-08 23:30:22,669 [INFO] 程序已退出
+2025-03-08 23:32:11,766 [INFO] 正在启动AI审校助手...
+2025-03-08 23:33:33,322 [INFO] 程序已退出
+2025-03-08 23:35:03,612 [INFO] 正在启动AI审校助手...
+2025-03-08 23:35:11,579 [INFO] 程序已退出
+2025-03-08 23:37:42,411 [INFO] 正在启动AI审校助手...
+2025-03-08 23:37:43,942 [ERROR] 程序运行出错：type object 'StyleBuilderTTK' has no attribute 'create_round_button_style'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 96, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4955, in __init__
+    ttkstyle = Bootstyle.update_ttk_widget_style(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 5049, in update_ttk_widget_style
+    builder_method = builder.name_to_method(method_name)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 1086, in name_to_method
+    func = getattr(StyleBuilderTTK, method_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'StyleBuilderTTK' has no attribute 'create_round_button_style'. Did you mean: 'create_link_button_style'?
+2025-03-08 23:37:45,327 [INFO] 程序已退出
+2025-03-08 23:37:45,327 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 96, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4955, in __init__
+    ttkstyle = Bootstyle.update_ttk_widget_style(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 5049, in update_ttk_widget_style
+    builder_method = builder.name_to_method(method_name)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 1086, in name_to_method
+    func = getattr(StyleBuilderTTK, method_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'StyleBuilderTTK' has no attribute 'create_round_button_style'. Did you mean: 'create_link_button_style'?
+2025-03-08 23:38:14,677 [INFO] 正在启动AI审校助手...
+2025-03-08 23:38:29,169 [INFO] 程序已退出
+2025-03-08 23:39:12,713 [INFO] 正在启动AI审校助手...
+2025-03-08 23:39:16,874 [INFO] 程序已退出

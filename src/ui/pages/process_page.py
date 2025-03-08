@@ -16,10 +16,12 @@ class ProcessPage(ttk.Frame):
         self.progress_queue = Queue()
         
         # 创建标题
-        title = ttk.Label(self, 
-                         text="处理文件",
-                         font=theme_manager.get_font('title'),
-                         bootstyle="primary")
+        title = theme_manager.create_label(
+            self, 
+            text="处理文件",
+            is_title=True,
+            bootstyle="primary"
+        )
         title.pack(pady=50)
         
         # 创建按钮容器
@@ -34,10 +36,12 @@ class ProcessPage(ttk.Frame):
         ]
         
         for text, command, bootstyle in buttons:
-            btn = ttk.Button(button_frame,
-                          text=text,
-                          bootstyle=bootstyle,
-                          command=command)
+            btn = theme_manager.create_button(
+                button_frame,
+                text=text,
+                command=command,
+                bootstyle=bootstyle
+            )
             btn.pack(pady=10)
     
     def return_to_start(self):
@@ -63,19 +67,23 @@ class ProcessPage(ttk.Frame):
             main_frame.pack(fill=BOTH, expand=True, padx=theme_manager.get_padding('frame'), pady=theme_manager.get_padding('frame'))
             
             # 创建标题
-            title = ttk.Label(main_frame,
-                            text="处理进度",
-                            font=theme_manager.get_font('subtitle'),
-                            bootstyle="primary")
+            title = theme_manager.create_label(
+                main_frame,
+                text="处理进度",
+                is_title=True,
+                bootstyle="primary"
+            )
             title.pack(pady=(0, 20))
             
             # 创建文件总进度条框架
             total_frame = ttk.Frame(main_frame)
             total_frame.pack(fill=X, pady=10)
             
-            self.file_progress_label = ttk.Label(total_frame,
-                                               text="总体进度:",
-                                               bootstyle="primary")
+            self.file_progress_label = theme_manager.create_label(
+                total_frame,
+                text="总体进度:",
+                bootstyle="primary"
+            )
             self.file_progress_label.pack(anchor='w')
             
             self.file_progress_var = ttk.DoubleVar()
@@ -94,9 +102,11 @@ class ProcessPage(ttk.Frame):
             current_frame.pack(fill=X, pady=10)
             
             self.label_var = ttk.StringVar(value="准备开始...")
-            self.current_label = ttk.Label(current_frame,
-                                         textvariable=self.label_var,
-                                         bootstyle="primary")
+            self.current_label = theme_manager.create_label(
+                current_frame,
+                textvariable=self.label_var,
+                bootstyle="primary"
+            )
             self.current_label.pack(anchor='w')
             
             self.current_progress_var = ttk.DoubleVar()
@@ -112,10 +122,11 @@ class ProcessPage(ttk.Frame):
             
             # 创建百分比标签
             self.percent_var = ttk.StringVar(value="总进度: 0.0%")
-            self.percent_label = ttk.Label(main_frame,
-                                         textvariable=self.percent_var,
-                                         font=theme_manager.get_font('default'),
-                                         bootstyle="primary")
+            self.percent_label = theme_manager.create_label(
+                main_frame,
+                textvariable=self.percent_var,
+                bootstyle="primary"
+            )
             self.percent_label.pack(pady=10)
             
             self.root.attributes('-topmost', True)

@@ -11,10 +11,12 @@ class KeyVerifyPage(ttk.Frame):
         self.controller = controller  # 保存controller引用
         
         # 创建标题
-        title = ttk.Label(self, 
-                         text="密钥验证",
-                         font=theme_manager.get_font('title'),
-                         bootstyle="primary")
+        title = theme_manager.create_label(
+            self, 
+            text="密钥验证",
+            is_title=True,
+            bootstyle="primary"
+        )
         title.pack(pady=50)
         
         # 创建输入框容器
@@ -22,16 +24,16 @@ class KeyVerifyPage(ttk.Frame):
         entry_frame.pack(pady=20)
         
         # 创建输入框
-        self.key_entry = ttk.Entry(entry_frame, 
-                                 width=40,
-                                 font=theme_manager.get_font('input'))
+        self.key_entry = theme_manager.create_entry(entry_frame)
         self.key_entry.pack(pady=10)
         
         # 创建验证按钮
-        verify_button = ttk.Button(self, 
-                                text="验证",
-                                bootstyle="success",
-                                command=self.verify_key)
+        verify_button = theme_manager.create_button(
+            self,
+            text="验证",
+            command=self.verify_key,
+            bootstyle="success"
+        )
         verify_button.pack(pady=20)
     
     def verify_key(self):

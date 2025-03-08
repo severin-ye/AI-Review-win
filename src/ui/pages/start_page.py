@@ -15,10 +15,12 @@ class StartPage(ttk.Frame):
         self.config_manager = config_manager
         
         # 创建标题
-        title = ttk.Label(self, 
-                         text="AI审校助手",
-                         font=theme_manager.get_font('title'),
-                         bootstyle="primary")
+        title = theme_manager.create_label(
+            self, 
+            text="AI审校助手",
+            is_title=True,
+            bootstyle="primary"
+        )
         title.pack(pady=50)
         
         # 创建主按钮容器
@@ -48,18 +50,22 @@ class StartPage(ttk.Frame):
         
         # 创建左侧按钮
         for text, command, bootstyle in left_buttons:
-            btn = ttk.Button(left_button_frame,
-                          text=text,
-                          bootstyle=bootstyle,
-                          command=command)
+            btn = theme_manager.create_button(
+                left_button_frame,
+                text=text,
+                command=command,
+                bootstyle=bootstyle
+            )
             btn.pack(pady=10)
         
         # 创建右侧按钮
         for text, command, bootstyle in right_buttons:
-            btn = ttk.Button(right_button_frame,
-                          text=text,
-                          bootstyle=bootstyle,
-                          command=command)
+            btn = theme_manager.create_button(
+                right_button_frame,
+                text=text,
+                command=command,
+                bootstyle=bootstyle
+            )
             btn.pack(pady=10)
         
         # 创建配置页面（初始隐藏）
@@ -143,10 +149,12 @@ class StartPage(ttk.Frame):
         main_frame.pack(fill="both", expand=True, padx=20, pady=20)
         
         # 标题
-        title = ttk.Label(main_frame,
-                         text="配置设置",
-                         font=theme_manager.get_font('title'),
-                         bootstyle="primary")
+        title = theme_manager.create_label(
+            main_frame,
+            text="配置设置",
+            is_title=True,
+            bootstyle="primary"
+        )
         title.pack(pady=20)
         
         # 创建配置项框架
@@ -163,9 +171,11 @@ class StartPage(ttk.Frame):
                 frame = ttk.Frame(config_frame)
                 frame.pack(fill="x", pady=5)
                 
-                label = ttk.Label(frame,
-                                text=f"{self.config_manager.label_names[key]}:",
-                                width=self.config_manager.label_width)
+                label = theme_manager.create_label(
+                    frame,
+                    text=f"{self.config_manager.label_names[key]}:",
+                    width=self.config_manager.label_width
+                )
                 label.pack(side="left")
                 
                 if key == "module_type":
@@ -184,37 +194,45 @@ class StartPage(ttk.Frame):
                     dir_frame.pack(side="left", fill="x", expand=True)
                     
                     # 创建输入框
-                    entry = ttk.Entry(dir_frame,
-                                    textvariable=self.config_vars[key],
-                                    width=self.config_manager.entry_width - 10)
+                    entry = theme_manager.create_entry(
+                        dir_frame,
+                        textvariable=self.config_vars[key],
+                        width=self.config_manager.entry_width - 10
+                    )
                     entry.pack(side="left", fill="x", expand=True)
                     
                     # 创建浏览按钮
-                    browse_btn = ttk.Button(dir_frame,
-                                          text="浏览",
-                                          command=lambda: self.browse_output_dir(key),
-                                          bootstyle='info')
+                    browse_btn = theme_manager.create_button(
+                        dir_frame,
+                        text="浏览",
+                        command=lambda: self.browse_output_dir(key),
+                        bootstyle="info"
+                    )
                     browse_btn.pack(side="left", padx=5)
                 else:
-                    entry = ttk.Entry(frame,
-                                    textvariable=self.config_vars[key],
-                                    width=self.config_manager.entry_width)
+                    entry = theme_manager.create_entry(
+                        frame,
+                        textvariable=self.config_vars[key],
+                        width=self.config_manager.entry_width
+                    )
                     entry.pack(side="left", fill="x", expand=True)
         
         # Prompt 输入区域
         prompt_frame = ttk.Frame(main_frame)
         prompt_frame.pack(fill="both", expand=True, pady=10)
         
-        prompt_label = ttk.Label(prompt_frame,
-                               text=f"{self.config_manager.label_names['prompt']}:",
-                               bootstyle='primary')
+        prompt_label = theme_manager.create_label(
+            prompt_frame,
+            text=f"{self.config_manager.label_names['prompt']}:",
+            bootstyle="primary"
+        )
         prompt_label.pack(anchor="w")
         
         self.prompt_text = scrolledtext.ScrolledText(
             prompt_frame,
             height=self.config_manager.prompt_text_height,
             width=self.config_manager.prompt_text_width,
-            font=theme_manager.get_font('body'),
+            font=theme_manager.get_font('input'),
             bg='white'
         )
         self.prompt_text.pack(fill="both", expand=True, pady=5)
@@ -223,16 +241,20 @@ class StartPage(ttk.Frame):
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(pady=20)
         
-        save_button = ttk.Button(button_frame,
-                               text="保存配置",
-                               bootstyle='success',
-                               command=self.save_config)
+        save_button = theme_manager.create_button(
+            button_frame,
+            text="保存配置",
+            command=self.save_config,
+            bootstyle="success"
+        )
         save_button.pack(side=ttk.LEFT, padx=10)
         
-        back_button = ttk.Button(button_frame,
-                               text="返回主页",
-                               bootstyle='secondary',
-                               command=self.show_main_page)
+        back_button = theme_manager.create_button(
+            button_frame,
+            text="返回主页",
+            command=self.show_main_page,
+            bootstyle="secondary"
+        )
         back_button.pack(side=ttk.LEFT, padx=10)
         
         # 设置配置管理器的widgets
