@@ -29,11 +29,11 @@ class StartPage(ttk.Frame):
         
         # 创建左侧按钮容器
         left_button_frame = ttk.Frame(main_button_frame)
-        left_button_frame.pack(side=LEFT, padx=20)
+        left_button_frame.pack(side=LEFT, padx=40)
         
         # 创建右侧按钮容器
         right_button_frame = ttk.Frame(main_button_frame)
-        right_button_frame.pack(side=LEFT, padx=20)
+        right_button_frame.pack(side=LEFT, padx=40)
         
         # 左侧按钮（文件操作）
         left_buttons = [
@@ -56,7 +56,6 @@ class StartPage(ttk.Frame):
                 command=command,
                 bootstyle=bootstyle
             )
-            btn.pack(pady=10)
         
         # 创建右侧按钮
         for text, command, bootstyle in right_buttons:
@@ -66,7 +65,6 @@ class StartPage(ttk.Frame):
                 command=command,
                 bootstyle=bootstyle
             )
-            btn.pack(pady=10)
         
         # 创建配置页面（初始隐藏）
         self.config_frame = ttk.Frame(self)

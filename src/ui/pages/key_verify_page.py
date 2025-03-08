@@ -34,7 +34,6 @@ class KeyVerifyPage(ttk.Frame):
             command=self.verify_key,
             bootstyle="success"
         )
-        verify_button.pack(pady=20)
     
     def verify_key(self):
         """验证密钥"""

@@ -50,7 +50,7 @@ class ThemeManager:
             }
         },
         'padding': {
-            'button': (20, 10),    # 按钮外边距（水平，垂直）像素值
+            'button': (60, 30),    # 按钮外边距（水平，垂直）像素值，水平间距增加到两倍
             'frame': 20,           # 框架内边距，像素值
             'input': 5             # 输入框外边距，像素值
         },
@@ -108,7 +108,7 @@ class ThemeManager:
                 ])
         
         button_style = self.theme['components']['button']
-        return ttk.Button(
+        btn = ttk.Button(
             parent,
             text=text,
             command=command,
@@ -116,6 +116,10 @@ class ThemeManager:
             style=f"Custom.{bootstyle}.TButton",
             width=button_style['width']
         )
+        
+        # 应用默认的按钮间距
+        btn.pack(pady=self.get_padding('button')[1])
+        return btn
 
     def create_entry(self, parent, width=None, **kwargs):
         """

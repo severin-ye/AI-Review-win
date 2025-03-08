@@ -42,7 +42,6 @@ class ProcessPage(ttk.Frame):
                 command=command,
                 bootstyle=bootstyle
             )
-            btn.pack(pady=10)
     
     def return_to_start(self):
         """返回主页"""
