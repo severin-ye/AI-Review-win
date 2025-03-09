@@ -149,26 +149,109 @@ def build_installer():
     
     return success
 
+def build_key_generator():
+    """打包密钥生成器"""
+    logging.info("开始打包密钥生成器...")
+    
+    # 获取路径
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    dist_dir = os.path.join(root_dir, "dist")
+    
+    # 创建 spec 文件内容
+    spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
+
+a = Analysis(
+    ['../src/security/key_generator.py'],
+    pathex=[r'{root_dir}'],
+    binaries=[],
+    datas=[],
+    hiddenimports=[],
+    hookspath=[],
+    hooksconfig={{}},
+    runtime_hooks=[],
+    excludes=[],
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.datas,
+    [],
+    name='密钥生成器',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+)
+'''
+    
+    # 创建 spec 文件
+    spec_file = os.path.join(root_dir, "scripts", "key_generator.spec")
+    with open(spec_file, "w", encoding="utf-8") as f:
+        f.write(spec_content)
+    
+    # 切换到scripts目录
+    os.chdir(os.path.join(root_dir, "scripts"))
+    
+    # 清理旧的构建文件
+    if os.path.exists("build"):
+        run_command("rmdir /s /q build")
+    
+    # 打包密钥生成器
+    success = run_command(f"pyinstaller --noconfirm --distpath {dist_dir} key_generator.spec")
+    
+    if success:
+        key_gen_exe = os.path.join(dist_dir, "密钥生成器.exe")
+        if os.path.exists(key_gen_exe):
+            file_size = os.path.getsize(key_gen_exe)
+            logging.info(f"密钥生成器打包成功:")
+            logging.info(f"  路径: {key_gen_exe}")
+            logging.info(f"  大小: {file_size:,} 字节")
+            logging.info(f"  修改时间: {datetime.fromtimestamp(os.path.getmtime(key_gen_exe))}")
+        else:
+            logging.error("密钥生成器文件未生成")
+            success = False
+    
+    return success
+
 def main():
     """主函数"""
     log_file = setup_logging()
     logging.info("开始构建过程...")
     
     try:
-        # 1. 打包主程序（B.exe）
+        # 1. 打包主程序
         if not build_main_program():
             logging.error("主程序打包失败")
             return False
         
-        # 2. 打包安装程序（A.exe）
+        # 2. 打包安装程序
         if not build_installer():
             logging.error("安装程序打包失败")
+            return False
+            
+        # 3. 打包密钥生成器
+        if not build_key_generator():
+            logging.error("密钥生成器打包失败")
             return False
         
         logging.info("\n构建过程完成!")
         logging.info("生成的文件:")
         logging.info("1. 主程序: dist/AI审校助手.exe")
-        logging.info("2. 安装程序: scripts/dist/安装程序.exe")
+        logging.info("2. 安装程序: dist/安装程序.exe")
+        logging.info("3. 密钥生成器: dist/密钥生成器.exe")
         logging.info(f"\n日志文件保存在: {log_file}")
         return True
         
