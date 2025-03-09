@@ -1,8 +1,7 @@
 from src.security.key_generator_legacy import generate_key, SECRET_KEY
 import ttkbootstrap as ttk
-from tkinter import messagebox, LEFT, RIGHT, TOP, BOTH, X, Y, W
+from tkinter import messagebox
 import pyperclip  # 用于复制到剪贴板
-from src.ui.styles.theme_manager import theme_manager
 
 def copy_to_clipboard(text):
     pyperclip.copy(text)
@@ -10,7 +9,7 @@ def copy_to_clipboard(text):
 
 def show_key_dialog(key):
     # 创建主窗口
-    window = ttk.Window(themename="litera")
+    window = ttk.Window(themename="litera")  # 使用 litera 主题
     window.title("密钥生成器")
     window.geometry("500x325")
     
@@ -23,23 +22,23 @@ def show_key_dialog(key):
     
     # 创建主框架
     main_frame = ttk.Frame(window)
-    main_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
+    main_frame.pack(fill='both', expand=True, padx=20, pady=20)
     
     # 创建标题
     title = ttk.Label(main_frame,
                      text="密钥生成器",
-                     font=theme_manager.get_font('subtitle'),
+                     font=('Microsoft YaHei UI', 18, 'bold'),
                      bootstyle="primary")
     title.pack(pady=(0, 30))
     
     # 创建密钥显示框架
     key_frame = ttk.Frame(main_frame)
-    key_frame.pack(fill=X, pady=10)
+    key_frame.pack(fill='x', pady=10)
     
     # 显示密钥的文本框
     key_entry = ttk.Entry(key_frame, 
                          width=40,
-                         font=theme_manager.get_font('input'))
+                         font=('Microsoft YaHei UI', 10))
     key_entry.insert(0, key)
     key_entry.config(state='readonly')
     key_entry.pack(pady=10)
@@ -50,17 +49,17 @@ def show_key_dialog(key):
     
     # 复制按钮
     copy_button = ttk.Button(button_frame, 
-                           text="复制密钥", 
+                           text="复制密钥",
                            bootstyle="success",
                            command=lambda: copy_to_clipboard(key))
-    copy_button.pack(side=LEFT, padx=10)
+    copy_button.pack(side='left', padx=10)
     
     # 关闭按钮
     close_button = ttk.Button(button_frame, 
-                            text="关闭", 
+                            text="关闭",
                             bootstyle="secondary",
                             command=window.destroy)
-    close_button.pack(side=LEFT, padx=10)
+    close_button.pack(side='left', padx=10)
     
     # 运行窗口
     window.mainloop()
