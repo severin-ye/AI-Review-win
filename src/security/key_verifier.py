@@ -20,16 +20,12 @@ def verify_key(input_key, secret_key):
     return generated_key == input_key
 
 def main():
-    if len(sys.argv) != 2:
-        print("Invalid")
-        sys.exit(1)
-        
-    user_input_key = sys.argv[1]
+    user_input_key = input("请输入密钥: ")
     if verify_key(user_input_key, SECRET_KEY):
-        print("Valid")
+        print("密钥验证成功")
         sys.exit(0)
     else:
-        print("Invalid")
+        print("密钥验证失败")
         sys.exit(1)
 
 if __name__ == "__main__":
