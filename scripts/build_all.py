@@ -5,6 +5,12 @@ import logging
 import shutil
 from datetime import datetime
 
+# 添加项目根目录到 Python 路径
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+    print(f"已添加项目根目录到 Python 路径: {root_dir}")
+
 def setup_logging():
     """设置日志记录"""
     log_dir = "build_logs"
@@ -105,27 +111,19 @@ def build_main_program():
     return True
 
 def build_installer():
-    """打包安装程序（A.exe）"""
+    """打包安装程序"""
     logging.info("开始打包安装程序...")
     
     # 获取路径
     scripts_dir = os.path.dirname(os.path.abspath(__file__))
     root_dir = os.path.dirname(scripts_dir)
+    dist_dir = os.path.join(root_dir, "dist")  # 使用项目根目录下的dist
     
     # 检查主程序是否存在
-    main_exe = os.path.join(root_dir, "dist", "AI审校助手.exe")
+    main_exe = os.path.join(dist_dir, "AI审校助手.exe")
     if not os.path.exists(main_exe):
         logging.error(f"找不到主程序: {main_exe}")
         return False
-    
-    # 删除旧版本
-    old_exe = os.path.join(root_dir, "AI审校助手.exe")
-    if os.path.exists(old_exe):
-        try:
-            os.remove(old_exe)
-            logging.info(f"已删除旧版本: {old_exe}")
-        except Exception as e:
-            logging.warning(f"删除旧版本失败: {str(e)}")
     
     # 切换到scripts目录
     os.chdir(scripts_dir)
@@ -133,14 +131,12 @@ def build_installer():
     # 清理旧的构建文件
     if os.path.exists("build"):
         run_command("rmdir /s /q build")
-    if os.path.exists("dist"):
-        run_command("rmdir /s /q dist")
     
-    # 打包安装程序
-    success = run_command("pyinstaller --noconfirm installer.spec")
+    # 打包安装程序，直接输出到项目的dist目录
+    success = run_command(f"pyinstaller --noconfirm --distpath {dist_dir} installer.spec")
     
     if success:
-        installer_exe = os.path.join(scripts_dir, "dist", "安装程序.exe")
+        installer_exe = os.path.join(dist_dir, "安装程序.exe")
         if os.path.exists(installer_exe):
             file_size = os.path.getsize(installer_exe)
             logging.info(f"安装程序打包成功:")

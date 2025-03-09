@@ -20,206 +20,51 @@ import re
 import platform
 import ctypes
 from PIL import Image, ImageDraw
+import ttkbootstrap as ttk
 
-# 添加项目根目录到系统路径
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(current_dir)
-sys.path.insert(0, project_root)
+# 添加项目根目录和src目录到 Python 路径
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+src_dir = os.path.join(root_dir, "src")
 
-# 导入主题管理器
-try:
-    from src.styles.theme_manager import theme_manager
-except ImportError:
-    # 如果无法导入，创建一个简化版的主题管理器
-    class SimpleThemeManager:
-        def __init__(self):
-            self.theme = {
-                'colors': {
-                    'primary': '#2196F3',      # 主色调 - 蓝色
-                    'secondary': '#FFC107',    # 次要色调 - 琥珀色
-                    'background': '#F5F5F5',   # 背景色 - 浅灰
-                    'text': '#333333',         # 文本色 - 深灰
-                    'button': '#1976D2',       # 按钮色 - 深蓝
-                    'button_hover': '#1565C0', # 按钮悬停色
-                    'border': '#E0E0E0',       # 边框色 - 灰色
-                    'success': '#4CAF50',      # 成功色 - 绿色
-                    'warning': '#FF9800',      # 警告色 - 橙色
-                    'error': '#F44336',        # 错误色 - 红色
-                    'info': '#2196F3'          # 信息色 - 蓝色
-                },
-                'fonts': {
-                    'default': ('Microsoft YaHei UI', 10),
-                    'title': ('Microsoft YaHei UI', 16, 'bold'),
-                    'subtitle': ('Microsoft YaHei UI', 14, 'bold'),
-                    'small': ('Microsoft YaHei UI', 9),
-                    'button': ('Microsoft YaHei UI', 10),
-                    'input': ('Microsoft YaHei UI', 10)
-                },
-                'padding': {
-                    'button': (20, 10),
-                    'frame': 20,
-                    'input': 5
-                }
-            }
-        
-        def get_color(self, color_name):
-            return self.theme['colors'].get(color_name, self.theme['colors']['primary'])
-        
-        def get_font(self, font_name):
-            return self.theme['fonts'].get(font_name, self.theme['fonts']['default'])
-        
-        def get_padding(self, padding_name):
-            return self.theme['padding'].get(padding_name, self.theme['padding']['frame'])
-        
-        def apply_theme(self, root):
-            # 设置窗口背景色
-            root.configure(bg=self.get_color('background'))
-            
-            # 配置全局样式
-            style = ttk.Style()
-            
-            # 尝试导入主题管理器
-            try:
-                # 添加项目根目录到系统路径
-                import sys
-                import os
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-                project_root = os.path.dirname(current_dir)
-                if project_root not in sys.path:
-                    sys.path.insert(0, project_root)
-                
-                # 导入主题管理器
-                from src.styles.theme_manager import ThemeManager
-                
-                # 创建临时主题管理器实例并应用按钮样式
-                temp_theme_manager = ThemeManager()
-                temp_theme_manager.apply_button_styles(style)
-                
-                print("成功使用主题管理器应用按钮样式")
-            except ImportError:
-                print("无法导入主题管理器，使用本地按钮样式定义")
-                # 如果无法导入主题管理器，则使用本地定义的按钮样式
-                self._apply_local_button_styles(style)
-            
-            # 配置标题样式
-            style.configure('Title.TLabel',
-                           font=self.get_font('title'),
-                           background=self.get_color('background'),
-                           foreground=self.get_color('primary'))
-            
-            # 配置信息标签样式
-            style.configure('Info.TLabel',
-                           font=self.get_font('default'),
-                           background=self.get_color('background'),
-                           foreground=self.get_color('text'))
-            
-            # 配置进度条样式
-            style.configure('Horizontal.TProgressbar',
-                           thickness=15)
-        
-        def _apply_local_button_styles(self, style):
-            """本地按钮样式定义，仅在无法导入主题管理器时使用"""
-            # 配置按钮样式 - 美化版本
-            style.configure('TButton',
-                           font=self.get_font('button'),
-                           padding=self.get_padding('button'),
-                           background='#FFFFFF',
-                           foreground=self.get_color('button'),
-                           relief=tk.RAISED,
-                           borderwidth=1,
-                           highlightthickness=1,
-                           highlightbackground=self.get_color('primary'),
-                           highlightcolor=self.get_color('primary'))
-            
-            # 配置按钮悬停和按下状态
-            style.map('TButton',
-                     background=[('active', '#E3F2FD'),
-                                ('pressed', '#E3F2FD')],
-                     foreground=[('active', self.get_color('button_hover')),
-                                ('pressed', self.get_color('button_hover'))],
-                     relief=[('pressed', 'sunken')])
-            
-            # 配置主按钮样式
-            style.configure('Main.TButton',
-                           font=self.get_font('button'),
-                           padding=self.get_padding('button'),
-                           background='#FFFFFF',
-                           foreground=self.get_color('button'),
-                           relief=tk.RAISED,
-                           borderwidth=1,
-                           highlightthickness=1,
-                           highlightbackground=self.get_color('primary'),
-                           highlightcolor=self.get_color('primary'))
-            
-            # 配置主按钮悬停和按下状态
-            style.map('Main.TButton',
-                     background=[('active', '#E3F2FD'),
-                                ('pressed', '#E3F2FD')],
-                     foreground=[('active', self.get_color('button_hover')),
-                                ('pressed', self.get_color('button_hover'))],
-                     relief=[('pressed', 'sunken')])
-            
-            # 配置次要按钮样式
-            style.configure('Secondary.TButton',
-                           font=self.get_font('button'),
-                           padding=self.get_padding('button'),
-                           background='#FFFFFF',
-                           foreground=self.get_color('secondary'),
-                           relief=tk.RAISED,
-                           borderwidth=1,
-                           highlightthickness=1,
-                           highlightbackground=self.get_color('secondary'),
-                           highlightcolor=self.get_color('secondary'))
-            
-            # 配置次要按钮悬停和按下状态
-            style.map('Secondary.TButton',
-                     background=[('active', '#FFF8E1'),
-                                ('pressed', '#FFF8E1')],
-                     foreground=[('active', '#E6A800'),
-                                ('pressed', '#E6A800')],
-                     relief=[('pressed', 'sunken')])
-            
-            # 配置危险按钮样式
-            style.configure('Danger.TButton',
-                           font=self.get_font('button'),
-                           padding=self.get_padding('button'),
-                           background='#FFFFFF',
-                           foreground=self.get_color('error'),
-                           relief=tk.RAISED,
-                           borderwidth=1,
-                           highlightthickness=1,
-                           highlightbackground=self.get_color('error'),
-                           highlightcolor=self.get_color('error'))
-            
-            # 配置危险按钮悬停和按下状态
-            style.map('Danger.TButton',
-                     background=[('active', '#FFEBEE'),
-                                ('pressed', '#FFEBEE')],
-                     foreground=[('active', '#D32F2F'),
-                                ('pressed', '#D32F2F')],
-                     relief=[('pressed', 'sunken')])
-            
-            # 配置成功按钮样式
-            style.configure('Success.TButton',
-                           font=self.get_font('button'),
-                           padding=self.get_padding('button'),
-                           background='#FFFFFF',
-                           foreground=self.get_color('success'),
-                           relief=tk.RAISED,
-                           borderwidth=1,
-                           highlightthickness=1,
-                           highlightbackground=self.get_color('success'),
-                           highlightcolor=self.get_color('success'))
-            
-            # 配置成功按钮悬停和按下状态
-            style.map('Success.TButton',
-                     background=[('active', '#E8F5E9'),
-                                ('pressed', '#E8F5E9')],
-                     foreground=[('active', '#388E3C'),
-                                ('pressed', '#388E3C')],
-                     relief=[('pressed', 'sunken')])
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
+
+print(f"项目根目录: {root_dir}")
+print(f"src目录: {src_dir}")
+print(f"Python路径: {sys.path}")
+
+# 创建一个简单的主题管理器类
+class SimpleThemeManager:
+    def __init__(self):
+        self.default_font = ("Microsoft YaHei UI", 10)
+        self.title_font = ("Microsoft YaHei UI", 16, "bold")
     
-    theme_manager = SimpleThemeManager()
+    def apply_theme(self, window):
+        """应用主题到窗口"""
+        style = ttk.Style()
+        style.configure("TLabel", font=self.default_font)
+        style.configure("TButton", font=self.default_font)
+        style.configure("TEntry", font=self.default_font)
+        style.configure("Heading.TLabel", font=self.title_font)
+    
+    def create_label(self, parent, text, is_title=False, **kwargs):
+        """创建标签"""
+        if is_title:
+            return ttk.Label(parent, text=text, font=self.title_font, **kwargs)
+        return ttk.Label(parent, text=text, font=self.default_font, **kwargs)
+    
+    def create_button(self, parent, text, **kwargs):
+        """创建按钮"""
+        return ttk.Button(parent, text=text, **kwargs)
+    
+    def create_entry(self, parent, **kwargs):
+        """创建输入框"""
+        return ttk.Entry(parent, font=self.default_font, **kwargs)
+
+# 创建主题管理器实例
+theme_manager = SimpleThemeManager()
 
 '''
 AI审校助手安装程序
@@ -257,17 +102,57 @@ def setup_logging():
     )
     return log_file
 
+def is_admin():
+    """检查当前是否具有管理员权限"""
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+
+def run_as_admin():
+    """以管理员权限重新运行程序"""
+    try:
+        if not is_admin():
+            # 获取当前程序的路径
+            if hasattr(sys, '_MEIPASS'):  # 如果是打包后的程序
+                script = sys.executable
+            else:  # 如果是源码运行
+                script = os.path.abspath(__file__)
+                
+            # 请求UAC提权
+            ctypes.windll.shell32.ShellExecuteW(
+                None,  # 父窗口句柄
+                "runas",  # 操作
+                sys.executable,  # 程序
+                script,  # 参数
+                None,  # 当前目录
+                1  # 显示窗口
+            )
+            # 退出当前无权限的程序实例
+            sys.exit()
+            
+    except Exception as e:
+        print(f"请求管理员权限失败: {str(e)}")
+        return False
+    return True
+
 def main():
     """主函数"""
     try:
+        # 请求管理员权限
+        if not is_admin():
+            run_as_admin()
+            return
+            
         log_file = setup_logging()
         logging.info("安装程序启动")
         logging.info(f"Python 版本: {sys.version}")
         logging.info(f"工作目录: {os.getcwd()}")
         logging.info(f"系统平台: {sys.platform}")
         logging.info(f"命令行参数: {sys.argv}")
+        logging.info(f"管理员权限: {is_admin()}")
         
-        installer = InstallerGUI()
+        installer = InstallerApp()
         installer.run()
     except Exception as e:
         error_msg = f"发生错误:\n{str(e)}\n\n详细错误信息已保存到:\n{log_file}"
@@ -348,93 +233,117 @@ def get_resource_path(relative_path, required=False):
         
     return full_path
 
-class InstallerGUI:
+class InstallerApp(ttk.Window):
     def __init__(self):
-        logging.info("初始化安装程序界面")
-        self.root = tk.Tk()
-        self.root.title("AI审校助手 - 安装程序")
+        super().__init__(themename="litera")
         
-        # 设置窗口大小和位置
-        window_width = 600
-        window_height = 550
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        x = (screen_width - window_width) // 2
-        y = (screen_height - window_height) // 2
-        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        # 修改默认安装路径到用户目录
+        user_home = os.path.expanduser("~")
+        self.default_install_path = os.path.join(user_home, "AI审校助手")
+        
+        # 设置窗口标题和大小
+        self.title("AI审校助手安装程序")
+        self.geometry("1280x960")
         
         # 应用主题
-        theme_manager.apply_theme(self.root)
+        theme_manager.apply_theme(self)
         
         # 创建主框架
-        self.main_frame = ttk.Frame(self.root, padding=theme_manager.get_padding('frame'))
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        main_frame = ttk.Frame(self)
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
         
-        # 标题
-        title = ttk.Label(self.main_frame, 
+        # 创建标题
+        title = theme_manager.create_label(
+            main_frame,
                          text="AI审校助手安装程序",
-                         style='Title.TLabel')
-        title.pack(pady=20)
+            is_title=True,
+            bootstyle="primary"
+        )
+        title.pack(pady=50)
         
-        # 安装路径选择
-        path_frame = ttk.Frame(self.main_frame)
-        path_frame.pack(fill=tk.X, pady=10)
+        # 创建安装路径选择框架
+        path_frame = ttk.Frame(main_frame)
+        path_frame.pack(fill="x", pady=20)
         
-        ttk.Label(path_frame, text="安装路径：").pack(side=tk.LEFT)
-        self.install_path = tk.StringVar(value=os.path.join(os.path.expanduser("~"), "AI审校助手"))
-        path_entry = ttk.Entry(path_frame, textvariable=self.install_path, width=50)
-        path_entry.pack(side=tk.LEFT, padx=5)
+        # 安装路径标签
+        path_label = theme_manager.create_label(
+            path_frame,
+            text="安装路径:",
+            bootstyle="primary"
+        )
+        path_label.pack(side="left")
         
-        browse_btn = ttk.Button(path_frame, text="浏览", command=self.browse_path)
-        browse_btn.pack(side=tk.LEFT)
+        # 安装路径输入框
+        self.path_var = ttk.StringVar(value=self.default_install_path)
+        self.path_entry = theme_manager.create_entry(
+            path_frame,
+            textvariable=self.path_var,
+            width=50
+        )
+        self.path_entry.pack(side="left", padx=10)
         
-        # 创建桌面快捷方式选项
-        self.create_shortcut_var = tk.BooleanVar(value=True)
-        shortcut_check = ttk.Checkbutton(self.main_frame, 
+        # 浏览按钮
+        browse_btn = theme_manager.create_button(
+            path_frame,
+            text="浏览",
+            command=self.browse_path,
+            bootstyle="info"
+        )
+        browse_btn.pack(side="left")
+        
+        # 创建快捷方式选项
+        self.create_shortcut_var = ttk.BooleanVar(value=True)
+        shortcut_check = ttk.Checkbutton(
+            main_frame,
                                        text="创建桌面快捷方式",
-                                       variable=self.create_shortcut_var)
+            variable=self.create_shortcut_var,
+            bootstyle="primary"
+        )
         shortcut_check.pack(pady=10)
         
-        # 信息标签
-        self.info_label = ttk.Label(self.main_frame,
-                                  text="准备安装...",
-                                  style='Info.TLabel',
-                                  wraplength=500)
-        self.info_label.pack(pady=10)
-        
-        # 详细信息文本框
-        self.detail_text = scrolledtext.ScrolledText(self.main_frame, 
-                                                   height=8,
-                                                   width=60,
-                                                   font=theme_manager.get_font('small'))
-        self.detail_text.pack(pady=10)
-        
-        # 进度条
-        self.progress_var = tk.DoubleVar()
-        self.progress_bar = ttk.Progressbar(self.main_frame,
-                                          variable=self.progress_var,
-                                          maximum=100,
-                                          style='Horizontal.TProgressbar',
-                                          length=500)
-        self.progress_bar.pack(pady=20)
-        
-        # 按钮框架
-        button_frame = ttk.Frame(self.main_frame)
-        button_frame.pack(pady=10)
+        # 创建按钮框架
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(side="bottom", pady=30)
         
         # 安装按钮
-        self.install_button = ttk.Button(button_frame,
-                                       text="开始安装",
-                                       style='Success.TButton',
-                                       command=self.start_installation)
-        self.install_button.pack(side=tk.LEFT, padx=10)
+        self.install_btn = theme_manager.create_button(
+            button_frame,
+            text="开始安装",
+            command=self.start_install,
+            bootstyle="success"
+        )
+        self.install_btn.pack(side="left", padx=10)
         
-        # 退出按钮
-        self.exit_button = ttk.Button(button_frame,
-                                    text="退出",
-                                    style='Danger.TButton',
-                                    command=self.root.destroy)
-        self.exit_button.pack(side=tk.LEFT, padx=10)
+        # 取消按钮
+        self.cancel_btn = theme_manager.create_button(
+            button_frame,
+            text="取消",
+            command=self.quit,
+            bootstyle="danger"
+        )
+        self.cancel_btn.pack(side="left", padx=10)
+        
+        # 进度条
+        self.progress_var = ttk.DoubleVar()
+        self.progress_bar = ttk.Progressbar(
+            main_frame,
+                                          variable=self.progress_var,
+                                          maximum=100,
+            length=700,
+            mode='determinate',
+            bootstyle="primary"
+        )
+        self.progress_bar.pack(pady=20)
+        
+        # 状态标签
+        self.status_var = ttk.StringVar(value="准备安装...")
+        self.status_label = theme_manager.create_label(
+            main_frame,
+            text="准备安装...",
+            textvariable=self.status_var,
+            bootstyle="primary"
+        )
+        self.status_label.pack()
         
         # 需要创建的文件夹列表
         self.folders = {
@@ -457,7 +366,7 @@ class InstallerGUI:
         try:
             icon_path = get_resource_path("1-logo.ico", required=False)
             if icon_path and os.path.exists(icon_path):
-                self.root.iconbitmap(icon_path)
+                self.iconbitmap(icon_path)
                 self.log_message(f"成功加载图标: {icon_path}")
             else:
                 self.log_message("未找到图标文件，使用默认图标")
@@ -470,25 +379,24 @@ class InstallerGUI:
         from tkinter import filedialog
         path = filedialog.askdirectory()
         if path:
-            self.install_path.set(path)
+            self.path_var.set(path)
     
     def log_message(self, message):
         """添加日志消息到详细信息框"""
         logging.info(message)
-        self.detail_text.insert(tk.END, message + "\n")
-        self.detail_text.see(tk.END)
-        self.root.update()
+        self.status_var.set(message)
+        self.update()
     
     def update_progress(self, value, message):
         """更新进度条和信息标签"""
         self.progress_var.set(value)
-        self.info_label.config(text=message)
-        self.root.update()
+        self.status_var.set(message)
+        self.update()
     
     def create_folder(self, folder_path, description):
         """创建文件夹并返回结果信息"""
         try:
-            full_path = os.path.join(self.install_path.get(), folder_path)
+            full_path = os.path.join(self.path_var.get(), folder_path)
             if not os.path.exists(full_path):
                 os.makedirs(full_path)
                 return f"创建文件夹 {folder_path} 成功: {description}"
@@ -555,7 +463,7 @@ class InstallerGUI:
         """复制程序文件到安装目录"""
         try:
             # 获取安装路径
-            install_dir = self.install_path.get()
+            install_dir = self.path_var.get()
             self.log_message(f"正在复制程序文件到: {install_dir}")
             
             # 创建安装目录
@@ -639,7 +547,7 @@ class InstallerGUI:
                 return False
             
             # 检查目标文件是否存在
-            target_exe = os.path.abspath(os.path.join(self.install_path.get(), self.main_exe))
+            target_exe = os.path.abspath(os.path.join(self.path_var.get(), self.main_exe))
             if not os.path.exists(target_exe):
                 self.log_message(f"警告: 目标程序不存在: {target_exe}")
                 return False
@@ -648,7 +556,7 @@ class InstallerGUI:
                 self.log_message(f"目标程序大小: {os.path.getsize(target_exe)} 字节")
             
             # 检查图标文件是否存在
-            icon_file = os.path.abspath(os.path.join(self.install_path.get(), '2-logo.ico'))
+            icon_file = os.path.abspath(os.path.join(self.path_var.get(), '2-logo.ico'))
             has_icon = os.path.exists(icon_file)
             if not has_icon:
                 self.log_message(f"警告: 图标文件不存在: {icon_file}")
@@ -668,7 +576,7 @@ class InstallerGUI:
                 self.log_message(f"图标文件路径: {icon_file}")
             
             # 检查工作目录是否存在
-            work_dir = os.path.abspath(self.install_path.get())
+            work_dir = os.path.abspath(self.path_var.get())
             if not os.path.exists(work_dir):
                 self.log_message(f"警告: 工作目录不存在: {work_dir}")
                 return False
@@ -687,8 +595,7 @@ class InstallerGUI:
                         try:
                             os.remove(shortcut_path)
                             self.log_message("已删除旧的快捷方式")
-                            # 等待文件系统更新
-                            self.root.after(1000)
+                            self.after(1000)
                         except Exception as e:
                             self.log_message(f"警告: 无法删除已存在的快捷方式: {str(e)}")
                             continue
@@ -710,8 +617,7 @@ class InstallerGUI:
                         self.log_message("正在保存快捷方式...")
                         shortcut.Save()
                         
-                        # 等待文件系统更新
-                        self.root.after(1000)
+                        self.after(1000)
                         
                         # 检查快捷方式是否真的创建成功
                         if os.path.exists(shortcut_path):
@@ -772,24 +678,23 @@ class InstallerGUI:
             self.log_message(f"警告: 创建快捷方式过程出错: {str(e)}")
             return False
     
-    def start_installation(self):
+    def start_install(self):
         """开始安装过程"""
         try:
-            self.install_button.config(state='disabled')
-            self.detail_text.delete(1.0, tk.END)
+            self.install_btn.config(state='disabled')
+            self.status_var.set("正在检查安装包完整性...")
             
             # 检查安装包完整性
-            self.update_progress(0, "正在检查安装包完整性...")
             if not self.check_installation_integrity():
                 self.update_progress(0, "安装包不完整，无法继续安装")
                 messagebox.showerror("安装错误", 
                                   "安装包不完整，缺少必要文件。\n\n" +
                                   "请重新下载完整的安装包后再试。")
-                self.install_button.config(state='normal')
+                self.install_btn.config(state='normal')
                 return
             
             # 检查并删除已存在的安装目录
-            install_path = self.install_path.get()
+            install_path = self.path_var.get()
             if os.path.exists(install_path):
                 self.update_progress(5, "正在删除已存在的安装目录...")
                 try:
@@ -805,8 +710,7 @@ class InstallerGUI:
                             messagebox.showwarning("警告", 
                                                "请关闭正在运行的AI审校助手程序后再继续安装。\n" +
                                                "点击确定后重试...")
-                            # 等待一段时间后重试
-                            self.root.after(2000)
+                            self.after(2000)
                             try:
                                 os.remove(exe_path)
                             except Exception as e2:
@@ -861,7 +765,7 @@ class InstallerGUI:
                 self.update_progress(progress, f"正在创建: {folder}")
                 result = self.create_folder(folder, description)
                 self.log_message(result)
-                self.root.after(200)  # 短暂延迟以显示进度
+                self.after(200)  # 短暂延迟以显示进度
             
             # 创建快捷方式
             if self.create_shortcut_var.get():
@@ -872,20 +776,20 @@ class InstallerGUI:
             # 安装完成
             self.update_progress(100, "安装完成！")
             messagebox.showinfo("安装完成", 
-                              f"AI审校助手已成功安装到：\n{self.install_path.get()}\n\n" +
+                              f"AI审校助手已成功安装到：\n{self.path_var.get()}\n\n" +
                               "现在可以运行程序了！")
             # 安装完成后自动退出
-            self.root.quit()
+            self.quit()
             
         except Exception as e:
             self.log_message(f"安装过程出错: {str(e)}")
             messagebox.showerror("错误", f"安装过程中出现错误：\n{str(e)}")
         finally:
-            self.install_button.config(state='normal')
+            self.install_btn.config(state='normal')
     
     def run(self):
         """运行安装程序"""
-        self.root.mainloop()
+        self.mainloop()
 
     def show_error(self, title, message):
         """显示错误对话框"""
@@ -896,7 +800,7 @@ class InstallerGUI:
         self.log_message("正在准备图标文件...")
         
         # 创建图标目录
-        icon_dir = os.path.join(self.install_path.get(), "material")
+        icon_dir = os.path.join(self.path_var.get(), "material")
         os.makedirs(icon_dir, exist_ok=True)
         
         # 图标文件列表

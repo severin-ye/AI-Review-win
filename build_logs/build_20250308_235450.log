@@ -1,0 +1,194 @@
+2025-03-08 23:54:50,177 - INFO - 开始构建过程...
+2025-03-08 23:54:50,178 - INFO - 开始打包主程序...
+2025-03-08 23:54:50,178 - INFO - 找到安装程序图标: C:\Users\6seve\CodeLib_win\AI-Review-win\material\1-logo.ico (40428 字节)
+2025-03-08 23:54:50,179 - INFO - 找到主程序图标: C:\Users\6seve\CodeLib_win\AI-Review-win\material\2-logo.ico (40428 字节)
+2025-03-08 23:54:50,179 - INFO - 执行命令: rmdir /s /q build
+2025-03-08 23:54:50,208 - INFO - 命令输出:
+
+2025-03-08 23:54:50,208 - INFO - 执行命令: rmdir /s /q dist
+2025-03-08 23:54:50,233 - INFO - 命令输出:
+
+2025-03-08 23:54:50,234 - INFO - 执行命令: pyinstaller --noconfirm ai_review.spec
+2025-03-08 23:56:22,765 - ERROR - 命令执行失败:
+495 INFO: PyInstaller: 6.6.0, contrib hooks: 2024.6
+495 INFO: Python: 3.12.4
+592 INFO: Platform: Windows-11-10.0.26100-SP0
+597 INFO: Extending PYTHONPATH with paths
+['C:\\Users\\6seve\\CodeLib_win\\AI-Review-win']
+1098 INFO: checking Analysis
+1098 INFO: Building Analysis because Analysis-00.toc is non existent
+1098 INFO: Running Analysis Analysis-00.toc
+1098 INFO: Target bytecode optimization level: 0
+1098 INFO: Initializing module dependency graph...
+1101 INFO: Caching module graph hooks...
+1116 INFO: Analyzing base_library.zip ...
+3882 INFO: Loading module hook 'hook-encodings.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+8095 INFO: Loading module hook 'hook-pickle.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+11090 INFO: Loading module hook 'hook-heapq.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+14907 INFO: Caching module dependency graph...
+15060 INFO: Looking for Python shared library...
+15076 INFO: Using Python shared library: C:\Users\6seve\AppData\Local\Programs\Python\Python312\python312.dll
+15076 INFO: Analyzing C:\Users\6seve\CodeLib_win\AI-Review-win\main.py
+15234 INFO: Loading module hook 'hook-_tkinter.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+15827 INFO: Loading module hook 'hook-PIL.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+15979 INFO: Loading module hook 'hook-PIL.Image.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+17293 INFO: Loading module hook 'hook-packaging.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+17359 INFO: Loading module hook 'hook-PIL.ImageFilter.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:212: SyntaxWarning: invalid escape sequence '\$'
+  'Cannot change to the directory %1\$s.\nPermission denied.',
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:213: SyntaxWarning: invalid escape sequence '\$'
+  '无法更改目录 %1\$s。\n访问被拒绝。',
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:224: SyntaxWarning: invalid escape sequence '\$'
+  ('Directory %1\$s does not exist.', '目录 %1\$s 不存在。'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:224: SyntaxWarning: invalid escape sequence '\$'
+  ('Directory %1\$s does not exist.', '目录 %1\$s 不存在。'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:228: SyntaxWarning: invalid escape sequence '\$'
+  ("Error: %1\$s", "错误： %1\$s"),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:228: SyntaxWarning: invalid escape sequence '\$'
+  ("Error: %1\$s", "错误： %1\$s"),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:232: SyntaxWarning: invalid escape sequence '\$'
+  'File %1\$s already exists.\nDo you want to overwrite it?',
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:233: SyntaxWarning: invalid escape sequence '\$'
+  '文件 %1\$s 已经存在。\n您想要覆盖它吗？',
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:235: SyntaxWarning: invalid escape sequence '\$'
+  ('File %1\$s already exists.\n\n', '文件 %1\$s 已经存在。\n\n'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:235: SyntaxWarning: invalid escape sequence '\$'
+  ('File %1\$s already exists.\n\n', '文件 %1\$s 已经存在。\n\n'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:236: SyntaxWarning: invalid escape sequence '\$'
+  ('File %1\$s does not exist.', '文件 %1\$s 不存在。'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:236: SyntaxWarning: invalid escape sequence '\$'
+  ('File %1\$s does not exist.', '文件 %1\$s 不存在。'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:251: SyntaxWarning: invalid escape sequence '\$'
+  ('Invalid file name %1\$s.', '无效的文件名 %1\$s。'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\localization\msgs.py:251: SyntaxWarning: invalid escape sequence '\$'
+  ('Invalid file name %1\$s.', '无效的文件名 %1\$s。'),
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\validation.py:1: SyntaxWarning: invalid escape sequence '\d'
+  """
+18203 INFO: Loading module hook 'hook-docx.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+18511 INFO: Loading module hook 'hook-lxml.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+19313 INFO: Loading module hook 'hook-lxml.etree.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\pypandoc\pandoc_download.py:61: SyntaxWarning: invalid escape sequence '\.'
+  regex = re.compile(r"/jgm/pandoc/releases/download/.*(?:"+processor_architecture+"|x86|mac).*\.(?:msi|deb|pkg)")
+20287 INFO: Loading module hook 'hook-platform.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+21428 INFO: Loading module hook 'hook-pydantic.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+23511 INFO: Loading module hook 'hook-certifi.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+24693 INFO: Loading module hook 'hook-multiprocessing.util.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+25015 INFO: Loading module hook 'hook-xml.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+27950 INFO: Loading module hook 'hook-anyio.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+33638 INFO: Loading module hook 'hook-charset_normalizer.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+34753 INFO: Loading module hook 'hook-importlib_metadata.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+37606 INFO: Analyzing hidden import 'win32com.client'
+37606 INFO: Processing pre-safe import module hook win32com from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\pre_safe_import_module\\hook-win32com.py'.
+37808 INFO: Loading module hook 'hook-win32com.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+37811 INFO: Loading module hook 'hook-pythoncom.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+38001 INFO: Loading module hook 'hook-pywintypes.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+39251 INFO: Analyzing hidden import 'winshell'
+C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\winshell.py:870: SyntaxWarning: invalid escape sequence '\p'
+  """Create a Windows shortcut:
+39452 INFO: Processing module hooks...
+40113 INFO: Loading module hook 'hook-difflib.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+40892 INFO: Loading module hook 'hook-sysconfig.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+42393 INFO: Loading module hook 'hook-lxml.isoschematron.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+42797 INFO: Loading module hook 'hook-pkg_resources.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+44764 INFO: Loading module hook 'hook-jaraco.text.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+45541 INFO: Loading module hook 'hook-backports.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+45575 INFO: Loading module hook 'hook-platformdirs.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+46547 INFO: Loading module hook 'hook-PIL.SpiderImagePlugin.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+46686 WARNING: Hidden import "pkg_resources._vendor.jaraco.functools" not found!
+46686 WARNING: Hidden import "pkg_resources._vendor.jaraco.context" not found!
+46686 WARNING: Hidden import "pkg_resources._vendor.jaraco.text" not found!
+46973 INFO: Loading module hook 'hook-_tkinter.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+46974 INFO: checking Tree
+46974 INFO: Building Tree because Tree-00.toc is non existent
+46975 INFO: Building Tree Tree-00.toc
+47191 INFO: checking Tree
+47191 INFO: Building Tree because Tree-01.toc is non existent
+47191 INFO: Building Tree Tree-01.toc
+47212 INFO: checking Tree
+47212 INFO: Building Tree because Tree-02.toc is non existent
+47212 INFO: Building Tree Tree-02.toc
+47219 INFO: Loading module hook 'hook-lxml.objectify.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\stdhooks'...
+47267 INFO: Performing binary vs. data reclassification (969 entries)
+63575 INFO: Looking for ctypes DLLs
+63607 INFO: Analyzing run-time hooks ...
+63625 INFO: Including run-time hook 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py'
+63629 INFO: Including run-time hook 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\rthooks\\pyi_rth_pythoncom.py'
+63632 INFO: Including run-time hook 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\hooks\\rthooks\\pyi_rth_pywintypes.py'
+63634 INFO: Including run-time hook 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py'
+63641 INFO: Processing pre-find module path hook _pyi_rth_utils from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path\\hook-_pyi_rth_utils.py'.
+63645 INFO: Loading module hook 'hook-_pyi_rth_utils.py' from 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'...
+63648 INFO: Including run-time hook 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_multiprocessing.py'
+63655 INFO: Including run-time hook 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgres.py'
+63666 INFO: Including run-time hook 'C:\\Users\\6seve\\CodeLib_win\\AI-Review-win\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth__tkinter.py'
+63831 INFO: Looking for dynamic libraries
+66039 INFO: Extra DLL search directories (AddDllDirectory): []
+66040 INFO: Extra DLL search directories (PATH): []
+68243 INFO: Warnings written to C:\Users\6seve\CodeLib_win\AI-Review-win\build\ai_review\warn-ai_review.txt
+68541 INFO: Graph cross-reference written to C:\Users\6seve\CodeLib_win\AI-Review-win\build\ai_review\xref-ai_review.html
+68705 INFO: checking PYZ
+68705 INFO: Building PYZ because PYZ-00.toc is non existent
+68705 INFO: Building PYZ (ZlibArchive) C:\Users\6seve\CodeLib_win\AI-Review-win\build\ai_review\PYZ-00.pyz
+72457 INFO: Building PYZ (ZlibArchive) C:\Users\6seve\CodeLib_win\AI-Review-win\build\ai_review\PYZ-00.pyz completed successfully.
+72600 INFO: checking PKG
+72600 INFO: Building PKG because PKG-00.toc is non existent
+72600 INFO: Building PKG (CArchive) AI审校助手.pkg
+89671 INFO: Building PKG (CArchive) AI审校助手.pkg completed successfully.
+89727 INFO: Bootloader C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+89727 INFO: checking EXE
+89728 INFO: Building EXE because EXE-00.toc is non existent
+89728 INFO: Building EXE from EXE-00.toc
+89728 INFO: Copying bootloader EXE to C:\Users\6seve\CodeLib_win\AI-Review-win\dist\AI审校助手.exe
+89969 INFO: Copying icon to EXE
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\win32ctypes\pywin32\pywintypes.py", line 33, in pywin32error
+    yield
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\win32ctypes\pywin32\win32api.py", line 209, in BeginUpdateResource
+    return _resource._BeginUpdateResource(filename, delete)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\win32ctypes\core\ctypes\_util.py", line 39, in check_null
+    raise make_error(function, function_name)
+OSError: [WinError 225] 无法成功完成操作，因为文件包含病毒或潜在的垃圾软件。
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Scripts\pyinstaller.exe\__main__.py", line 7, in <module>
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\__main__.py", line 228, in _console_script_run
+    run()
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\__main__.py", line 212, in run
+    run_build(pyi_config, spec_file, **vars(args))
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\__main__.py", line 69, in run_build
+    PyInstaller.building.build_main.main(pyi_config, spec_file, **kwargs)
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\building\build_main.py", line 1186, in main
+    build(specfile, distpath, workpath, clean_build)
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\building\build_main.py", line 1126, in build
+    exec(code, spec_namespace)
+  File "ai_review.spec", line 33, in <module>
+    exe = EXE(
+          ^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\building\api.py", line 643, in __init__
+    self.__postinit__()
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\building\datastruct.py", line 184, in __postinit__
+    self.assemble()
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\building\api.py", line 756, in assemble
+    self._retry_operation(icon.CopyIcons, build_name, self.icon)
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\building\api.py", line 1018, in _retry_operation
+    return func(*args)
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\utils\win32\icon.py", line 212, in CopyIcons
+    return CopyIcons_FromIco(dstpath, [srcpath])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\PyInstaller\utils\win32\icon.py", line 144, in CopyIcons_FromIco
+    hdst = win32api.BeginUpdateResource(dstpath, 0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\win32ctypes\pywin32\win32api.py", line 208, in BeginUpdateResource
+    with _pywin32error():
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\win32ctypes\pywin32\pywintypes.py", line 37, in pywin32error
+    raise error(exception.winerror, exception.function, exception.strerror)
+win32ctypes.pywin32.pywintypes.error: (225, 'BeginUpdateResourceW', '无法成功完成操作，因为文件包含病毒或潜在的垃圾软件。')
+
+2025-03-08 23:56:22,768 - ERROR - 主程序打包失败
