@@ -1,0 +1,11 @@
+2025-03-08 23:57:08,469 - INFO - 开始构建过程...
+2025-03-08 23:57:08,470 - INFO - 开始打包主程序...
+2025-03-08 23:57:08,470 - INFO - 找到安装程序图标: c:\Users\6seve\CodeLib_win\AI-Review-win\material\1-logo.ico (40428 字节)
+2025-03-08 23:57:08,470 - INFO - 找到主程序图标: c:\Users\6seve\CodeLib_win\AI-Review-win\material\2-logo.ico (40428 字节)
+2025-03-08 23:57:08,472 - INFO - 执行命令: rmdir /s /q build
+2025-03-08 23:57:08,509 - INFO - 命令输出:
+
+2025-03-08 23:57:08,509 - INFO - 执行命令: rmdir /s /q dist
+2025-03-08 23:57:08,535 - INFO - 命令输出:
+
+2025-03-08 23:57:08,536 - INFO - 执行命令: pyinstaller --noconfirm ai_review.spec

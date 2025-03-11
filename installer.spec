@@ -3,20 +3,31 @@
 block_cipher = None
 
 a = Analysis(
-    ['s_5_installer.py'],
+    ['scripts/installer.py'],
     pathex=[],
     binaries=[],
     datas=[
-        ('素材/*.ico', '素材'),  # 添加图标资源
+        ('material/1-logo.ico', '.'),  # 安装程序图标
+        ('material/2-logo.ico', '.'),  # 主程序图标
+        ('dist/AI审校助手.exe', '.')  # 主程序
     ],
     hiddenimports=[
         'tkinter',
         'tkinter.ttk',
         'tkinter.messagebox',
         'tkinter.scrolledtext',
-        'PIL',
-        'PIL.Image',
-        'PIL.ImageTk'
+        'tkinter.filedialog',
+        'win32com.client',
+        'win32api',
+        'win32gui',
+        'win32con',
+        'winreg',
+        'json',
+        'subprocess',
+        'shutil',
+        'traceback',
+        'logging',
+        'datetime'
     ],
     hookspath=[],
     hooksconfig={},
@@ -33,29 +44,22 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
-    exclude_binaries=True,
-    name='安装程序',
-    debug=False,
+    name='AI审校助手安装程序',
+    debug=True,  # 启用调试模式
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=True,  # 保持控制台窗口以显示错误
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=os.path.abspath('素材/安装程序logo.ico'),  # 设置安装程序图标
-)
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='安装程序'
-)
+    icon='material/1-logo.ico',
+) 

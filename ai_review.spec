@@ -3,15 +3,36 @@
 block_cipher = None
 
 a = Analysis(
-    ['s_0_main.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        ('config', 'config'),  # 仅包含必要的配置文件
+        ('material', 'material')  # 仅包含必要的资源文件
+    ],
     hiddenimports=[
         'tkinter',
         'tkinter.ttk',
         'tkinter.messagebox',
-        'tkinter.scrolledtext'
+        'tkinter.scrolledtext',
+        'win32com.client',
+        'winshell',
+        'json',
+        'subprocess',
+        'shutil',
+        's_1_auto_ai',
+        's_2_select_replace',
+        's_3_clear_out',
+        's_4_config_use',
+        'w0_file_path',
+        'w1_table_about',
+        'w2_docx_to_md',
+        'w3_smart_divide',
+        'w4_ai_answer',
+        'w5_same_find',
+        'w6_1_key_generator',
+        'w6_2_key_verifier',
+        'time_lock'
     ],
     hookspath=[],
     hooksconfig={},
@@ -44,5 +65,7 @@ exe = EXE(
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None
+    entitlements_file=None,
+    icon='material/2-logo.ico',
+    version='scripts/file_version_info.txt',
 )

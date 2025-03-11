@@ -1,21 +1,50 @@
-# 忽略环境变量文件
-.env
-
-# 忽略虚拟环境目录
-.venv/
-
-# 忽略Python缓存文件
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# 忽略日志文件
-*.log
-
-# 忽略操作系统生成的文件
-.DS_Store
-Thumbs.db
-
-# 忽略构建和分发目录
+*.so
+.Python
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+# 虚拟环境相关文件和目录
+.env                # 环境变量配置文件
+.venv              # 虚拟环境目录
+env/               # 虚拟环境目录（另一种命名）
+venv/              # 虚拟环境目录（标准命名）
+ENV/               # 虚拟环境目录（大写命名）
+
+# IDE（集成开发环境）相关文件
+.idea/             # PyCharm IDE配置目录
+.vscode/           # Visual Studio Code配置目录
+*.swp              # Vim临时文件
+*.swo              # Vim临时文件（另一种格式）
+.project           # Eclipse项目文件
+.pydevproject      # Eclipse Python项目配置文件
+
+# 项目特定文件
+data/input/*       # 输入数据目录下的所有文件
+data/output/*      # 输出数据目录下的所有文件
+!data/input/.gitkeep   # 保留空的input目录
+!data/output/.gitkeep  # 保留空的output目录
+hide_file/         # 隐藏文件目录
+*.key              # 密钥文件
+*.log              # 日志文件
+*.spec             # PyInstaller规范文件
+*.exe              # 可执行文件
+
+# 操作系统生成的文件
+.DS_Store          # macOS系统文件
+Thumbs.db          # Windows缩略图缓存文件

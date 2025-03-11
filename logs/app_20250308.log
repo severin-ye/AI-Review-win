@@ -1,0 +1,337 @@
+2025-03-08 02:05:08,449 [INFO] 正在启动AI审校助手...
+2025-03-08 02:05:10,192 [ERROR] 程序运行出错：cannot import name 'StartPage' from partially initialized module 'src.ui.pages.start_page' (most likely due to a circular import) (C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py)
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 47, in main
+    from src.ui import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 3, in <module>
+    from src.ui.pages.key_verify_page import KeyVerifyPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\__init__.py", line 6, in <module>
+    from src.ui.pages.start_page import StartPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 8, in <module>
+    from src.ui.pages.process_page import ProcessPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\process_page.py", line 221, in <module>
+    from src.ui.pages.start_page import StartPage
+ImportError: cannot import name 'StartPage' from partially initialized module 'src.ui.pages.start_page' (most likely due to a circular import) (C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py)
+2025-03-08 02:07:09,325 [INFO] 正在启动AI审校助手...
+2025-03-08 02:10:33,849 [INFO] 正在启动AI审校助手...
+2025-03-08 02:10:40,729 [INFO] 程序已退出
+2025-03-08 11:25:49,877 [INFO] 正在启动AI审校助手...
+2025-03-08 11:25:49,880 [ERROR] 程序运行出错：No module named 'src.styles'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:25:52,297 [INFO] 程序已退出
+2025-03-08 11:25:52,298 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 122, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:25:54,009 [INFO] 正在启动AI审校助手...
+2025-03-08 11:25:54,012 [ERROR] 程序运行出错：No module named 'src.styles'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:25:56,030 [INFO] 程序已退出
+2025-03-08 11:25:56,032 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 122, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 2, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:28:06,034 [INFO] 正在启动AI审校助手...
+2025-03-08 11:28:06,043 [ERROR] 程序运行出错：No module named 'src.styles'
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 3, in <module>
+    from src.ui.pages.key_verify_page import KeyVerifyPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 4, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:28:07,797 [INFO] 程序已退出
+2025-03-08 11:28:07,797 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 122, in <module>
+    main()
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 101, in main
+    from src.ui import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 3, in <module>
+    from src.ui.pages.key_verify_page import KeyVerifyPage
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 4, in <module>
+    from src.styles.theme_manager import theme_manager
+ModuleNotFoundError: No module named 'src.styles'
+2025-03-08 11:29:56,279 [INFO] 正在启动AI审校助手...
+2025-03-08 11:29:59,567 [INFO] 程序已退出
+2025-03-08 12:05:46,156 [INFO] 正在启动AI审校助手...
+2025-03-08 12:05:47,362 [ERROR] 程序运行出错：No module named 'src.utils.path_manager'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 5, in <module>
+    from src.ui.pages.process_page import ProcessPage
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\process_page.py", line 8, in <module>
+    from src.core import ai_review, text_processor
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\core\text_processor.py", line 16, in <module>
+    from src.utils.path_manager import path_manager
+ModuleNotFoundError: No module named 'src.utils.path_manager'
+2025-03-08 12:05:48,870 [INFO] 程序已退出
+2025-03-08 12:05:48,870 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 5, in <module>
+    from src.ui.pages.process_page import ProcessPage
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\process_page.py", line 8, in <module>
+    from src.core import ai_review, text_processor
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\core\text_processor.py", line 16, in <module>
+    from src.utils.path_manager import path_manager
+ModuleNotFoundError: No module named 'src.utils.path_manager'
+2025-03-08 12:07:07,175 [INFO] 正在启动AI审校助手...
+2025-03-08 12:07:08,454 [ERROR] 程序运行出错：No module named 'config.config_manager'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 15, in __init__
+    from config.config_manager import ConfigManager
+ModuleNotFoundError: No module named 'config.config_manager'
+2025-03-08 12:07:10,262 [INFO] 程序已退出
+2025-03-08 12:07:10,262 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 15, in __init__
+    from config.config_manager import ConfigManager
+ModuleNotFoundError: No module named 'config.config_manager'
+2025-03-08 12:08:07,422 [INFO] 正在启动AI审校助手...
+2025-03-08 12:08:10,688 [INFO] 程序已退出
+2025-03-08 12:08:16,462 [INFO] 正在启动AI审校助手...
+2025-03-08 12:08:29,489 [INFO] 程序已退出
+2025-03-08 12:08:31,517 [INFO] 正在启动AI审校助手...
+2025-03-08 12:08:47,981 [INFO] 程序已退出
+2025-03-08 20:27:41,914 [INFO] 正在启动AI审校助手...
+2025-03-08 20:27:51,972 [INFO] 程序已退出
+2025-03-08 20:27:53,336 [INFO] 正在启动AI审校助手...
+2025-03-08 20:28:03,133 [INFO] 程序已退出
+2025-03-08 20:37:07,249 [INFO] 正在启动AI审校助手...
+2025-03-08 20:37:37,343 [INFO] 程序已退出
+2025-03-08 22:43:07,602 [INFO] 正在启动AI审校助手...
+2025-03-08 22:43:51,255 [INFO] 程序已退出
+2025-03-08 23:03:39,683 [INFO] 正在启动AI审校助手...
+2025-03-08 23:03:41,238 [ERROR] 程序运行出错：module 'tkinter.ttk' has no attribute 'LEFT'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 30, in __init__
+    left_button_frame.pack(side=ttk.LEFT, padx=20)
+                                ^^^^^^^^
+AttributeError: module 'tkinter.ttk' has no attribute 'LEFT'
+2025-03-08 23:03:42,924 [INFO] 程序已退出
+2025-03-08 23:03:42,925 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 30, in __init__
+    left_button_frame.pack(side=ttk.LEFT, padx=20)
+                                ^^^^^^^^
+AttributeError: module 'tkinter.ttk' has no attribute 'LEFT'
+2025-03-08 23:06:25,866 [INFO] 正在启动AI审校助手...
+2025-03-08 23:07:33,824 [INFO] 程序已退出
+2025-03-08 23:12:58,980 [INFO] 正在启动AI审校助手...
+2025-03-08 23:13:10,201 [INFO] 程序已退出
+2025-03-08 23:15:52,027 [INFO] 正在启动AI审校助手...
+2025-03-08 23:15:59,404 [INFO] 程序已退出
+2025-03-08 23:16:38,630 [INFO] 正在启动AI审校助手...
+2025-03-08 23:16:47,345 [INFO] 程序已退出
+2025-03-08 23:16:48,440 [INFO] 正在启动AI审校助手...
+2025-03-08 23:16:54,383 [INFO] 程序已退出
+2025-03-08 23:17:12,725 [INFO] 正在启动AI审校助手...
+2025-03-08 23:17:17,349 [INFO] 程序已退出
+2025-03-08 23:17:59,715 [INFO] 正在启动AI审校助手...
+2025-03-08 23:18:06,688 [INFO] 程序已退出
+2025-03-08 23:19:54,273 [INFO] 正在启动AI审校助手...
+2025-03-08 23:20:06,652 [INFO] 程序已退出
+2025-03-08 23:20:27,252 [INFO] 正在启动AI审校助手...
+2025-03-08 23:20:31,489 [INFO] 程序已退出
+2025-03-08 23:20:35,486 [INFO] 正在启动AI审校助手...
+2025-03-08 23:20:38,956 [INFO] 程序已退出
+2025-03-08 23:22:20,349 [INFO] 正在启动AI审校助手...
+2025-03-08 23:22:24,018 [INFO] 程序已退出
+2025-03-08 23:23:18,627 [INFO] 正在启动AI审校助手...
+2025-03-08 23:23:22,862 [INFO] 程序已退出
+2025-03-08 23:23:45,502 [INFO] 正在启动AI审校助手...
+2025-03-08 23:23:58,608 [INFO] 程序已退出
+2025-03-08 23:26:28,294 [INFO] 正在启动AI审校助手...
+2025-03-08 23:26:29,890 [ERROR] 程序运行出错：unknown option "-font"
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 67, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4941, in __init__
+    func(self, *args, **kwargs)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 582, in __init__
+    Widget.__init__(self, master, "ttk::button", kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 527, in __init__
+    tkinter.Widget.__init__(self, master, widgetname, kw=kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2659, in __init__
+    self.tk.call(
+_tkinter.TclError: unknown option "-font"
+2025-03-08 23:26:31,225 [INFO] 程序已退出
+2025-03-08 23:26:31,225 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 67, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4941, in __init__
+    func(self, *args, **kwargs)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 582, in __init__
+    Widget.__init__(self, master, "ttk::button", kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\ttk.py", line 527, in __init__
+    tkinter.Widget.__init__(self, master, widgetname, kw=kw)
+  File "C:\Users\6seve\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 2659, in __init__
+    self.tk.call(
+_tkinter.TclError: unknown option "-font"
+2025-03-08 23:28:15,207 [INFO] 正在启动AI审校助手...
+2025-03-08 23:28:18,953 [INFO] 程序已退出
+2025-03-08 23:30:04,939 [INFO] 正在启动AI审校助手...
+2025-03-08 23:30:22,669 [INFO] 程序已退出
+2025-03-08 23:32:11,766 [INFO] 正在启动AI审校助手...
+2025-03-08 23:33:33,322 [INFO] 程序已退出
+2025-03-08 23:35:03,612 [INFO] 正在启动AI审校助手...
+2025-03-08 23:35:11,579 [INFO] 程序已退出
+2025-03-08 23:37:42,411 [INFO] 正在启动AI审校助手...
+2025-03-08 23:37:43,942 [ERROR] 程序运行出错：type object 'StyleBuilderTTK' has no attribute 'create_round_button_style'
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 96, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4955, in __init__
+    ttkstyle = Bootstyle.update_ttk_widget_style(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 5049, in update_ttk_widget_style
+    builder_method = builder.name_to_method(method_name)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 1086, in name_to_method
+    func = getattr(StyleBuilderTTK, method_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'StyleBuilderTTK' has no attribute 'create_round_button_style'. Did you mean: 'create_link_button_style'?
+2025-03-08 23:37:45,327 [INFO] 程序已退出
+2025-03-08 23:37:45,327 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 94, in main
+    app = MainApp()
+          ^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 37, in __init__
+    frame = F(container, self)
+            ^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\key_verify_page.py", line 31, in __init__
+    verify_button = theme_manager.create_button(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\styles\theme_manager.py", line 96, in create_button
+    return ttk.Button(
+           ^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 4955, in __init__
+    ttkstyle = Bootstyle.update_ttk_widget_style(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 5049, in update_ttk_widget_style
+    builder_method = builder.name_to_method(method_name)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\.venv\Lib\site-packages\ttkbootstrap\style.py", line 1086, in name_to_method
+    func = getattr(StyleBuilderTTK, method_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'StyleBuilderTTK' has no attribute 'create_round_button_style'. Did you mean: 'create_link_button_style'?
+2025-03-08 23:38:14,677 [INFO] 正在启动AI审校助手...
+2025-03-08 23:38:29,169 [INFO] 程序已退出
+2025-03-08 23:39:12,713 [INFO] 正在启动AI审校助手...
+2025-03-08 23:39:16,874 [INFO] 程序已退出
+2025-03-08 23:46:38,589 [INFO] 正在启动AI审校助手...
+2025-03-08 23:46:45,350 [INFO] 程序已退出
+2025-03-08 23:47:03,942 [INFO] 正在启动AI审校助手...
+2025-03-08 23:47:07,564 [INFO] 程序已退出
+2025-03-08 23:48:20,091 [INFO] 正在启动AI审校助手...
+2025-03-08 23:48:31,989 [INFO] 程序已退出
+2025-03-08 23:52:29,890 [INFO] 正在启动AI审校助手...
+2025-03-08 23:52:47,433 [INFO] 程序已退出
