@@ -1,7 +1,7 @@
 {
     "api_keys": {
-        "openai": "sk-proj-sGLuUAeODmbp42iFjEYdT3BlbkFJl5MrFVOKSKbu4LeU8kHo",
-        "tyqw": "sk-dc461f4200d1491abf8b8dba20e5bc38"
+        "openai": "",
+        "tyqw": ""
     },
     "module_type": "通义千问",
     "has_review_table": true,
