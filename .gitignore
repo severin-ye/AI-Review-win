@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
 # 虚拟环境相关文件和目录
 .env                # 环境变量配置文件
 .venv              # 虚拟环境目录
@@ -49,6 +50,6 @@ hide_file/         # 隐藏文件目录
 .DS_Store          # macOS系统文件
 Thumbs.db          # Windows缩略图缓存文件
 
-# 配置文件
+# 配置文件和敏感信息
 hide_file/配置文件/config.json       # 包含敏感信息的配置文件
 !hide_file/配置文件/config.example.json  # 配置文件模板除外
