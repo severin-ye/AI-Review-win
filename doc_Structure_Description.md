@@ -1,7 +1,5 @@
 # AI审校助手项目结构说明
 
-
-
 ## 目录结构
 
 1. **config/** - 配置管理目录
@@ -54,7 +52,7 @@
      - 项目构建脚本
    - `installer.spec` (49行)
      - PyInstaller打包配置文件
-   - `安装程序.spec` (40行)
+   - `installer_cn.spec` (40行)
      - 中文版安装程序打包配置
    - `s_5_installer.spec` (40行)
      - 特定版本安装程序配置

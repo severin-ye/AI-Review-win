@@ -1,71 +1,71 @@
-# AI审校助手
+# AI Review Assistant
 
-一个强大的AI驱动的文本审校工具，帮助用户快速高效地完成文档审校工作。
+A powerful AI-driven text review tool that helps users quickly and efficiently complete document review tasks.
 
-## 功能特点
+## Features
 
-- 🤖 多模型支持：集成多个AI模型（GPT-4、通义千问等）
-- 📝 智能审校：自动识别并修正文本错误
-- 🔄 批量处理：支持批量文件处理功能
-- 📊 实时进度：直观的进度显示界面
-- 🎨 主题定制：支持自定义界面主题
-- 🔐 安全可靠：完善的密钥验证机制
+- 🤖 Multiple Model Support: Integrated with various AI models (GPT-4, Qwen, etc.)
+- 📝 Smart Review: Automatic text error detection and correction
+- 🔄 Batch Processing: Support for batch file processing
+- 📊 Real-time Progress: Intuitive progress display interface
+- 🎨 Theme Customization: Customizable interface themes
+- 🔐 Security: Comprehensive key verification mechanism
 
-## 系统要求
+## System Requirements
 
-- Windows 10及以上版本
+- Windows 10 or higher
 - Python 3.8+
-- 稳定的网络连接
+- Stable internet connection
 
-## 安装说明
+## Installation
 
-1. 克隆仓库：
+1. Clone the repository:
 ```bash
 git clone https://github.com/severin-ye/AI-Review-win.git
 ```
 
-2. 安装依赖：
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. 运行程序：
+3. Run the program:
 ```bash
 python main.py
 ```
 
-## 项目结构
+## Project Structure
 
-主要目录说明：
+Main directory descriptions:
 
-- `config/`: 配置文件目录
-- `src/`: 源代码目录
-  - `core/`: 核心功能实现
-  - `ui/`: 用户界面组件
-  - `utils/`: 工具函数集合
-- `tests/`: 测试文件目录
-- `docs/`: 文档目录
-- `scripts/`: 脚本工具目录
+- `config/`: Configuration files directory
+- `src/`: Source code directory
+  - `core/`: Core functionality implementation
+  - `ui/`: User interface components
+  - `utils/`: Utility functions collection
+- `tests/`: Test files directory
+- `docs/`: Documentation directory
+- `scripts/`: Script tools directory
 
-## 使用说明
+## Usage Guide
 
-1. 首次使用需要在配置界面输入有效的API密钥
-2. 选择要处理的文件或文件夹
-3. 选择审校模式（自动/人工）
-4. 开始处理并等待结果
+1. Enter a valid API key in the configuration interface on first use
+2. Select files or folders to process
+3. Choose review mode (automatic/manual)
+4. Start processing and wait for results
 
-## 配置说明
+## Configuration Guide
 
-- 支持多种AI模型配置
-- 可自定义界面主题
-- 灵活的文本处理参数设置
-- 可配置的输出格式
+- Support for multiple AI model configurations
+- Customizable interface themes
+- Flexible text processing parameter settings
+- Configurable output formats
 
-## 开发说明
+## Development Guide
 
-如需参与开发，请确保：
+For those interested in development, please ensure:
 
-1. 遵循项目的代码规范
-2. 提交前进行充分测试
-3. 更新相关文档
+1. Follow the project's code standards
+2. Conduct thorough testing before submission
+3. Update relevant documentation
 

@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# 用户要求一定要遵守的三条规则
+
+1. 项目的所有每次的修改之前都要参考 @doc_Structure_Description.md_ , 保持了解工作区结构
+
+2. 项目的所有每次的修改都要同步反应到 @doc_Structure_Description.md , 保持工作区和文档的结构一致
+
+3. 项目的所有每次的修改都要添加到 @doc_log.md 文件底部
