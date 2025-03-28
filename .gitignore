@@ -51,4 +51,6 @@ Thumbs.db          # Windows缩略图缓存文件
 # 配置文件和敏感信息
 hide_file/配置文件/config.json       # 包含敏感信息的配置文件
 !hide_file/配置文件/config.example.json  # 配置文件模板除外
+hide_file/配置文件/*.json
+!hide_file/配置文件/config_demo.json
 
