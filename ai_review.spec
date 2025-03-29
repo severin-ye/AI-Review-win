@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['main.py'],
+    ['src/core/main.py'],
     pathex=[],
     binaries=[],
     datas=[
@@ -53,19 +53,19 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='AI审校助手',
+    name='ai_review',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
     icon='material/2-logo.ico',
-    version='scripts/file_version_info.txt',
+    version='build/file_version_info.txt',
 )
