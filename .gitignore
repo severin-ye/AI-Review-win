@@ -29,6 +29,7 @@ ENV/               # 虚拟环境目录（大写命名）
 # IDE（集成开发环境）相关文件
 .idea/             # PyCharm IDE配置目录
 .vscode/           # Visual Studio Code配置目录
+.cursor/           # Cursor IDE配置目录
 *.swp              # Vim临时文件
 *.swo              # Vim临时文件（另一种格式）
 .project           # Eclipse项目文件
