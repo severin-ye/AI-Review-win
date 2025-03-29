@@ -69,3 +69,8 @@ For those interested in development, please ensure:
 2. Conduct thorough testing before submission
 3. Update relevant documentation
 
+## Additional Documentation
+
+- [Project Structure Description](doc_Structure_Description.md): Detailed description of the project structure and architecture
+- [Project Change Log](doc_log.md): Comprehensive record of all changes and updates to the project
+
