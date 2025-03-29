@@ -39,13 +39,13 @@ python main.py
 Main directory descriptions:
 
 - `config/`: Configuration files directory
+- `build/`: Build tools directory
 - `src/`: Source code directory
   - `core/`: Core functionality implementation
   - `ui/`: User interface components
   - `utils/`: Utility functions collection
 - `tests/`: Test files directory
 - `docs/`: Documentation directory
-- `scripts/`: Script tools directory
 
 ## Usage Guide
 

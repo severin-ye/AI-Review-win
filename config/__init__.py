@@ -6,8 +6,8 @@ import os
 import sys
 import json
 import logging
-from .managers import path_manager, config_manager
-from .constants import *
+from .core import config_manager, path_manager
+from .constants import MODULE_LIST, DEFAULT_PROMPT
 from .settings import theme_config
 
 # 加载配置
@@ -40,15 +40,7 @@ __all__ = [
 
 def get_config_file_path():
     """获取配置文件的路径"""
-    if getattr(sys, 'frozen', False):
-        # 如果是打包后的可执行文件
-        application_path = os.path.dirname(sys.executable)
-    else:
-        # 如果是开发环境
-        application_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    config_dir = os.path.join(application_path, "hide_file", "配置文件")
-    return os.path.join(config_dir, "config.json")
+    return path_manager.config_file
 
 # 加载配置文件
 try:
