@@ -115,3 +115,63 @@
 - 优化配置界面，添加医学RAG相关配置
 - 创建医学参考文档目录和管理功能
 - 添加适配医学RAG的提示语模板
+
+## 2024-06-30
+- 修复了config模块中的循环导入问题
+  - 修改了config/core/__init__.py，移除循环导入
+  - 调整了config_manager.py中的导入方式，使用相对导入
+  - 在PathManager类中添加了缺失的方法（get_app_config_path, get_theme_config, get_default_output_dir）
+  - 添加了ThemeManager类，提供字体管理功能
+- 优化了配置编辑器的错误处理
+  - 添加了详细的错误跟踪和日志记录
+  - 改进项目路径处理，确保正确加载模块
+- 系统稳定性得到提升，避免启动时的循环导入错误
+
+## 2024-07-01
+- 深化了配置管理系统的优化
+  - 实现了ConfigManager和PathManager的完整单例模式
+  - 移除了config/__init__.py中的重复配置加载代码
+  - 改进了所有管理器类的初始化机制，避免重复初始化
+- 增强了日志记录功能
+  - 为配置编辑器添加了全面的日志记录
+  - 实现了按日期自动生成日志文件
+  - 添加了更详细的错误捕获和记录机制
+- 提高了整体代码质量
+  - 增加了类和方法的文档字符串
+  - 统一了代码风格和命名约定
+  - 改进了异常处理的一致性
+
+## 2024-07-10
+- 更新医学RAG系统以适配LangChain最新版本
+  - 修复了由于LangChain库重组导致的导入错误
+  - 添加了langchain-community依赖项
+  - 更新了向量存储、嵌入模型和文档加载器的导入路径
+  - 将Document导入从langchain.schema更新为langchain_core.documents
+- 更新了setup.py，明确添加了langchain-community依赖
+- 修复了项目启动时的模块导入错误问题
+
+## 2024-07-11
+- 进一步优化医学RAG系统
+  - 添加了langchain-huggingface依赖和导入
+  - 更新了HuggingFaceEmbeddings的导入路径
+  - 解决了启动时的弃用警告问题
+  - 添加了警告过滤机制，优化用户体验
+- 更新了项目依赖管理
+  - 在setup.py中添加了所有最新必要依赖
+  - 确保依赖说明准确反映了项目需求
+- 进行了彻底的兼容性测试
+  - 验证在Windows环境下的运行稳定性
+  - 确保所有功能模块正常工作
+
+## 2024-07-12
+- 修复UI界面相关问题
+  - 解决了ConfigEditor返回主页后出现空白页面的bug
+  - 优化了StartPage中的show_main_page方法，避免不必要的重新初始化
+  - 重构了ConfigEditor，使用ConfigManager的create_config_ui方法
+  - 提高了UI界面在各种情况下的稳定性和一致性
+- 改进界面组件的布局和交互逻辑
+  - 确保配置页面和主页面之间的平滑切换
+  - 优化按钮的响应方式和交互行为
+- 增强用户体验
+  - 提升界面操作的流畅性
+  - 保证应用在各种操作下的稳定性

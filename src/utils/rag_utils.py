@@ -4,14 +4,21 @@
 """
 
 import os
+import warnings
 from typing import List, Dict, Any
+
+# 更精确地过滤LangChain弃用警告
+warnings.filterwarnings("ignore", category=UserWarning)
+# 特别屏蔽HuggingFaceEmbeddings相关警告
+warnings.filterwarnings("ignore", message=".*HuggingFaceEmbeddings.*")
 
 # langchain导入
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.document_loaders import PyPDFLoader, TextLoader, CSVLoader
-from langchain.schema import Document
+from langchain_community.vectorstores import Chroma
+# 使用新的嵌入导入路径
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader
+from langchain_core.documents import Document
 
 # 全局变量
 MEDICAL_DOCS_DIR = os.path.join(os.getcwd(), "_4_医学参考文档")

@@ -5,11 +5,13 @@ import shutil
 from src.ui.styles.theme_manager import theme_manager
 from src.utils import cleanup_utils
 from config.managers import config_manager
+from config.constants import LABEL_NAMES, MODULE_LIST, LABEL_WIDTH, ENTRY_WIDTH, PROMPT_TEXT_HEIGHT, PROMPT_TEXT_WIDTH
 
 class StartPage(ttk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller  # 保存controller引用
+        self.master = parent  # 保存父级引用
         
         # 使用全局配置管理器实例
         self.config_manager = config_manager
@@ -136,9 +138,6 @@ class StartPage(ttk.Frame):
         
         # 显示配置页面
         self.config_frame.pack(fill="both", expand=True)
-        
-        # 加载配置
-        self.config_manager.load_config()
     
     def create_config_page(self):
         """创建配置页面"""
@@ -155,85 +154,9 @@ class StartPage(ttk.Frame):
         )
         title.pack(pady=20)
         
-        # 创建配置项框架
-        config_frame = ttk.Frame(main_frame)
-        config_frame.pack(fill="x", pady=10)
-        
-        # 配置项定义
-        self.config_keys = list(self.config_manager.label_names.keys())
-        self.config_vars = {key: ttk.StringVar() for key in self.config_keys}
-        
-        # 创建配置项输入界面
-        for i, key in enumerate(self.config_keys):
-            if key != "prompt":
-                frame = ttk.Frame(config_frame)
-                frame.pack(fill="x", pady=5)
-                
-                label = theme_manager.create_label(
-                    frame,
-                    text=f"{self.config_manager.label_names[key]}:",
-                    width=self.config_manager.label_width
-                )
-                label.pack(side="left")
-                
-                if key == "module_type":
-                    options = self.config_manager.module_list
-                    self.config_vars[key].set(options[0])
-                    option_menu = ttk.OptionMenu(frame, self.config_vars[key], options[0], *options)
-                    option_menu.pack(side="left", fill="x", expand=True)
-                elif key == "has_review_table":
-                    options = ["Y", "N"]
-                    self.config_vars[key].set(options[0])
-                    option_menu = ttk.OptionMenu(frame, self.config_vars[key], options[0], *options)
-                    option_menu.pack(side="left", fill="x", expand=True)
-                elif key == "output_dir":
-                    # 创建输出目录选择框架
-                    dir_frame = ttk.Frame(frame)
-                    dir_frame.pack(side="left", fill="x", expand=True)
-                    
-                    # 创建输入框
-                    entry = theme_manager.create_entry(
-                        dir_frame,
-                        textvariable=self.config_vars[key],
-                        width=self.config_manager.entry_width - 10
-                    )
-                    entry.pack(side="left", fill="x", expand=True)
-                    
-                    # 创建浏览按钮
-                    browse_btn = theme_manager.create_button(
-                        dir_frame,
-                        text="浏览",
-                        command=lambda: self.browse_output_dir(key),
-                        bootstyle="info"
-                    )
-                    browse_btn.pack(side="left", padx=5)
-                else:
-                    entry = theme_manager.create_entry(
-                        frame,
-                        textvariable=self.config_vars[key],
-                        width=self.config_manager.entry_width
-                    )
-                    entry.pack(side="left", fill="x", expand=True)
-        
-        # Prompt 输入区域
-        prompt_frame = ttk.Frame(main_frame)
-        prompt_frame.pack(fill="both", expand=True, pady=10)
-        
-        prompt_label = theme_manager.create_label(
-            prompt_frame,
-            text=f"{self.config_manager.label_names['prompt']}:",
-            bootstyle="primary"
-        )
-        prompt_label.pack(anchor="w")
-        
-        self.prompt_text = scrolledtext.ScrolledText(
-            prompt_frame,
-            height=self.config_manager.prompt_text_height,
-            width=self.config_manager.prompt_text_width,
-            font=theme_manager.get_font('input'),
-            bg='white'
-        )
-        self.prompt_text.pack(fill="both", expand=True, pady=5)
+        # 使用ConfigManager的create_config_ui方法创建配置界面
+        config_ui_frame = self.config_manager.create_config_ui(main_frame)
+        config_ui_frame.pack(fill="both", expand=True, pady=10)
         
         # 创建保存和返回按钮
         button_frame = ttk.Frame(main_frame)
@@ -254,20 +177,19 @@ class StartPage(ttk.Frame):
             bootstyle="secondary"
         )
         back_button.pack(side=ttk.LEFT, padx=10)
-        
-        # 设置配置管理器的widgets
-        self.config_manager.set_widgets(self.config_vars, self.prompt_text)
     
     def save_config(self):
         """保存配置"""
-        self.config_manager.save_config()
+        if self.config_manager.save_ui_config():
+            messagebox.showinfo("成功", "配置已保存！")
+            self.show_main_page()
     
     def show_main_page(self):
         """返回主页面"""
-        # 隐藏配置页面
+        # 清空并隐藏配置页面
         self.config_frame.pack_forget()
         
-        # 重新显示主页面的所有组件
+        # 显示主页面组件
         for widget in self.winfo_children():
             if widget != self.config_frame:
                 widget.pack()
@@ -279,24 +201,7 @@ class StartPage(ttk.Frame):
             elif isinstance(widget, ttk.Frame) and widget != self.config_frame:
                 widget.pack(expand=True)
     
-    def browse_output_dir(self, key):
-        """浏览并选择输出目录"""
-        # 获取当前目录
-        current_dir = self.config_vars[key].get()
-        if not current_dir or not os.path.exists(current_dir):
-            current_dir = os.getcwd()
-        
-        # 打开目录选择对话框
-        selected_dir = filedialog.askdirectory(
-            title="选择输出目录",
-            initialdir=current_dir
-        )
-        
-        # 如果选择了目录，更新配置
-        if selected_dir:
-            self.config_vars[key].set(selected_dir)
-    
     def quit_app(self):
         """退出应用程序"""
-        if messagebox.askokcancel("退出", "确定要退出程序吗？"):
-            self.quit() 
+        if messagebox.askyesno("确认退出", "确定要退出程序吗？"):
+            self.controller.destroy() 

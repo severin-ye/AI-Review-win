@@ -1,0 +1,34 @@
+2025-03-30 23:07:17,148 [INFO] 正在启动AI审校助手...
+2025-03-30 23:07:17,401 [ERROR] 程序运行出错：cannot import name 'MODULE_LIST' from 'config' (c:\Users\6seve\CodeLib_win\AI-Review-win\config\__init__.py)
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 4, in <module>
+    from src.ui.pages.start_page import StartPage
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 6, in <module>
+    from src.utils import cleanup_utils
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\utils\__init__.py", line 12, in <module>
+    from .ai_utils import ai_answer, add_first_line_indent
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\utils\ai_utils.py", line 3, in <module>
+    from config import (
+ImportError: cannot import name 'MODULE_LIST' from 'config' (c:\Users\6seve\CodeLib_win\AI-Review-win\config\__init__.py)
+2025-03-30 23:07:19,107 [INFO] 程序已退出
+2025-03-30 23:07:19,108 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py", line 5, in <module>
+    from src.ui.app import MainApp
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\app.py", line 4, in <module>
+    from src.ui.pages.start_page import StartPage
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\pages\start_page.py", line 6, in <module>
+    from src.utils import cleanup_utils
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\utils\__init__.py", line 12, in <module>
+    from .ai_utils import ai_answer, add_first_line_indent
+  File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\utils\ai_utils.py", line 3, in <module>
+    from config import (
+ImportError: cannot import name 'MODULE_LIST' from 'config' (c:\Users\6seve\CodeLib_win\AI-Review-win\config\__init__.py)

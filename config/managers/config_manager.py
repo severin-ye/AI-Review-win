@@ -9,7 +9,9 @@ import re
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 
-from config.core import path_manager
+# 修改导入方式，避免循环导入
+# from config.core import path_manager
+from .path_manager import path_manager
 from config.constants import (
     MODULE_LIST, 
     LABEL_NAMES, 
@@ -22,14 +24,54 @@ from config.constants import (
     DEFAULT_ENABLE_MEDICAL_RAG
 )
 
+# 主题管理器类
+class ThemeManager:
+    """主题管理器"""
+    
+    def __init__(self):
+        """初始化主题管理器"""
+        self.fonts = {
+            'title': ('Arial', 16, 'bold'),
+            'input': ('Arial', 10),
+            'text': ('Arial', 10),
+            'button': ('Arial', 10)
+        }
+    
+    def get_font(self, font_type):
+        """获取字体
+        
+        Args:
+            font_type (str): 字体类型，如'title', 'input'等
+            
+        Returns:
+            tuple: 字体配置元组
+        """
+        return self.fonts.get(font_type, ('Arial', 10))
+
 class ConfigManager:
     """配置管理器"""
     
+    _instance = None
+    
+    def __new__(cls):
+        """确保ConfigManager是单例"""
+        if cls._instance is None:
+            cls._instance = super(ConfigManager, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
     def __init__(self):
         """初始化配置管理器"""
+        # 避免重复初始化
+        if self._initialized:
+            return
+            
         self.config_path = path_manager.get_app_config_path()
         self.theme_config = path_manager.get_theme_config()
         self.config = self.load_config()
+        
+        # 主题管理器
+        self.theme_manager = ThemeManager()
         
         # UI组件
         self.openai_api_key_entry = None
@@ -39,6 +81,9 @@ class ConfigManager:
         self.has_review_table_combobox = None
         self.enable_medical_rag_checkbox = None
         self.enable_medical_rag_var = None
+        
+        # 标记为已初始化
+        self._initialized = True
         
     def load_config(self):
         """加载配置文件
@@ -57,13 +102,34 @@ class ConfigManager:
             return self.create_default_config()
         
     def save_config(self):
-        """保存配置到文件"""
+        """保存配置到文件
+        
+        Returns:
+            bool: 保存是否成功
+        """
         try:
+            # 确保配置文件目录存在
+            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+            
+            # 保存配置前进行备份
+            if os.path.exists(self.config_path):
+                backup_path = f"{self.config_path}.bak"
+                try:
+                    with open(self.config_path, 'r', encoding='utf-8') as src:
+                        with open(backup_path, 'w', encoding='utf-8') as dst:
+                            dst.write(src.read())
+                    print(f"配置已备份到 {backup_path}")
+                except Exception as be:
+                    print(f"备份配置时出错: {be}")
+            
+            # 保存配置
             with open(self.config_path, 'w', encoding='utf-8') as f:
                 json.dump(self.config, f, ensure_ascii=False, indent=4)
             print("配置已保存")
+            return True
         except Exception as e:
             print(f"保存配置文件时出错: {e}")
+            return False
         
     def create_default_config(self):
         """创建默认配置
@@ -210,32 +276,50 @@ class ConfigManager:
             self.output_dir_entry.insert(0, dir_path)
     
     def save_ui_config(self):
-        """从UI保存配置"""
-        # 获取API密钥
-        openai_api_key = self.openai_api_key_entry.get()
-        tyqw_api_key = self.tyqw_api_key_entry.get()
+        """从UI保存配置
         
-        # 验证API密钥格式
-        if openai_api_key and not self.validate_api_key_format(openai_api_key, "openai"):
-            messagebox.showerror("错误", "OpenAI API密钥格式无效")
+        Returns:
+            bool: 保存是否成功
+        """
+        try:
+            # 获取API密钥
+            openai_api_key = self.openai_api_key_entry.get().strip()
+            tyqw_api_key = self.tyqw_api_key_entry.get().strip()
+            
+            # 验证API密钥格式
+            if openai_api_key and not self.validate_api_key_format(openai_api_key, "openai"):
+                messagebox.showerror("错误", "OpenAI API密钥格式无效")
+                return False
+            
+            if tyqw_api_key and not self.validate_api_key_format(tyqw_api_key, "tyqw"):
+                messagebox.showerror("错误", "通义千问API密钥格式无效")
+                return False
+            
+            # 获取输出目录
+            output_dir = self.output_dir_entry.get().strip()
+            if output_dir and not os.path.exists(output_dir):
+                try:
+                    os.makedirs(output_dir, exist_ok=True)
+                    print(f"创建输出目录: {output_dir}")
+                except Exception as oe:
+                    print(f"创建输出目录时出错: {oe}")
+                    messagebox.showwarning("警告", f"无法创建输出目录: {output_dir}\n{oe}")
+            
+            # 更新配置
+            self.config["openai_api_key"] = openai_api_key
+            self.config["tyqw_api_key"] = tyqw_api_key
+            self.config["module_type"] = self.module_type_combobox.get()
+            self.config["prompt"] = self.prompt_text.get("1.0", "end-1c")
+            self.config["has_review_table"] = self.has_review_table_combobox.get()
+            self.config["output_dir"] = output_dir
+            self.config["enable_medical_rag"] = self.enable_medical_rag_var.get()
+            
+            # 保存配置
+            return self.save_config()
+        except Exception as e:
+            print(f"从UI保存配置时出错: {e}")
+            messagebox.showerror("错误", f"保存配置时出错: {e}")
             return False
-        
-        if tyqw_api_key and not self.validate_api_key_format(tyqw_api_key, "tyqw"):
-            messagebox.showerror("错误", "通义千问API密钥格式无效")
-            return False
-        
-        # 更新配置
-        self.config["openai_api_key"] = openai_api_key
-        self.config["tyqw_api_key"] = tyqw_api_key
-        self.config["module_type"] = self.module_type_combobox.get()
-        self.config["prompt"] = self.prompt_text.get("1.0", "end-1c")
-        self.config["has_review_table"] = self.has_review_table_combobox.get()
-        self.config["output_dir"] = self.output_dir_entry.get()
-        self.config["enable_medical_rag"] = self.enable_medical_rag_var.get()
-        
-        # 保存配置
-        self.save_config()
-        return True
     
     def apply_theme(self, theme_data):
         """应用主题配置

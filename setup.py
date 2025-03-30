@@ -21,6 +21,8 @@ setup(
         "openai",  # OpenAI API
         "dashscope", # 通义千问 API
         "langchain", # LangChain框架
+        "langchain-community", # LangChain社区组件
+        "langchain-huggingface", # LangChain HuggingFace集成
         "chromadb", # 向量数据库
         "sentence-transformers", # 文本向量化
         "pypdf", # PDF处理

@@ -1,5 +1,14 @@
 # 共用的模块
 import json
+import sys
+import os
+
+# 添加项目根目录到Python路径
+current_file = os.path.abspath(__file__)
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from config import (
     prompt,
     module_type,

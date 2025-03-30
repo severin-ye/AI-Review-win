@@ -2,7 +2,23 @@ import os
 import sys
 
 class PathManager:
+    """路径管理器，负责管理所有项目路径"""
+    
+    _instance = None
+    
+    def __new__(cls):
+        """确保PathManager是单例"""
+        if cls._instance is None:
+            cls._instance = super(PathManager, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
     def __init__(self):
+        """初始化路径管理器"""
+        # 避免重复初始化
+        if getattr(self, '_initialized', False):
+            return
+            
         # 获取项目根目录
         if getattr(sys, 'frozen', False):
             self.project_root = os.path.dirname(sys.executable)
@@ -34,6 +50,9 @@ class PathManager:
         
         # 确保必要的目录存在
         self._ensure_directories()
+        
+        # 标记为已初始化
+        self._initialized = True
     
     def _ensure_directories(self):
         """确保所有必要的目录都存在"""
@@ -64,6 +83,18 @@ class PathManager:
         pattern = os.path.join(self.temp_files_dir, "**/*_审校后_.md")
         import glob
         return glob.glob(pattern, recursive=True)
+    
+    def get_app_config_path(self):
+        """获取应用配置文件路径"""
+        return self.config_file
+    
+    def get_theme_config(self):
+        """获取主题配置文件路径"""
+        return self.theme_file
+    
+    def get_default_output_dir(self):
+        """获取默认输出目录"""
+        return self.reviewed_files_dir
     
     def generate_file_paths(self, file_name):
         """生成文件相关的所有路径"""
