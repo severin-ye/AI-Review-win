@@ -4,12 +4,13 @@ A powerful AI-driven text review tool that helps users quickly and efficiently c
 
 ## Features
 
-- 🤖 Multiple Model Support: Integrated with various AI models (GPT-4, Qwen, etc.)
+- 🤖 Multiple Model Support: Integrated with various AI models (GPT-4o, GPT-4o-mini, Qwen, etc.)
 - 📝 Smart Review: Automatic text error detection and correction
 - 🔄 Batch Processing: Support for batch file processing
 - 📊 Real-time Progress: Intuitive progress display interface
 - 🎨 Theme Customization: Customizable interface themes
 - 🔐 Security: Comprehensive key verification mechanism
+- 🏥 Medical RAG System: Medical document retrieval and fact checking
 
 ## System Requirements
 
@@ -38,28 +39,49 @@ python main.py
 
 Main directory descriptions:
 
-- `config/`: Configuration files directory
+- `config/`: Configuration management directory
+  - Core config modules and managers
+  - Theme settings and application constants
+  - Path management for consistent file organization
 - `build/`: Build tools directory
+  - Installation and packaging utilities
+  - Build scripts and spec files
+  - Version information management
 - `src/`: Source code directory
-  - `core/`: Core functionality implementation
-  - `ui/`: User interface components
-  - `utils/`: Utility functions collection
+  - `core/`: Core text processing and AI review functionality
+  - `ui/`: User interface components and pages
+  - `utils/`: Utility functions for text, file and AI operations
+  - `security/`: Key management and verification systems
 - `tests/`: Test files directory
-- `docs/`: Documentation directory
+- `hide_file/`: Hidden runtime files
+  - `config_files/`: Application configuration files
+  - `temp_files/`: Temporary processing files
+  - `medical_reference/`: Medical document storage and vector database
 
 ## Usage Guide
 
 1. Enter a valid API key in the configuration interface on first use
 2. Select files or folders to process
 3. Choose review mode (automatic/manual)
-4. Start processing and wait for results
+4. Optionally upload medical reference documents for fact checking
+5. Start processing and wait for results
+
+## Medical RAG System
+
+The system includes an integrated medical Retrieval-Augmented Generation (RAG) system:
+
+- Support for uploading medical reference documents (PDF, TXT, CSV, Word)
+- Automatic document vectorization and indexing
+- Medical fact checking integration with AI review
+- Contextual medical information retrieval during review process
 
 ## Configuration Guide
 
-- Support for multiple AI model configurations
-- Customizable interface themes
+- Support for multiple AI model configurations (GPT-4o, GPT-4o-mini, Qwen)
+- Customizable interface themes with color and font settings
 - Flexible text processing parameter settings
 - Configurable output formats
+- Medical RAG system configuration options
 
 ## Development Guide
 
@@ -68,6 +90,7 @@ For those interested in development, please ensure:
 1. Follow the project's code standards
 2. Conduct thorough testing before submission
 3. Update relevant documentation
+4. Use the project's modular architecture for extensions
 
 ## Additional Documentation
 
