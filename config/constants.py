@@ -16,7 +16,8 @@ LABEL_NAMES = {
     "module_type": "Module Type",
     "prompt": "Prompt",
     "has_review_table": "有无审校表格",
-    "output_dir": "输出目录"
+    "output_dir": "输出目录",
+    "enable_medical_rag": "启用医学RAG系统"
 }
 
 LABEL_WIDTH = 20
@@ -29,6 +30,13 @@ BUTTON_PAD_Y = 30
 # 默认值
 # ====================================================
 DEFAULT_PROMPT = "你是一个专业的文档审校助手。请仔细审查以下文本，并提供修改建议。"
+DEFAULT_MEDICAL_PROMPT = "你是一个专业的医学文档审校助手。请仔细审查以下文本，并根据医学参考信息进行事实性判断，提供准确的修改建议。"
+
+# ====================================================
+# RAG系统配置
+# ====================================================
+DEFAULT_ENABLE_MEDICAL_RAG = False
+MEDICAL_EMBEDDING_MODEL = "shibing624/text2vec-base-chinese"
 
 # ====================================================
 # 版本信息
@@ -44,5 +52,8 @@ __all__ = [
     'PROMPT_TEXT_WIDTH',
     'BUTTON_PAD_Y',
     'DEFAULT_PROMPT',
+    'DEFAULT_MEDICAL_PROMPT',
+    'DEFAULT_ENABLE_MEDICAL_RAG',
+    'MEDICAL_EMBEDDING_MODEL',
     'VERSION'
 ] 

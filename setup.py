@@ -20,6 +20,10 @@ setup(
         "lxml",  # XML处理
         "openai",  # OpenAI API
         "dashscope", # 通义千问 API
+        "langchain", # LangChain框架
+        "chromadb", # 向量数据库
+        "sentence-transformers", # 文本向量化
+        "pypdf", # PDF处理
     ],
     
     # 项目作者信息
@@ -30,7 +34,7 @@ setup(
     description="AI文档审校助手",
     
     # 项目的关键词,用于PyPI搜索
-    keywords="AI, document, review",
+    keywords="AI, document, review, medical, RAG",
     
     # 指定项目运行所需的Python最低版本
     python_requires=">=3.8",

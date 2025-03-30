@@ -8,7 +8,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from docx import Document  # 处理Word文档的模块
 from lxml import etree  # 用于处理XML和HTML的模块
-from config import has_review_table  # 配置模块，导入是否有审查表的配置项
+from config import has_review_table, enable_medical_rag  # 导入配置项
 
 # 导入工具模块
 from src.utils.file_utils import traverse_folder, generate_path, remove_middle_folder
@@ -17,13 +17,21 @@ from src.utils.docx_utils import convert_file_md
 from src.utils.text_utils import divide_text_with_indent
 from src.utils.ai_utils import ai_answer
 from src.utils.similarity_utils import find_diff_sentences
+from src.utils.rag_utils import initialize_rag, get_medical_verification  # 导入RAG系统
 
 class AIReviewer:
     """AI审校类，用于处理文本审校功能"""
     
-    def __init__(self):
-        """初始化AI审校器"""
-        pass
+    def __init__(self, use_medical_rag=False):
+        """初始化AI审校器
+        
+        Args:
+            use_medical_rag: 是否使用医学RAG系统
+        """
+        self.use_medical_rag = use_medical_rag
+        # 如果启用医学RAG，初始化RAG系统
+        if self.use_medical_rag:
+            initialize_rag()
     
     def review_text(self, text):
         """审校单个文本
@@ -35,7 +43,19 @@ class AIReviewer:
             str: 审校结果
         """
         try:
-            result = ai_answer(text)
+            # 如果启用医学RAG，获取医学上下文信息
+            medical_context = ""
+            if self.use_medical_rag:
+                medical_context = get_medical_verification(text)
+                if medical_context and medical_context != "未找到相关医学参考信息。":
+                    # 将医学上下文添加到提示中
+                    augmented_text = f"请审校以下文本，并参考提供的医学参考信息进行医学事实性判断。\n\n{medical_context}\n\n待审校文本:\n{text}"
+                    result = ai_answer(augmented_text)
+                else:
+                    result = ai_answer(text)
+            else:
+                result = ai_answer(text)
+                
             if result is None:
                 raise Exception("AI审校返回空结果")
             return result
@@ -69,6 +89,9 @@ def process_file(file_name, file_type, progress_callback=None):
     print(f"File Name: {file_name}, File Type: {file_type}")  # 输出文件名和文件类型
     # 生成各路径变量
     begin_path, no_table, path_extract, md_path, ai_path, word_path_1, word_path_2, final_path_1, final_path_2, select_path_1, select_path_2 = generate_path(file_name)
+
+    # 初始化审校器，并根据配置决定是否启用医学RAG
+    reviewer = AIReviewer(use_medical_rag=enable_medical_rag)
 
     try:
         print(f"{file_name} 处理开始...")  # 输出处理开始信息
@@ -112,7 +135,7 @@ def process_file(file_name, file_type, progress_callback=None):
             
             for question in input_list:  # 遍历分割后的文本
                 try:
-                    output = ai_answer(question)  # 获取AI回答
+                    output = reviewer.review_text(question)  # 使用审校器处理文本
                 except Exception as ai_error:
                     print(f"处理问题时出现错误: {ai_error}")  # 输出错误信息
                     output = "GPT处理时出错"  # 错误时的默认输出
