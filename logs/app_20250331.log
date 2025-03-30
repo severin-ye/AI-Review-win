@@ -1,3 +1,9 @@
 2025-03-31 00:05:49,287 [INFO] 正在启动AI审校助手...
 2025-03-31 00:05:59,730 [INFO] Load pretrained SentenceTransformer: shibing624/text2vec-base-chinese
 2025-03-31 00:06:06,173 [INFO] 程序已退出
+2025-03-31 00:38:48,171 [INFO] 正在启动AI审校助手...
+2025-03-31 00:38:55,532 [INFO] Load pretrained SentenceTransformer: shibing624/text2vec-base-chinese
+2025-03-31 00:39:22,937 [INFO] 程序已退出
+2025-03-31 00:39:24,286 [INFO] 正在启动AI审校助手...
+2025-03-31 00:39:31,753 [INFO] Load pretrained SentenceTransformer: shibing624/text2vec-base-chinese
+2025-03-31 00:39:38,186 [INFO] 程序已退出

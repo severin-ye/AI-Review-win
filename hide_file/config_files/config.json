@@ -1,0 +1,10 @@
+{
+    "api_keys": {
+        "openai": "EGi_qKGsAMUkTJi_s1xMK3A26h-ij_Lt9BoQmAb9lPo=",
+        "tyqw": ""
+    },
+    "module_type": "通义千问",
+    "has_review_table": true,
+    "output_dir": "C:/Users/6seve/OneDrive/桌面",
+    "prompt": "- The role gpt need to play\n\t我希望你能成为文章语法和逻辑问题的检查员\n\n- The format of gpt answer\n\t我会给你文段, 你需要把文段修改为正确的语法和逻辑, 然后输出修改后的文段. (不需要输出修改之前的原文段)"
+}
