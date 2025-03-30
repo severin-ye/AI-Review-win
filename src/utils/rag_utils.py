@@ -5,7 +5,16 @@
 
 import os
 import warnings
+import json
+import time
+import openai
+import logging
 from typing import List, Dict, Any
+import numpy as np
+from openai import OpenAI
+from functools import lru_cache
+from tenacity import retry, stop_after_attempt, wait_random_exponential
+from config import path_manager
 
 # 更精确地过滤LangChain弃用警告
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -20,9 +29,11 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader
 from langchain_core.documents import Document
 
-# 全局变量
-MEDICAL_DOCS_DIR = os.path.join(os.getcwd(), "_4_医学参考文档")
+# 获取医学文档目录
+MEDICAL_DOCS_DIR = path_manager.get_medical_docs_dir()
 
+# 日志配置
+logger = logging.getLogger(__name__)
 
 class MedicalRAG:
     """医学RAG系统，提供医学事实性验证功能"""

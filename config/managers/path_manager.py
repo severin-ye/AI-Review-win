@@ -36,14 +36,20 @@ class PathManager:
         self.material_dir = os.path.join(self.project_root, "material")
         self.src_dir = os.path.join(self.project_root, "src")
         
-        # 工作目录
-        self.original_files_dir = os.path.join(self.project_root, "_1_原文件")
-        self.reviewed_files_dir = os.path.join(self.project_root, "_2_审校后")
-        self.temp_files_dir = os.path.join(self.hide_file_dir, "中间文件")
+        # 中间文件目录 - 使用英文目录名
+        self.temp_files_dir = os.path.join(self.hide_file_dir, "temp_files")
         
-        # 配置文件
-        self.config_file = os.path.join(self.hide_file_dir, "配置文件", "config.json")
+        # 工作目录 - 使用英文目录名
+        self.original_files_dir = os.path.join(self.temp_files_dir, "original_files")
+        self.reviewed_files_dir = os.path.join(self.temp_files_dir, "reviewed_files")
+        
+        # 配置文件目录 - 使用英文目录名
+        self.config_files_dir = os.path.join(self.hide_file_dir, "config_files")
+        self.config_file = os.path.join(self.config_files_dir, "config.json")
         self.theme_file = os.path.join(self.settings_dir, "theme.json")
+        
+        # 医学参考文档目录 - 使用英文目录名
+        self.medical_docs_dir = os.path.join(self.hide_file_dir, "medical_reference")
         
         # 资源文件
         self.icon_file = os.path.join(self.material_dir, "icon.ico")
@@ -62,10 +68,11 @@ class PathManager:
             self.hide_file_dir,
             self.logs_dir,
             self.material_dir,
+            self.temp_files_dir,
             self.original_files_dir,
             self.reviewed_files_dir,
-            self.temp_files_dir,
-            os.path.dirname(self.config_file)
+            self.config_files_dir,
+            self.medical_docs_dir
         ]
         
         for directory in directories:
@@ -96,6 +103,10 @@ class PathManager:
         """获取默认输出目录"""
         return self.reviewed_files_dir
     
+    def get_medical_docs_dir(self):
+        """获取医学参考文档目录"""
+        return self.medical_docs_dir
+    
     def generate_file_paths(self, file_name):
         """生成文件相关的所有路径"""
         base_name = os.path.splitext(file_name)[0]
@@ -114,5 +125,5 @@ class PathManager:
             'select_path_2': os.path.join(self.temp_files_dir, f"{base_name}_选择修订2_.md")
         }
 
-# 创建全局实例
+# 单例路径管理器
 path_manager = PathManager() 

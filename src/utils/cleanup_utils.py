@@ -1,5 +1,6 @@
 import os
 from src.security.time_lock import check_date
+from config import path_manager
 check_date()
 
 def delete_files_and_folders_in_directory(directory_path):
@@ -33,8 +34,12 @@ def delete_files_and_folders_in_directory(directory_path):
 
     return error_names
 
-# 需要删除文件的文件夹列表
-directories_to_clean = [r"_1_原文件", r"_2_审校后", r"hide_file\中间文件"]
+# 获取需要清理的目录路径
+directories_to_clean = [
+    path_manager.original_files_dir,
+    path_manager.reviewed_files_dir,
+    path_manager.temp_files_dir
+]
 all_error_names = []
 
 for dir_path in directories_to_clean:

@@ -3,6 +3,7 @@ from lxml import etree
 import os
 import glob
 import re
+from config import path_manager
 
 
 # 移除第一个表格
@@ -98,15 +99,11 @@ if __name__ == "__main__":
     operate=1
 
     # 生成表处理文件路径
-    def generate_file_paths(original_path):
-        # 分离文件名和扩展名
-        file_name, file_extension = os.path.splitext(original_path)
-        # 添加"_表格"到文件名并确保结果是原始字符串
-        path_extract = rf"{file_name}_提取表格{file_extension}"
-        path_remove = rf"{file_name}_移除表格{file_extension}"
-        path_replace = rf"{file_name}_替换表格{file_extension}"
-        
-        return path_extract, path_remove, path_replace
+    def generate_file_paths(file_name):
+        """生成文件处理所需的路径"""
+        # 使用路径管理器生成文件路径
+        paths = path_manager.generate_file_paths(file_name)
+        return paths['begin_path'], paths['no_table'], paths['path_extract']
 
     path_1 = r"C:\Users\severin\OneDrive\CodeLib\ai_review\sug_0\_1_原文件\*"
     files = glob.glob(path_1)

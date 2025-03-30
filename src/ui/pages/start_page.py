@@ -1,11 +1,15 @@
 import ttkbootstrap as ttk
 from tkinter import messagebox, filedialog, scrolledtext, LEFT, RIGHT, TOP, BOTH, X, Y, W
 import os
+import sys
 import shutil
+import threading
+import tkinter as tk
 from src.ui.styles.theme_manager import theme_manager
 from src.utils import cleanup_utils
 from config.managers import config_manager
 from config.constants import LABEL_NAMES, MODULE_LIST, LABEL_WIDTH, ENTRY_WIDTH, PROMPT_TEXT_HEIGHT, PROMPT_TEXT_WIDTH
+from config import path_manager
 
 class StartPage(ttk.Frame):
     def __init__(self, parent, controller):
@@ -90,8 +94,8 @@ class StartPage(ttk.Frame):
         if not files:
             return
             
-        # 确保目标目录存在
-        target_dir = os.path.join(os.getcwd(), "_1_原文件")
+        # 使用路径管理器获取原文件目录
+        target_dir = path_manager.original_files_dir
         os.makedirs(target_dir, exist_ok=True)
         
         # 复制选中的文件到目标目录
@@ -112,7 +116,12 @@ class StartPage(ttk.Frame):
     def clear_files(self):
         """运行清理文件脚本"""
         try:
-            directories_to_clean = [r"_1_原文件", r"_2_审校后", r"hide_file\中间文件"]
+            # 使用cleanup_utils模块的功能来清理文件
+            directories_to_clean = [
+                path_manager.original_files_dir,
+                path_manager.reviewed_files_dir,
+                path_manager.temp_files_dir
+            ]
             all_error_names = []
             
             for dir_path in directories_to_clean:

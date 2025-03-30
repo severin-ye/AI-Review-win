@@ -32,3 +32,25 @@ Traceback (most recent call last):
   File "c:\Users\6seve\CodeLib_win\AI-Review-win\src\utils\ai_utils.py", line 3, in <module>
     from config import (
 ImportError: cannot import name 'MODULE_LIST' from 'config' (c:\Users\6seve\CodeLib_win\AI-Review-win\config\__init__.py)
+2025-03-30 23:42:39,901 [INFO] 正在启动AI审校助手...
+2025-03-30 23:42:39,908 [ERROR] 程序运行出错：cannot import name 'MainApp' from 'src.ui' (C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py)
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+ImportError: cannot import name 'MainApp' from 'src.ui' (C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py)
+2025-03-30 23:42:41,939 [INFO] 程序已退出
+2025-03-30 23:42:41,939 [ERROR] 未捕获的异常:
+Traceback (most recent call last):
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 112, in <module>
+    main()
+  File "C:\Users\6seve\CodeLib_win\AI-Review-win\main.py", line 91, in main
+    from src.ui import MainApp
+ImportError: cannot import name 'MainApp' from 'src.ui' (C:\Users\6seve\CodeLib_win\AI-Review-win\src\ui\__init__.py)
+2025-03-30 23:43:02,622 [INFO] 正在启动AI审校助手...
+2025-03-30 23:43:14,796 [INFO] Load pretrained SentenceTransformer: shibing624/text2vec-base-chinese
+2025-03-30 23:45:08,599 [INFO] 正在启动AI审校助手...
+2025-03-30 23:45:19,931 [INFO] Load pretrained SentenceTransformer: shibing624/text2vec-base-chinese
+2025-03-30 23:45:28,835 [INFO] 程序已退出
+2025-03-30 23:51:30,238 [INFO] 正在启动AI审校助手...
+2025-03-30 23:51:42,370 [INFO] Load pretrained SentenceTransformer: shibing624/text2vec-base-chinese
+2025-03-30 23:51:57,100 [INFO] 程序已退出

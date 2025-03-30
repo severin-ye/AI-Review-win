@@ -32,12 +32,10 @@ try:
     # 医学RAG系统配置
     enable_medical_rag = config.get("enable_medical_rag", False)
     
-    # 创建示例参考文档目录
-    medical_docs_dir = os.path.join(os.getcwd(), "_4_医学参考文档")
-    if not os.path.exists(medical_docs_dir):
-        os.makedirs(medical_docs_dir)
-        # 创建README文件
-        readme_path = os.path.join(medical_docs_dir, "README.txt")
+    # 获取医学参考文档目录并创建README
+    medical_docs_dir = path_manager.get_medical_docs_dir()
+    readme_path = os.path.join(medical_docs_dir, "README.txt")
+    if not os.path.exists(readme_path):
         with open(readme_path, 'w', encoding='utf-8') as f:
             f.write("医学参考文档目录\n\n")
             f.write("请将医学参考文档（PDF、TXT、CSV）放在此目录下\n")
