@@ -29,8 +29,10 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader
 from langchain_core.documents import Document
 
-# 获取医学文档目录
+# 获取医学文档相关目录
 MEDICAL_DOCS_DIR = path_manager.get_medical_docs_dir()
+MEDICAL_DOCS_UPLOAD_DIR = path_manager.get_medical_docs_upload_dir()
+MEDICAL_DOCS_DB_DIR = path_manager.get_medical_docs_db_dir()
 
 # 日志配置
 logger = logging.getLogger(__name__)
@@ -38,13 +40,15 @@ logger = logging.getLogger(__name__)
 class MedicalRAG:
     """医学RAG系统，提供医学事实性验证功能"""
     
-    def __init__(self, docs_dir: str = MEDICAL_DOCS_DIR):
+    def __init__(self, docs_dir: str = MEDICAL_DOCS_UPLOAD_DIR, db_dir: str = MEDICAL_DOCS_DB_DIR):
         """初始化医学RAG系统
         
         Args:
             docs_dir: 医学参考文档目录路径
+            db_dir: 向量数据库存储目录
         """
         self.docs_dir = docs_dir
+        self.db_dir = db_dir
         self.vector_store = None
         self.embeddings = HuggingFaceEmbeddings(
             model_name="shibing624/text2vec-base-chinese",
@@ -54,6 +58,10 @@ class MedicalRAG:
         # 确保医学文档目录存在
         if not os.path.exists(self.docs_dir):
             os.makedirs(self.docs_dir)
+        
+        # 确保向量数据库目录存在
+        if not os.path.exists(self.db_dir):
+            os.makedirs(self.db_dir)
     
     def load_documents(self) -> List[Document]:
         """加载医学参考文档
@@ -101,7 +109,7 @@ class MedicalRAG:
         self.vector_store = Chroma.from_documents(
             documents=splits,
             embedding=self.embeddings,
-            persist_directory=os.path.join(self.docs_dir, "chroma_db")
+            persist_directory=self.db_dir
         )
         
         print(f"成功处理 {len(splits)} 个文档片段")
@@ -110,9 +118,9 @@ class MedicalRAG:
         """初始化RAG系统"""
         try:
             # 加载之前持久化的向量库
-            if os.path.exists(os.path.join(self.docs_dir, "chroma_db")):
+            if os.path.exists(self.db_dir):
                 self.vector_store = Chroma(
-                    persist_directory=os.path.join(self.docs_dir, "chroma_db"),
+                    persist_directory=self.db_dir,
                     embedding_function=self.embeddings
                 )
                 print("已加载现有向量数据库")

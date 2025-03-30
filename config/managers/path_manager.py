@@ -50,6 +50,8 @@ class PathManager:
         
         # 医学参考文档目录 - 使用英文目录名
         self.medical_docs_dir = os.path.join(self.hide_file_dir, "medical_reference")
+        self.medical_docs_upload_dir = os.path.join(self.medical_docs_dir, "documents")
+        self.medical_docs_db_dir = os.path.join(self.medical_docs_dir, "chroma_db")
         
         # 资源文件
         self.icon_file = os.path.join(self.material_dir, "icon.ico")
@@ -72,7 +74,9 @@ class PathManager:
             self.original_files_dir,
             self.reviewed_files_dir,
             self.config_files_dir,
-            self.medical_docs_dir
+            self.medical_docs_dir,
+            self.medical_docs_upload_dir,
+            self.medical_docs_db_dir
         ]
         
         for directory in directories:
@@ -106,6 +110,14 @@ class PathManager:
     def get_medical_docs_dir(self):
         """获取医学参考文档目录"""
         return self.medical_docs_dir
+    
+    def get_medical_docs_upload_dir(self):
+        """获取医学参考文档上传目录"""
+        return self.medical_docs_upload_dir
+    
+    def get_medical_docs_db_dir(self):
+        """获取医学参考文档向量数据库目录"""
+        return self.medical_docs_db_dir
     
     def generate_file_paths(self, file_name):
         """生成文件相关的所有路径"""

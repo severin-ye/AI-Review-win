@@ -44,6 +44,7 @@ class StartPage(ttk.Frame):
         # 左侧按钮（文件操作）
         left_buttons = [
             ("上传文件", self.upload_file, 'primary'),
+            ("上传医学参考", self.upload_medical_docs, 'info'),
             ("清理文件", self.clear_files, 'info'),
         ]
         
@@ -112,6 +113,43 @@ class StartPage(ttk.Frame):
         # 显示成功消息
         if success_count > 0:
             messagebox.showinfo("上传成功", f"成功上传 {success_count} 个文件到处理目录！")
+    
+    def upload_medical_docs(self):
+        """上传医学参考文档功能"""
+        files = filedialog.askopenfilenames(
+            title="选择医学参考文档",
+            filetypes=[
+                ("医学文档", "*.pdf;*.txt;*.csv;*.docx;*.doc"),
+                ("PDF文档", "*.pdf"),
+                ("文本文件", "*.txt"),
+                ("CSV数据", "*.csv"),
+                ("Word文档", "*.docx;*.doc"),
+                ("所有文件", "*.*")
+            ]
+        )
+        
+        if not files:
+            return
+            
+        # 使用路径管理器获取医学参考文档上传目录
+        target_dir = path_manager.get_medical_docs_upload_dir()
+        os.makedirs(target_dir, exist_ok=True)
+        
+        # 复制选中的文件到目标目录
+        success_count = 0
+        for file_path in files:
+            try:
+                file_name = os.path.basename(file_path)
+                target_path = os.path.join(target_dir, file_name)
+                shutil.copy2(file_path, target_path)
+                success_count += 1
+            except Exception as e:
+                messagebox.showerror("错误", f"复制文件 {file_name} 时出错：{str(e)}")
+        
+        # 显示成功消息
+        if success_count > 0:
+            msg = f"成功上传 {success_count} 个医学参考文档！\n\n文档将在下次启动程序时自动索引。"
+            messagebox.showinfo("上传成功", msg)
     
     def clear_files(self):
         """运行清理文件脚本"""

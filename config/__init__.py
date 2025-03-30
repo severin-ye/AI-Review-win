@@ -34,12 +34,25 @@ try:
     
     # 获取医学参考文档目录并创建README
     medical_docs_dir = path_manager.get_medical_docs_dir()
+    medical_docs_upload_dir = path_manager.get_medical_docs_upload_dir()
+    
+    # 创建医学参考文档目录README
     readme_path = os.path.join(medical_docs_dir, "README.txt")
     if not os.path.exists(readme_path):
         with open(readme_path, 'w', encoding='utf-8') as f:
             f.write("医学参考文档目录\n\n")
+            f.write("documents子目录用于存放医学参考文档（PDF、TXT、CSV）\n")
+            f.write("chroma_db子目录用于存储向量数据库\n")
+            f.write("系统将自动索引这些文档并在审校医学文本时提供参考信息\n")
+    
+    # 创建医学参考文档上传目录README
+    upload_readme_path = os.path.join(medical_docs_upload_dir, "README.txt")
+    if not os.path.exists(upload_readme_path):
+        with open(upload_readme_path, 'w', encoding='utf-8') as f:
+            f.write("医学参考文档上传目录\n\n")
             f.write("请将医学参考文档（PDF、TXT、CSV）放在此目录下\n")
             f.write("系统将自动索引这些文档并在审校医学文本时提供参考信息\n")
+            f.write("上传的文档将在下次启动程序时自动处理\n")
     
 except Exception as e:
     print(f"加载配置时出错: {e}")
