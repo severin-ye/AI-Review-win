@@ -68,39 +68,48 @@ class TestSemanticDivider(unittest.TestCase):
 
     def test_semantic_division(self):
         """测试语义分割功能"""
-        print("\n" + "=" * 50)
-        print("测试语义分割功能")
-        print("=" * 50 + "\n")
+        # 定义ANSI颜色代码
+        HEADER = '\033[95m'      # 紫色
+        BLUE = '\033[94m'        # 蓝色
+        GREEN = '\033[92m'       # 绿色
+        YELLOW = '\033[93m'      # 黄色
+        RED = '\033[91m'         # 红色
+        ENDC = '\033[0m'         # 结束颜色
+        BOLD = '\033[1m'         # 加粗
+        
+        print(f"\n{BOLD}{BLUE}{'='*50}{ENDC}")
+        print(f"{BOLD}{GREEN}测试语义分割功能{ENDC}")
+        print(f"{BOLD}{BLUE}{'='*50}\n{ENDC}")
 
         # 1. 获取自然段落
         paragraphs = self.divider._split_into_natural_paragraphs(self.test_text)
         
-        print(f"原始自然段落（共 {len(paragraphs)} 段）:")
+        print(f"{BOLD}{YELLOW}原始自然段落（共 {len(paragraphs)} 段）:{ENDC}")
         for i, para in enumerate(paragraphs, 1):
-            print("-" * 50)
-            print(f"段落 {i} ({len(para)}字):")
+            print(f"{BLUE}{'-'*50}{ENDC}")
+            print(f"{GREEN}段落 {i} ({len(para)}字):{ENDC}")
             print(para)
-            print("-" * 50)
+            print(f"{BLUE}{'-'*50}{ENDC}")
 
         # 2. 分析段落特征
         features = self.divider._analyze_paragraphs(paragraphs)
         
-        print("\n段落分析结果:")
-        print("-" * 50)
+        print(f"\n{BOLD}{YELLOW}段落分析结果:{ENDC}")
+        print(f"{BLUE}{'-'*50}{ENDC}")
         for i, feature in enumerate(features, 1):
-            print(f"段落 {i}:")
-            print(f"类型: {feature['type']}")
-            print("-" * 50)
+            print(f"{GREEN}段落 {i}:{ENDC}")
+            print(f"{YELLOW}类型: {feature['type']}{ENDC}")
+            print(f"{BLUE}{'-'*50}{ENDC}")
 
         # 3. 获取最终分割结果
         semantic_blocks = self.divider.split_text(self.test_text)
         
-        print("\n语义分割结果:")
-        print("-" * 50)
+        print(f"\n{BOLD}{YELLOW}语义分割结果:{ENDC}")
+        print(f"{BLUE}{'-'*50}{ENDC}")
         for i, block in enumerate(semantic_blocks, 1):
-            print(f"语义块 {i} ({len(block)}字):")
+            print(f"{GREEN}语义块 {i} ({len(block)}字):{ENDC}")
             print(block)
-            print("-" * 50)
+            print(f"{BLUE}{'-'*50}{ENDC}")
 
         # 4. 验证结果
         for block in semantic_blocks:

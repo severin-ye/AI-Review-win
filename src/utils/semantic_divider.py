@@ -11,6 +11,15 @@ SHOW_TRANSFORMER_INFO = False  # 控制是否显示预训练模型加载信息
 if not SHOW_TRANSFORMER_INFO:
     logging.getLogger('sentence_transformers').setLevel(logging.WARNING)
 
+# 定义ANSI颜色代码
+HEADER = '\033[95m'      # 紫色
+BLUE = '\033[94m'        # 蓝色
+GREEN = '\033[92m'       # 绿色
+YELLOW = '\033[93m'      # 黄色
+RED = '\033[91m'         # 红色
+ENDC = '\033[0m'         # 结束颜色
+BOLD = '\033[1m'         # 加粗
+
 class SemanticDivider:
     """基于语义的文本分割器
     
@@ -57,7 +66,7 @@ class SemanticDivider:
         semantic_blocks = []
         current_block = []
         current_chapter = None
-        reference_block = []  # 新增：专门存储引用段落
+        reference_block = []
         
         for i, (para, feature) in enumerate(zip(paragraphs, features)):
             para_type = feature['type']
@@ -83,7 +92,7 @@ class SemanticDivider:
                 current_block = []
                 continue
                 
-            # 处理章节内容
+            # 处理章节标题
             if para_type == 'chapter_title':
                 if current_block:
                     semantic_blocks.append('\n'.join(current_block))
@@ -99,9 +108,17 @@ class SemanticDivider:
                 current_block = []
                 continue
                 
-            # 处理普通段落
-            if current_chapter and (para_type in ['subtitle', 'content', 'short_text']):
-                current_block.append(para)
+            # 处理普通段落和子标题
+            if current_chapter:
+                # 如果是当前章节的子标题或内容，直接添加到当前块
+                if para_type in ['subtitle', 'content', 'short_text']:
+                    current_block.append(para)
+                else:
+                    # 如果遇到新章节，保存当前块并开始新的块
+                    if current_block:
+                        semantic_blocks.append('\n'.join(current_block))
+                    current_block = [para]
+                    current_chapter = para if para_type == 'chapter_title' else None
             else:
                 if current_block:
                     semantic_blocks.append('\n'.join(current_block))
@@ -114,6 +131,12 @@ class SemanticDivider:
         # 添加合并后的引用块
         if reference_block:
             semantic_blocks.append('\n'.join(reference_block))
+            
+        # 打印调试信息
+        print(f"{BLUE}分割结果：共{len(semantic_blocks)}个语义块{ENDC}")
+        for i, block in enumerate(semantic_blocks, 1):
+            print(f"{GREEN}语义块 {i} ({len(block)}字):{ENDC}")
+            print(f"{YELLOW}{block[:100]}...{ENDC}")
             
         return semantic_blocks
     
