@@ -16,6 +16,7 @@ from src.utils.file_utils import traverse_folder, generate_path, remove_middle_f
 from src.utils.table_utils import extract_tables_from_word, replace_tables, replace_placeholders_with_tables, remove_first_table
 from src.utils.docx_utils import convert_file_md
 from src.utils.text_utils import divide_text_with_indent
+from src.utils.semantic_divider import divide_text_semantically  # 导入新的语义分割器
 from src.utils.ai_utils import ai_answer
 from src.utils.rag_utils import initialize_rag, get_medical_verification  # 导入RAG系统
 
@@ -191,8 +192,8 @@ def process_file(file_name, file_type, progress_callback=None):
         with open(md_path, 'w', encoding='utf-8') as file:
             file.write(modified_text)
 
-        # 分割文本
-        input_list = divide_text_with_indent(md_path)
+        # 使用语义分割器替代原有的分割方法
+        input_list = divide_text_semantically(modified_text)
 
         # 打开AI结果文件写入模式
         with open(ai_path, 'w', encoding='utf-8') as f:
@@ -211,15 +212,16 @@ def process_file(file_name, file_type, progress_callback=None):
                     
                     # 将结果格式化为易读形式
                     formatted_output = reviewer.format_review_result(result, question)
-                    print(f"{GREEN}审校结果:{RESET}\n{formatted_output}\n")
+                    # 在命令行输出时移除[first_line_indent]标记
+                    print(f"{GREEN}审校结果:{RESET}\n{formatted_output.replace('[first_line_indent]', '')}\n")
                     
                 except Exception as ai_error:
                     print(f"处理问题时出现错误: {ai_error}")  # 输出错误信息
                     formatted_output = "[first_line_indent]GPT处理时出错"  # 错误时的默认输出
 
-                # 写入原文和AI审校结果
+                # 写入原文和AI审校结果（保留[first_line_indent]标记以便后续处理）
                 f.write(f"\n**原文{paragraph_num}**:\n\n{question}\n\n")
-                f.write(f"**GPT审校{paragraph_num}**:\n\n{formatted_output.replace('[first_line_indent]', '')}\n\n")
+                f.write(f"**GPT审校{paragraph_num}**:\n\n{formatted_output}\n\n")
                 
                 # 提取修改建议并写入差异对比
                 f.write(f"**差异对比如下**:\n\n")

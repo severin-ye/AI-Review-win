@@ -1,6 +1,7 @@
 import re
 import os
 import shutil
+from .semantic_divider import divide_text_semantically
 
 
 # 分割表格
@@ -28,29 +29,49 @@ def table_divider(text):
 
     return divided_contents
 
-# 以[first_line_indent]占位符分割文本
-def divide_text_with_indent(md_path):
+def divide_text_with_indent(md_path, max_chars=500, use_semantic=True):
+    """分割文本为段落
+    
+    Args:
+        md_path: markdown文件路径
+        max_chars: 每个段落的最大字符数
+        use_semantic: 是否使用语义分割（默认True）
+        
+    Returns:
+        分割后的段落列表
+    """
     with open(md_path, 'r', encoding='utf-8') as f:
         try:
             text = f.read()
+            # 首先处理表格
             paragraphs = table_divider(text)
             
-            segments = []
-            segment = ''
-            for paragraph in paragraphs:
-                if paragraph.startswith('[first_line_indent]'):
-                    if segment:
-                        segments.append(segment)
-                    segment = paragraph
-                else:
-                    segment += '\n' + paragraph
-            if segment:
-                segments.append(segment)
+            if use_semantic:
+                # 将段落合并为完整文本
+                full_text = '\n\n'.join(paragraphs)
+                # 使用语义分割器重新分割文本
+                segments = divide_text_semantically(full_text, max_chars)
+                print(f"语义分割共分割为{len(segments)}段")
+            else:
+                # 使用原始的[first_line_indent]分割方式
+                segments = []
+                segment = ''
+                for paragraph in paragraphs:
+                    if paragraph.startswith('[first_line_indent]'):
+                        if segment:
+                            segments.append(segment)
+                        segment = paragraph
+                    else:
+                        segment += '\n' + paragraph
+                if segment:
+                    segments.append(segment)
+                print(f"根据缩进分割共分割为{len(segments)}段")
+            
+            return segments
+            
         except Exception as e:
             print(f"分割文本时出现错误：{e}")
-        
-    print(f"根据缩进分割共分割为{len(segments)}段")
-    return segments
+            return []
 
 
 if __name__ == '__main__':
