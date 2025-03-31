@@ -5,12 +5,13 @@ A powerful AI-driven text review tool that helps users quickly and efficiently c
 ## Features
 
 - 🤖 Multiple Model Support: Integrated with various AI models (GPT-4o, GPT-4o-mini, Qwen, etc.)
-- 📝 Smart Review: Automatic text error detection and correction
+- 📝 Smart Review: Automatic text error detection and correction with structured output
 - 🔄 Batch Processing: Support for batch file processing
 - 📊 Real-time Progress: Intuitive progress display interface
 - 🎨 Theme Customization: Customizable interface themes
 - 🔐 Security: Comprehensive key verification mechanism
 - 🏥 Medical RAG System: Medical document retrieval and fact checking
+- 🔍 Semantic Analysis: Intelligent text segmentation and analysis
 
 ## System Requirements
 
@@ -45,7 +46,7 @@ Main directory descriptions:
   - Path management for consistent file organization
 - `build/`: Build tools directory
   - Installation and packaging utilities
-  - Build scripts and spec files
+  - Build scripts and spec files in `specs/` subdirectory
   - Version information management
 - `src/`: Source code directory
   - `core/`: Core text processing and AI review functionality
@@ -56,7 +57,11 @@ Main directory descriptions:
 - `hide_file/`: Hidden runtime files
   - `config_files/`: Application configuration files
   - `temp_files/`: Temporary processing files
-  - `medical_reference/`: Medical document storage and vector database
+    - `original_files/`: Original files for review
+    - `reviewed_files/`: Processed files after review
+  - `medical_reference/`: Medical document storage
+    - `documents/`: User uploaded medical documents
+    - `chroma_db/`: Vector database for medical RAG
 
 ## Usage Guide
 
@@ -77,10 +82,12 @@ The system includes an integrated medical Retrieval-Augmented Generation (RAG) s
 
 ## Configuration Guide
 
-- Support for multiple AI model configurations (GPT-4o, GPT-4o-mini, Qwen)
+- Support for multiple AI model configurations:
+  - GPT-4o: Advanced text review and analysis
+  - GPT-4o-mini: Faster processing for simpler tasks
+  - Qwen: Alternative model with comparable capabilities
 - Customizable interface themes with color and font settings
 - Flexible text processing parameter settings
-- Configurable output formats
 - Medical RAG system configuration options
 
 ## Development Guide
