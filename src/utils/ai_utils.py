@@ -31,6 +31,39 @@ client = OpenAI(api_key=openai_api_key)
 # 通义千问 配置
 dashscope.api_key = tyqw_api_key
 
+# 定义文本审校工具函数Schema
+TEXT_REVIEW_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "report_text_issues",
+        "description": "识别文本中的错误句子并提出修改建议",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "corrections": {
+                    "type": "array",
+                    "description": "每项为错误句和修改建议的对应关系",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "original": {
+                                "type": "string",
+                                "description": "原始有错误的句子"
+                            },
+                            "suggestion": {
+                                "type": "string",
+                                "description": "修改后的句子"
+                            }
+                        },
+                        "required": ["original", "suggestion"]
+                    }
+                }
+            },
+            "required": ["corrections"]
+        }
+    }
+}
+
 # GPT调用函数
 def gpt_answer(gpt_question, gpt_api_key, gpt_module_type, gpt_prompt):
     try:
@@ -40,14 +73,31 @@ def gpt_answer(gpt_question, gpt_api_key, gpt_module_type, gpt_prompt):
             messages=[
                 {"role": "system", "content": gpt_prompt},
                 {"role": "user", "content": gpt_question}
-            ]
+            ],
+            tools=[TEXT_REVIEW_TOOL],
+            tool_choice={"type": "function", "function": {"name": "report_text_issues"}}
         )
 
-        # 返回回复内容
-        return completion.choices[0].message.content
+        # 处理返回内容
+        response = completion.choices[0].message
+        
+        # 如果有工具调用结果
+        if hasattr(response, 'tool_calls') and response.tool_calls:
+            tool_call = response.tool_calls[0]
+            if tool_call.function.name == "report_text_issues":
+                # 解析JSON结果
+                try:
+                    corrections_data = json.loads(tool_call.function.arguments)
+                    return corrections_data
+                except json.JSONDecodeError as e:
+                    print(f"JSON解析错误: {e}")
+                    return {"corrections": []}
+        
+        # 如果没有工具调用结果，返回普通文本
+        return {"content": response.content}
     except Exception as e:
         print(f"GPT调用出错：{e}")
-        return "GPT调用出错"
+        return {"error": "GPT调用出错"}
 
 # 通义千问调用函数
 def tyqw_answer(tyqw_question, tyqw_prompt):
@@ -62,16 +112,28 @@ def tyqw_answer(tyqw_question, tyqw_prompt):
         )
         if response.status_code == HTTPStatus.OK:
             content = response["output"]["choices"][0]["message"]["content"]
-            return content
+            # 尝试解析通义千问的输出为JSON格式
+            try:
+                # 查找JSON格式的输出
+                json_str = content
+                if "```json" in content:
+                    # 提取JSON字符串
+                    json_str = content.split("```json")[1].split("```")[0].strip()
+                
+                corrections_data = json.loads(json_str)
+                return corrections_data
+            except (json.JSONDecodeError, IndexError):
+                # 如果无法解析为JSON，返回普通文本
+                return {"content": content}
         else:
             print('Request id: %s, Status code: %s, error code: %s, error message: %s' % (
                 response.request_id, response.status_code,
                 response.code, response.message
             ))
-            return "通义千问模型调用错误"
+            return {"error": "通义千问模型调用错误"}
     except Exception as e:
         print(f"通义千问调用出错：{e}")
-        return "通义千问调用出错"
+        return {"error": "通义千问调用出错"}
 
 # 添加占位符函数
 def add_first_line_indent(text):
@@ -80,23 +142,25 @@ def add_first_line_indent(text):
 # 更新后的总调用函数
 def ai_answer(question):
     print("模型类型为：", module_type)
-    answer = "模型类型错误"  # 添加默认值
     
     try:
         if module_type == '通义千问':
-            answer = tyqw_answer(question, prompt)
+            # 为通义千问添加特殊提示，要求返回JSON格式
+            special_prompt = prompt + "\n\n请以JSON格式返回结果，格式如下：\n```json\n{\n  \"corrections\": [\n    {\n      \"original\": \"原始句子\",\n      \"suggestion\": \"修改建议\"\n    }\n  ]\n}\n```\n如果没有发现错误，请返回空的corrections数组。"
+            result = tyqw_answer(question, special_prompt)
         elif module_type in module_list:
-            answer = gpt_answer(question, openai_api_key, module_type, prompt)
+            result = gpt_answer(question, openai_api_key, module_type, prompt)
         elif module_type.startswith('gemini'):
-            # answer = gemini_pro_answer(question)
-            pass
+            # 未实现
+            result = {"error": "Gemini模型尚未实现"}
         else:
             print("模型类型错误")
+            result = {"error": "模型类型错误"}
     except Exception as e:
         print(f"AI调用出错：{e}")
-        return add_first_line_indent("AI调用出错")
+        result = {"error": f"AI调用出错: {str(e)}"}
 
-    return add_first_line_indent(answer)
+    return result
 
 # 测试
 if __name__ == '__main__':

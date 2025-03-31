@@ -1,0 +1,195 @@
+好的！我们现在来**详细逐项解释**刚刚给出的 Function Calling Schema，它的作用是引导 GPT 输出一系列“原句 + 修改建议”的结构化对。
+
+这个 schema 的设计原则是：
+
+> ✅ 易于 GPT 理解  
+> ✅ 输出格式清晰、统一  
+> ✅ 支持多个问题句子  
+> ✅ 如果没有问题，也能兼容返回空值
+
+---
+
+## 🔧 JSON Schema 完整结构（再贴一次）：
+
+```json
+{
+  "name": "report_text_issues",
+  "description": "识别文本中的错误句子并提出修改建议",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "corrections": {
+        "type": "array",
+        "description": "每项为错误句和修改建议的对应关系",
+        "items": {
+          "type": "object",
+          "properties": {
+            "original": {
+              "type": "string",
+              "description": "原始有错误的句子"
+            },
+            "suggestion": {
+              "type": "string",
+              "description": "修改后的句子"
+            }
+          },
+          "required": ["original", "suggestion"]
+        }
+      }
+    },
+    "required": ["corrections"]
+  }
+}
+```
+
+---
+
+## 🧩 各字段逐一解释：
+
+### 1. `"name": "report_text_issues"`
+
+- 作用：这是函数的名称
+- GPT 将根据这个名字来推断意图，比如“报告文本问题”
+- 在你的代码中，这个名字也用来识别函数调用是否被触发
+
+---
+
+### 2. `"description": "识别文本中的错误句子并提出修改建议"`
+
+- 作用：GPT 根据这个描述决定何时调用这个函数
+- 你说“如果文本中发现错误就报告”，这里就是描述这个目的
+
+---
+
+### 3. `"parameters"`：参数部分，是整个函数的“输入结构说明”
+
+#### 类型：
+```json
+"type": "object"
+```
+- 表示整个参数是一个 JSON 对象
+
+---
+
+### 4. `"properties"`：定义这个参数对象里包含哪些字段
+
+这里只定义了一个字段：
+
+#### `"corrections"`：错误修正的列表
+
+```json
+"corrections": {
+  "type": "array",
+  "description": "每项为错误句和修改建议的对应关系",
+  ...
+}
+```
+
+- 这是一个“列表”（数组）
+- 每一项表示一条修改建议，包括原句和修改后的句子
+
+---
+
+### 5. `"items"`：定义列表里每一项的结构
+
+```json
+"items": {
+  "type": "object",
+  "properties": {
+    "original": { "type": "string", ... },
+    "suggestion": { "type": "string", ... }
+  },
+  "required": ["original", "suggestion"]
+}
+```
+
+- 每一项是一个对象，包含两个字符串字段：
+
+| 字段        | 类型    | 说明                             |
+|-------------|---------|----------------------------------|
+| `original`  | string  | 出现错误的原始句子                |
+| `suggestion`| string  | 修改后的正确版本                  |
+
+- `required` 表示这两个字段必须都要有
+
+---
+
+### 6. `"required": ["corrections"]`
+
+- 表示参数对象中 `corrections` 是必须包含的字段（即便为空）
+
+---
+
+## ✅ 示例解释
+
+假设用户输入：
+
+> “她是很高兴。今天有许多人来，他不想去。”
+
+GPT 可能发现两个问题：
+
+1. “她是很高兴。” → 表达不地道，中文应说“她感到很高兴”
+2. “今天有许多人来，他不想去。” → 主语混乱，指代不明
+
+GPT 返回：
+
+```json
+{
+  "corrections": [
+    {
+      "original": "她是很高兴。",
+      "suggestion": "她感到很高兴。"
+    },
+    {
+      "original": "今天有许多人来，他不想去。",
+      "suggestion": "今天有许多人来，但他不愿加入。"
+    }
+  ]
+}
+```
+
+如果句子没有问题，GPT 会返回：
+
+```json
+{
+  "corrections": []
+}
+```
+
+---
+
+## 📦 使用建议
+
+你可以在 GPT 的 API 请求中使用如下方式加载这个函数 schema：
+
+```python
+openai.ChatCompletion.create(
+  model="gpt-4-1106-preview",
+  messages=messages,
+  tools=[
+    {
+      "type": "function",
+      "function": {
+        "name": "report_text_issues",
+        "description": "...",
+        "parameters": { ...  }  # 就是刚刚定义的 schema
+      }
+    }
+  ],
+  tool_choice="auto"  # 让 GPT 自动判断是否调用这个函数
+)
+```
+
+---
+
+## 🛠 延伸功能建议（如需更高级）
+
+| 扩展项 | 描述 |
+|--------|------|
+| 添加 `error_type` 字段 | 让每个问题句子标注“语法错误 / 事实错误 / 格式错误” |
+| 添加 `explanation` 字段 | 增加错误原因解释（方便教育/训练场景） |
+| 添加位置标记 | 比如“错误在第2句”，便于 UI 高亮 |
+
+---
+
+如果你希望我帮你添加这些字段，我可以继续为你扩展 schema 并提供完整 Python 接入代码。是否需要？
