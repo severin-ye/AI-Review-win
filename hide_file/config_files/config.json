@@ -1,9 +1,0 @@
-{
-    "openai_api_key": "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",
-    "tyqw_api_key": "",
-    "module_type": "gpt-4o",
-    "has_review_table": "Y",
-    "output_dir": "C:/Users/6seve/OneDrive/桌面",
-    "prompt": "- The role gpt need to play\n\t我希望你能成为文章语法和逻辑问题的检查员\n\n- The format of gpt answer\n\t我会给你文段, 你需要把文段修改为正确的语法和逻辑, 然后输出修改后的文段. (不需要输出修改之前的原文段)",
-    "enable_medical_rag": true
-}
