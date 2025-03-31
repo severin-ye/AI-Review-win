@@ -5,5 +5,5 @@
     "has_review_table": "",
     "output_dir": "",
     "prompt": "",
-    "enable_medical_rag": 
+    "enable_medical_rag": false
 }
