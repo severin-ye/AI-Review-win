@@ -195,6 +195,7 @@
 5. **hide_file/** - 隐藏文件目录
    - `config_files/` - 配置文件目录
      - `config.json` - 应用程序配置文件
+     - `config_demo.json` - 配置文件模板示例
    - `temp_files/` - 中间文件目录
      - `original_files/` - 原始文件目录
        - 存放需要审校的原始文件

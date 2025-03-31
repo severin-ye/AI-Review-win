@@ -162,8 +162,8 @@ class ConfigManager:
             return False
         
         if provider == "openai":
-            # OpenAI API密钥格式: "sk-" 后跟48个字符
-            return bool(re.match(r'^sk-[A-Za-z0-9]{48}$', api_key))
+            # 更新的OpenAI API密钥格式: 接受以sk-开头或sk-proj-开头的密钥，允许包含破折号和下划线
+            return bool(re.match(r'^sk-[A-Za-z0-9_\-]+$', api_key))
         elif provider == "tyqw":
             # 通义千问API密钥格式: 长度至少为10个字符
             return len(api_key) >= 10
