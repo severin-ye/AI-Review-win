@@ -47,6 +47,28 @@ class ThemeManager:
             tuple: 字体配置元组
         """
         return self.fonts.get(font_type, ('Arial', 10))
+        
+    def create_label(self, parent, text, is_title=False, bootstyle=None, **kwargs):
+        """创建标签
+        
+        Args:
+            parent: 父级窗口部件
+            text: 标签文本
+            is_title: 是否为标题样式
+            bootstyle: 标签样式
+            **kwargs: 其他传递给ttk.Label的参数
+            
+        Returns:
+            ttk.Label: 创建的标签部件
+        """
+        font_type = 'title' if is_title else 'text'
+        return ttk.Label(
+            parent,
+            text=text,
+            font=self.get_font(font_type),
+            bootstyle=bootstyle,
+            **kwargs
+        )
 
 class ConfigManager:
     """配置管理器"""

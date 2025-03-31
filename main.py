@@ -19,6 +19,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from config import path_manager
+from src.utils.cleanup_utils import cleanup_all_directories
 
 def setup_logging():
     """配置日志系统"""
@@ -86,6 +87,10 @@ def main():
         if not check_environment():
             messagebox.showerror("错误", "环境检查失败，请查看日志文件了解详情")
             return
+        
+        # 清理工作目录（仅在main.py运行时执行）
+        cleanup_result = cleanup_all_directories()
+        logging.info(cleanup_result)
         
         # 导入主应用程序
         from src.ui import MainApp

@@ -6,6 +6,7 @@ from queue import Queue
 import time
 from src.ui.styles.theme_manager import theme_manager
 from src.core import ai_review, text_processor
+from config import path_manager
 
 class ProcessPage(ttk.Frame):
     def __init__(self, parent, controller):
@@ -181,8 +182,8 @@ class ProcessPage(ttk.Frame):
     def auto_process(self):
         """运行自动处理脚本"""
         try:
-            # 获取文件列表
-            file_name_list, file_type_list = ai_review.traverse_folder(os.path.join(os.getcwd(), "_1_原文件"))
+            # 获取文件列表，使用path_manager获取正确的原始文件目录
+            file_name_list, file_type_list = ai_review.traverse_folder(path_manager.original_files_dir)
             
             if not file_name_list:
                 messagebox.showwarning("警告", "没有找到需要处理的文件！")

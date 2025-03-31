@@ -34,25 +34,36 @@ def delete_files_and_folders_in_directory(directory_path):
 
     return error_names
 
-# 获取需要清理的目录路径
-directories_to_clean = [
-    path_manager.original_files_dir,
-    path_manager.reviewed_files_dir,
-    path_manager.temp_files_dir
-]
-all_error_names = []
+def cleanup_all_directories():
+    """清理所有工作目录
+    
+    Returns:
+        str: 清理结果信息
+    """
+    # 获取需要清理的目录路径
+    directories_to_clean = [
+        path_manager.original_files_dir,
+        path_manager.reviewed_files_dir,
+        path_manager.temp_files_dir
+    ]
+    all_error_names = []
 
-for dir_path in directories_to_clean:
-    error_names = delete_files_and_folders_in_directory(dir_path)
-    if isinstance(error_names, str):  # 如果返回错误信息字符串
-        all_error_names.append(error_names)
+    for dir_path in directories_to_clean:
+        error_names = delete_files_and_folders_in_directory(dir_path)
+        if isinstance(error_names, str):  # 如果返回错误信息字符串
+            all_error_names.append(error_names)
+        else:
+            all_error_names.extend(error_names)
+
+    # 返回清理结果
+    if not all_error_names:
+        result = "已成功清理所有文件！"
     else:
-        all_error_names.extend(error_names)
+        result = "以下文件或文件夹清理失败：\n" + "\n".join(all_error_names)
+    
+    print(result)  # 为了调试目的保留
+    return result
 
-# 返回清理结果
-if not all_error_names:
-    result = "已成功清理所有文件！"
-else:
-    result = "以下文件或文件夹清理失败：\n" + "\n".join(all_error_names)
-
-print(result)  # 为了调试目的保留
+# 以下代码仅在直接运行此模块时执行，而不是在导入时执行
+if __name__ == "__main__":
+    cleanup_all_directories()

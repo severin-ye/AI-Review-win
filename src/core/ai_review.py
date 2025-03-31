@@ -8,7 +8,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from docx import Document  # 处理Word文档的模块
 from lxml import etree  # 用于处理XML和HTML的模块
-from config import has_review_table, enable_medical_rag  # 导入配置项
+from config import has_review_table, enable_medical_rag, path_manager  # 导入配置项
 
 # 导入工具模块
 from src.utils.file_utils import traverse_folder, generate_path, remove_middle_folder
@@ -87,8 +87,24 @@ class AIReviewer:
 # 定义处理文件的函数
 def process_file(file_name, file_type, progress_callback=None):
     print(f"File Name: {file_name}, File Type: {file_type}")  # 输出文件名和文件类型
+    
     # 生成各路径变量
-    begin_path, no_table, path_extract, md_path, ai_path, word_path_1, word_path_2, final_path_1, final_path_2, select_path_1, select_path_2 = generate_path(file_name)
+    paths = generate_path(file_name)
+    begin_path = paths['begin_path']
+    no_table = paths['no_table']
+    path_extract = paths['path_extract']
+    md_path = paths['md_path'] 
+    ai_path = paths['ai_path']
+    word_path_1 = paths['word_path_1']
+    word_path_2 = paths['word_path_2']
+    final_path_1 = paths['final_path_1']
+    final_path_2 = paths['final_path_2']
+    select_path_1 = paths['select_path_1']
+    select_path_2 = paths['select_path_2']
+
+    # 检查原始文件是否存在
+    if not os.path.exists(begin_path):
+        raise FileNotFoundError(f"找不到文件: {begin_path}")
 
     # 初始化审校器，并根据配置决定是否启用医学RAG
     reviewer = AIReviewer(use_medical_rag=enable_medical_rag)
@@ -166,12 +182,17 @@ def process_file(file_name, file_type, progress_callback=None):
 
 # 主程序入口
 if __name__ == "__main__":
+    # 使用path_manager获取正确的原始文件目录
     # 遍历文件夹，获取文件名和文件类型列表
-    file_name_list, file_type_list = traverse_folder(os.path.join(os.getcwd(), "_1_原文件"))
+    file_name_list, file_type_list = traverse_folder(path_manager.original_files_dir)
     print(file_name_list)  # 打印文件名列表
     
     for file_name, file_type in zip(file_name_list, file_type_list):  # 遍历文件名和文件类型
-        process_file(file_name, file_type)  # 处理每个文件
+        try:
+            process_file(file_name, file_type)  # 处理每个文件
+        except Exception as e:
+            print(f"处理文件 {file_name} 失败: {e}")
+            continue
 
     time_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))  # 获取当前时间
     root = tk.Tk()

@@ -119,9 +119,18 @@ class PathManager:
         """获取医学参考文档向量数据库目录"""
         return self.medical_docs_db_dir
     
-    def generate_file_paths(self, file_name):
-        """生成文件相关的所有路径"""
-        base_name = os.path.splitext(file_name)[0]
+    def generate_file_paths(self, file_name, base_name=None):
+        """生成文件相关的所有路径
+        
+        Args:
+            file_name (str): 完整文件名（包含扩展名）
+            base_name (str, optional): 文件基本名称（不含扩展名）。如果为None，则从file_name中提取
+        
+        Returns:
+            dict: 包含所有相关路径的字典
+        """
+        if base_name is None:
+            base_name = os.path.splitext(file_name)[0]
         
         return {
             'begin_path': os.path.join(self.original_files_dir, file_name),
