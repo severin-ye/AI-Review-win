@@ -187,6 +187,7 @@ class SemanticDivider:
         - summary: 总结段落（如"总之"开头）
         - short_text: 短文本（小于100字的段落）
         - content: 普通内容
+        - skip: 需要跳过的内容（图片、作者信息等）
         
         Args:
             text: 段落文本
@@ -195,17 +196,17 @@ class SemanticDivider:
         Returns:
             段落类型字符串
         """
+        # 图片（需要跳过）
+        if text.startswith('!['):
+            return 'skip'
+            
+        # 作者信息（需要跳过）
+        if '[first_line_indent]' in text and ('[1]' in text or '作者' in text or '医师' in text):
+            return 'skip'
+            
         # 标题（文章标题通常很短）
         if index == 0 and len(text) < 30:
             return 'title'
-            
-        # 图片
-        if text.startswith('!['):
-            return 'image'
-            
-        # 作者信息
-        if '[first_line_indent]' in text and ('[1]' in text or '作者' in text or '医师' in text):
-            return 'author'
             
         # 章节标题
         if '[first_line_indent]' in text and re.match(r'.*[一二三四五六七八九十]+、', text):

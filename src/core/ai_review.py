@@ -115,7 +115,7 @@ class AIReviewer:
             if not corrections:  # 空列表表示无需修改
                 return f"[first_line_indent]文本无需修改，未发现问题。"
             
-            formatted_output = "[first_line_indent]审校结果如下：\n\n"
+            formatted_output = "\n"
             for i, correction in enumerate(corrections, 1):
                 formatted_output += f"{i}. 原文：{correction['original']}\n"
                 formatted_output += f"   修改：{correction['suggestion']}\n\n"
@@ -197,12 +197,30 @@ def process_file(file_name, file_type, progress_callback=None):
 
         # 打开AI结果文件写入模式
         with open(ai_path, 'w', encoding='utf-8') as f:
-            paragraph_num = 0  # 初始化段落编号
             total_paragraphs = len(input_list)  # 获取总段落数
+            paragraph_num = 0  # 初始化段落编号
             
             for question in input_list:  # 遍历分割后的文本
+                paragraph_num += 1  # 段落编号递增
+                
+                # 跳过图片和作者信息的AI审校，但保留原文输出
+                if question.startswith('![') or ('[first_line_indent]' in question and ('[1]' in question or '作者' in question or '医师' in question)):
+                    print(f"\n{YELLOW}{BOLD}[段落 {paragraph_num}/{total_paragraphs}]{RESET}")
+                    print(f"{YELLOW}{'─'*50}{RESET}")  # 添加分隔线
+                    print(f"{YELLOW}原文:{RESET}\n{question}\n")
+                    print(f"{GREEN}审校结果:{RESET}\n[跳过审校]\n")
+                    
+                    # 写入原文和空的审校结果
+                    f.write(f"\n**原文{paragraph_num}**:\n\n{question}\n\n")
+                    f.write(f"**GPT审校{paragraph_num}**:\n\n[first_line_indent]此内容无需审校。\n\n")
+                    f.write(f"**差异对比如下**:\n\n无需修改。\n\n")
+                    
+                    # 更新进度
+                    if progress_callback:
+                        progress_callback(paragraph_num / total_paragraphs)
+                    continue
+                    
                 try:
-                    paragraph_num += 1  # 段落编号递增
                     print(f"\n{YELLOW}{BOLD}[段落 {paragraph_num}/{total_paragraphs}]{RESET}")
                     print(f"{YELLOW}{'─'*50}{RESET}")  # 添加分隔线
                     print(f"{YELLOW}原文:{RESET}\n{question}\n")
