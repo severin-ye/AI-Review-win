@@ -2,7 +2,97 @@ import re
 import os
 import shutil
 from .semantic_divider import divide_text_semantically
+import difflib
 
+# ANSI颜色代码
+RED = "\033[91m"      # 保留但不用于diff
+RESET = "\033[0m"
+
+# 差异对比的颜色方案（8种协调的颜色）
+DIFF_COLORS = [
+    "\033[38;5;220m",  # 金黄色
+    "\033[38;5;39m",   # 天蓝色
+    "\033[38;5;48m",   # 翠绿色
+    "\033[38;5;147m",  # 淡紫色
+    "\033[38;5;208m",  # 橙色
+    "\033[38;5;81m",   # 青蓝色
+    "\033[38;5;184m",  # 淡黄色
+    "\033[38;5;141m",  # 紫罗兰色
+]
+
+def highlight_text_segment(full_text: str, target_text: str) -> str:
+    """在完整文本中高亮显示目标文本段落
+    
+    Args:
+        full_text: 完整的文本内容
+        target_text: 需要高亮显示的文本段落
+        
+    Returns:
+        处理后的带有高亮的文本
+    """
+    if not target_text or not full_text:
+        return full_text
+        
+    # 清理文本，移除多余的空白字符
+    target_text = target_text.strip()
+    
+    # 使用正则表达式替换，确保精确匹配
+    pattern = re.escape(target_text)
+    highlighted_text = re.sub(
+        pattern,
+        f'{RED}\\g<0>{RESET}',  # 本段原文中的标注仍使用红色
+        full_text
+    )
+    
+    return highlighted_text
+
+def highlight_diff_pairs(original_text: str, revised_text: str) -> tuple[str, str]:
+    """对比两段文本并用不同颜色标注差异部分
+    
+    Args:
+        original_text: 原始文本
+        revised_text: 修订后的文本
+        
+    Returns:
+        tuple: (带颜色标注的原始文本, 带颜色标注的修订文本)
+    """
+    # 清理文本
+    original_text = original_text.strip()
+    revised_text = revised_text.strip()
+    
+    # 将文本分割成单词列表
+    def split_text(text):
+        # 保留标点符号作为单独的token
+        return [t for t in re.findall(r'[\w]+|[^\w\s]', text)]
+    
+    original_words = split_text(original_text)
+    revised_words = split_text(revised_text)
+    
+    # 使用difflib找出差异
+    matcher = difflib.SequenceMatcher(None, original_words, revised_words)
+    
+    # 构建带颜色的文本
+    colored_original = []
+    colored_revised = []
+    color_index = 0
+    
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+        if tag == 'equal':
+            # 相同部分，不加颜色
+            colored_original.extend(original_words[i1:i2])
+            colored_revised.extend(revised_words[j1:j2])
+        else:
+            # 不同部分，使用相同颜色标注对应的修改
+            color = DIFF_COLORS[color_index % len(DIFF_COLORS)]
+            if tag in ('replace', 'delete'):
+                colored_original.extend([f"{color}{w}{RESET}" for w in original_words[i1:i2]])
+            if tag in ('replace', 'insert'):
+                colored_revised.extend([f"{color}{w}{RESET}" for w in revised_words[j1:j2]])
+            if tag != 'equal':
+                color_index += 1
+    
+    # 重新组合文本
+    return ' '.join(colored_original), ' '.join(colored_revised)
 
 # 分割表格
 def table_divider(text):
