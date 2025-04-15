@@ -19,6 +19,7 @@ from src.utils.text_utils import divide_text_with_indent
 from src.utils.semantic_divider import divide_text_semantically  # 导入新的语义分割器
 from src.utils.ai_utils import ai_answer
 from src.utils.rag_utils import initialize_rag, get_medical_verification  # 导入RAG系统
+from src.core.r2_framework import R2Framework  # 导入 R² 框架
 
 # 添加彩色输出的ANSI转义序列
 BLUE = "\033[94m"
@@ -30,16 +31,23 @@ BOLD = "\033[1m"
 class AIReviewer:
     """AI审校类，用于处理文本审校功能"""
     
-    def __init__(self, use_medical_rag=False):
+    def __init__(self, use_medical_rag=False, llm_client=None):
         """初始化AI审校器
         
         Args:
             use_medical_rag: 是否使用医学RAG系统
+            llm_client: OpenAI客户端实例
         """
         self.use_medical_rag = use_medical_rag
+        self.llm_client = llm_client
         # 如果启用医学RAG，初始化RAG系统
         if self.use_medical_rag:
             initialize_rag()
+        # 初始化 R² 框架
+        if self.llm_client:
+            self.r2_framework = R2Framework(self.llm_client)
+        else:
+            self.r2_framework = None
     
     def review_text(self, text):
         """审校单个文本
@@ -71,26 +79,47 @@ class AIReviewer:
             print(f"处理文本时出错: {e}")
             return {"error": f"处理文本时出错: {str(e)}"}
     
-    def batch_review(self, texts):
-        """批量审校文本
+    def process_with_r2(self, text, support_text=None):
+        """使用 R² 框架处理文本
         
         Args:
-            texts (list): 待审校的文本列表
+            text (str): 待处理的文本
+            support_text (str, optional): 支持文本
             
         Returns:
-            list: 审校结果列表
+            dict: 处理结果
         """
-        results = []
-        for text in texts:
-            try:
-                result = self.review_text(text)
-                if result is None:
-                    raise Exception("AI审校返回空结果")
-                results.append(result)
-            except Exception as e:
-                print(f"处理文本时出错: {e}")
-                results.append({"error": f"处理文本时出错: {str(e)}"})
-        return results
+        if not self.r2_framework:
+            return {"error": "R² 框架未初始化，请确保提供了 OpenAI 客户端"}
+            
+        try:
+            # 使用 R² 框架处理文本
+            result = self.r2_framework.process(text, support_text)
+            
+            # 导出结果为文本格式
+            formatted_result = self.r2_framework.export_results(result, "text")
+            
+            # 构建审校结果
+            corrections = []
+            for scene in result.refined_scenes:
+                if scene.suggestions:
+                    for suggestion in scene.suggestions:
+                        corrections.append({
+                            "original": scene.original.content,
+                            "suggestion": scene.refined_content,
+                            "category": suggestion.category,
+                            "importance": suggestion.importance
+                        })
+            
+            return {
+                "corrections": corrections,
+                "r2_result": formatted_result,
+                "confidence": result.confidence
+            }
+            
+        except Exception as e:
+            print(f"R² 框架处理文本时出错: {e}")
+            return {"error": f"R² 框架处理失败: {str(e)}"}
     
     def format_review_result(self, result, original_text):
         """格式化审校结果为易读形式
@@ -108,6 +137,10 @@ class AIReviewer:
         if "error" in result:
             return f"[first_line_indent]处理出错: {result['error']}"
         
+        # 处理 R² 框架的结果
+        if "r2_result" in result:
+            return f"[first_line_indent]{result['r2_result']}"
+        
         # 处理结构化修改建议
         if "corrections" in result and isinstance(result["corrections"], list):
             corrections = result["corrections"]
@@ -118,7 +151,10 @@ class AIReviewer:
             formatted_output = "\n"
             for i, correction in enumerate(corrections, 1):
                 formatted_output += f"{i}. 原文：{correction['original']}\n"
-                formatted_output += f"   修改：{correction['suggestion']}\n\n"
+                formatted_output += f"   修改：{correction['suggestion']}\n"
+                if "category" in correction:
+                    formatted_output += f"   类型：{correction['category']}\n"
+                formatted_output += "\n"
             
             return formatted_output
         
@@ -126,7 +162,7 @@ class AIReviewer:
         return f"[first_line_indent]无法处理的结果格式: {json.dumps(result, ensure_ascii=False)}"
 
 # 定义处理文件的函数
-def process_file(file_name, file_type, progress_callback=None):
+def process_file(file_name, file_type, progress_callback=None, llm_client=None):
     # 添加彩色输出的ANSI转义序列
     BLUE = "\033[94m"
     GREEN = "\033[92m"
@@ -157,8 +193,8 @@ def process_file(file_name, file_type, progress_callback=None):
     if not os.path.exists(begin_path):
         raise FileNotFoundError(f"找不到文件: {begin_path}")
 
-    # 初始化审校器，并根据配置决定是否启用医学RAG
-    reviewer = AIReviewer(use_medical_rag=enable_medical_rag)
+    # 初始化审校器，并根据配置决定是否启用医学RAG和R²框架
+    reviewer = AIReviewer(use_medical_rag=enable_medical_rag, llm_client=llm_client)
 
     try:
         print(f"{GREEN}{BOLD}[处理进度]{RESET} 文件处理开始...")
@@ -225,8 +261,13 @@ def process_file(file_name, file_type, progress_callback=None):
                     print(f"{YELLOW}{'─'*50}{RESET}")  # 添加分隔线
                     print(f"{YELLOW}原文:{RESET}\n{question}\n")
                     
-                    # 获取AI审校结果（结构化格式）
-                    result = reviewer.review_text(question)
+                    # 根据是否有 llm_client 决定使用哪种处理方式
+                    if llm_client:
+                        # 使用 R² 框架处理
+                        result = reviewer.process_with_r2(question)
+                    else:
+                        # 使用传统方式处理
+                        result = reviewer.review_text(question)
                     
                     # 将结果格式化为易读形式
                     formatted_output = reviewer.format_review_result(result, question)
@@ -248,6 +289,8 @@ def process_file(file_name, file_type, progress_callback=None):
                 if "corrections" in result and isinstance(result["corrections"], list) and result["corrections"]:
                     for num, correction in enumerate(result["corrections"], 1):
                         f.write(f'原文段{num}: {correction["original"]}\n\n修订段{num}: {correction["suggestion"]}\n\n')
+                        if "category" in correction:
+                            f.write(f'修改类型: {correction["category"]}\n\n')
                 else:
                     f.write("没有发现需要修改的内容。\n\n")
                 
@@ -272,9 +315,22 @@ if __name__ == "__main__":
         print(f"{BLUE}• {name}{RESET}")
     print(f"{BLUE}{'='*50}{RESET}\n")
     
+    # 初始化 OpenAI 客户端（如果环境变量中有API密钥）
+    llm_client = None
+    if "OPENAI_API_KEY" in os.environ:
+        try:
+            from openai import OpenAI
+            llm_client = OpenAI()
+            print(f"{GREEN}{BOLD}[初始化]{RESET} 成功初始化 OpenAI 客户端，将使用 R² 框架进行处理")
+        except Exception as e:
+            print(f"{YELLOW}{BOLD}[警告]{RESET} 初始化 OpenAI 客户端失败: {e}")
+            print(f"{YELLOW}将使用传统方式进行处理{RESET}")
+    else:
+        print(f"{YELLOW}{BOLD}[提示]{RESET} 未找到 OpenAI API 密钥，将使用传统方式进行处理")
+    
     for file_name, file_type in zip(file_name_list, file_type_list):  # 遍历文件名和文件类型
         try:
-            process_file(file_name, file_type)  # 处理每个文件
+            process_file(file_name, file_type, llm_client=llm_client)  # 处理每个文件
         except Exception as e:
             print(f"\n{YELLOW}{BOLD}[错误]{RESET} 处理文件 {file_name} 失败: {e}")
             continue
