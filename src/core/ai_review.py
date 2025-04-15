@@ -74,10 +74,13 @@ class AIReviewer:
                 
             if result is None:
                 raise Exception("AI审校返回空结果")
+                
+            # 添加处理方式标识
+            result['processing_method'] = '传统方式'
             return result
         except Exception as e:
             print(f"处理文本时出错: {e}")
-            return {"error": f"处理文本时出错: {str(e)}"}
+            return {"error": f"处理文本时出错: {str(e)}", "processing_method": "传统方式"}
     
     def process_with_r2(self, text, support_text=None):
         """使用 R² 框架处理文本
@@ -90,36 +93,78 @@ class AIReviewer:
             dict: 处理结果
         """
         if not self.r2_framework:
-            return {"error": "R² 框架未初始化，请确保提供了 OpenAI 客户端"}
+            return {"error": "R² 框架未初始化，请确保提供了 OpenAI 客户端", "processing_method": "R² 框架（初始化失败）"}
             
         try:
             # 使用 R² 框架处理文本
             result = self.r2_framework.process(text, support_text)
+            if not result:
+                return {"error": "R² 框架处理返回空结果", "processing_method": "R² 框架"}
             
             # 导出结果为文本格式
-            formatted_result = self.r2_framework.export_results(result, "text")
+            try:
+                formatted_result = self.r2_framework.export_results(result, "text")
+                if not formatted_result:
+                    print("警告：导出结果为空")
+                    formatted_result = "结果导出为空"
+            except Exception as e:
+                print(f"导出结果时出错: {str(e)}")
+                formatted_result = f"结果导出失败: {str(e)}"
             
             # 构建审校结果
             corrections = []
-            for scene in result.refined_scenes:
-                if scene.suggestions:
-                    for suggestion in scene.suggestions:
-                        corrections.append({
-                            "original": scene.original.content,
-                            "suggestion": scene.refined_content,
-                            "category": suggestion.category,
-                            "importance": suggestion.importance
-                        })
+            try:
+                if hasattr(result, 'refined_scenes') and result.refined_scenes:
+                    for scene in result.refined_scenes:
+                        if hasattr(scene, 'suggestions') and scene.suggestions:
+                            for suggestion in scene.suggestions:
+                                try:
+                                    corrections.append({
+                                        "original": getattr(scene.original, 'content', '未知原文'),
+                                        "suggestion": getattr(scene, 'refined_content', '未知修改建议'),
+                                        "category": getattr(suggestion, 'category', '未分类'),
+                                        "importance": float(getattr(suggestion, 'importance', 1.0))
+                                    })
+                                except Exception as e:
+                                    print(f"处理单个修改建议时出错: {str(e)}")
+                                    continue
+            except Exception as e:
+                print(f"处理修改建议时出错: {str(e)}")
+            
+            # 如果没有任何修改建议，添加一个默认的"无需修改"建议
+            if not corrections:
+                corrections.append({
+                    "original": text,
+                    "suggestion": text,
+                    "category": "无需修改",
+                    "importance": 1.0
+                })
             
             return {
                 "corrections": corrections,
                 "r2_result": formatted_result,
-                "confidence": result.confidence
+                "confidence": float(getattr(result, 'confidence', 0.0)),
+                "processing_method": "R² 框架"
             }
             
         except Exception as e:
-            print(f"R² 框架处理文本时出错: {e}")
-            return {"error": f"R² 框架处理失败: {str(e)}"}
+            error_msg = str(e)
+            print(f"R² 框架处理文本时出错: {error_msg}")
+            # 如果是JSON相关错误，尝试使用传统方式处理
+            if "JSON" in error_msg or "events" in error_msg:
+                try:
+                    result = self.review_text(text)
+                    result['processing_method'] = 'R² 框架（回退到传统方式）'
+                    return result
+                except Exception as fallback_error:
+                    return {
+                        "error": f"R² 框架处理失败，回退处理也失败: {str(fallback_error)}", 
+                        "processing_method": "R² 框架（回退失败）"
+                    }
+            return {
+                "error": f"R² 框架处理失败: {error_msg}",
+                "processing_method": "R² 框架（处理失败）"
+            }
     
     def format_review_result(self, result, original_text):
         """格式化审校结果为易读形式
@@ -173,6 +218,7 @@ def process_file(file_name, file_type, progress_callback=None, llm_client=None):
     print(f"\n{BLUE}{BOLD}开始处理文件{RESET}")
     print(f"{BLUE}文件名: {RESET}{file_name}")
     print(f"{BLUE}文件类型: {RESET}{file_type}")
+    print(f"{BLUE}处理方式: {RESET}{'R² 框架' if llm_client else '传统方式'}")
     print(f"{BLUE}{'='*50}{RESET}\n")  # 添加分隔线
 
     # 生成各路径变量
@@ -317,16 +363,30 @@ if __name__ == "__main__":
     
     # 初始化 OpenAI 客户端（如果环境变量中有API密钥）
     llm_client = None
-    if "OPENAI_API_KEY" in os.environ:
-        try:
+    try:
+        # 首先检查环境变量
+        api_key = os.environ.get("OPENAI_API_KEY")
+        
+        # 如果环境变量中没有，则从配置文件读取
+        if not api_key:
+            config_path = "hide_file/config_files/config.json"
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    api_key = config.get("openai_api_key")
+        
+        # 如果获取到了 API 密钥
+        if api_key:
+            os.environ["OPENAI_API_KEY"] = api_key  # 设置环境变量
             from openai import OpenAI
             llm_client = OpenAI()
             print(f"{GREEN}{BOLD}[初始化]{RESET} 成功初始化 OpenAI 客户端，将使用 R² 框架进行处理")
-        except Exception as e:
-            print(f"{YELLOW}{BOLD}[警告]{RESET} 初始化 OpenAI 客户端失败: {e}")
-            print(f"{YELLOW}将使用传统方式进行处理{RESET}")
-    else:
-        print(f"{YELLOW}{BOLD}[提示]{RESET} 未找到 OpenAI API 密钥，将使用传统方式进行处理")
+        else:
+            print(f"{YELLOW}{BOLD}[提示]{RESET} 未找到 OpenAI API 密钥，将使用传统方式进行处理")
+            
+    except Exception as e:
+        print(f"{YELLOW}{BOLD}[警告]{RESET} 初始化 OpenAI 客户端失败: {e}")
+        print(f"{YELLOW}将使用传统方式进行处理{RESET}")
     
     for file_name, file_type in zip(file_name_list, file_type_list):  # 遍历文件名和文件类型
         try:
