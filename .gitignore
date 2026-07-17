@@ -55,3 +55,11 @@ hide_file/config_files/config.json       # 包含敏感信息的配置文件
 hide_file/config_files/*.json
 !hide_file/config_files/config_demo.json
 
+# --- Electron / Node（M1 重构新增） ---
+node_modules/
+out/
+backend/.venv/
+backend/.data/
+.pytest_cache/
+!backend/ai-review-backend.spec
+

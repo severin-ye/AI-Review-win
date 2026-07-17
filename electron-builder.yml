@@ -1,0 +1,32 @@
+# electron-builder 配置（设计文档 §9：PyInstaller 后端 exe + NSIS 安装包）
+# 使用顺序：npm run dist:backend（先出 backend/dist/ai-review-backend.exe）→ npm run dist
+appId: com.ai-review.app
+productName: AI 审校助手
+copyright: Copyright © 2026
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - out/**
+  - package.json
+
+# PyInstaller 单文件后端随 resources 分发；sidecar prod 模式 spawn resourcesPath/backend/ai-review-backend.exe
+extraResources:
+  - from: backend/dist/ai-review-backend.exe
+    to: backend/ai-review-backend.exe
+
+# 模型文件不打包（数 GB）：首次启动后经 设置页 → 模型管理 从 hf-mirror 预下载（断点续传）
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: AI 审校助手
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]

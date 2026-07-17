@@ -1,0 +1,30 @@
+# M1 骨架：核心 Web 框架与数据层依赖
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+sqlmodel>=0.0.22
+httpx>=0.27
+pytest>=8.0
+
+# M2 解析与分割
+python-docx>=1.1
+python-multipart>=0.0.9   # FastAPI multipart 文件上传
+numpy>=1.26
+transformers>=4.46,<5
+wtpsplit>=2.1
+# torch 必须用 CPU 版单独安装（requirements.txt 无法表达 --index-url）：
+#   backend\.venv\Scripts\python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+# M3 检索：知识库索引（LanceDB + BM25）+ 查询重写 + 混合检索
+lancedb>=0.20            # 嵌入式向量库（含 pyarrow）
+langchain>=1.0           # 检索框架（RecursiveCharacterTextSplitter 等组件）
+langchain-community>=0.3 # BM25Retriever / LanceDB 封装
+rank_bm25>=0.2.2         # BM25Okapi 关键词检索
+jieba>=0.42.1            # 中文分词（BM25 preprocess_func）
+openai>=1.50             # OpenAI 兼容客户端（查询重写 / M4 审校 / openai embedding）
+pypdf>=5.0               # 知识库 PDF 加载
+sentence-transformers>=3.0  # BGE-M3 本地 embedding 推理（复用 M2 的 CPU torch）
+tenacity>=9.0            # LLM 调用重试
+# 安装提示：pypi.org 直连不稳时可用清华镜像
+#   backend\.venv\Scripts\python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
