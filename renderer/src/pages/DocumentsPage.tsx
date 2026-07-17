@@ -613,21 +613,45 @@ export default function DocumentsPage() {
       )}
 
       {reviewingId !== null && (
-        <div className="mb-3 flex items-center gap-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
-          <ProgressRing done={reviewBlocks.done} total={reviewBlocks.total} />
-          <div className="min-w-0">
-            <div className="text-sm font-medium text-emerald-700">
-              {reviewProgress ?? '审校启动中…'}
+        <div className="mb-3 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3">
+          <div className="flex items-center gap-4">
+            <ProgressRing done={reviewBlocks.done} total={reviewBlocks.total} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <div className="text-sm font-medium text-emerald-700">
+                  {reviewProgress ?? '审校启动中…'}
+                </div>
+                <div className="shrink-0 text-sm font-semibold text-emerald-700">
+                  {reviewBlocks.total !== null && reviewBlocks.total > 0
+                    ? `已完成 ${Math.round(Math.min(1, reviewBlocks.done / reviewBlocks.total) * 100)}%`
+                    : '准备中…'}
+                </div>
+              </div>
+              <div className="mt-0.5 text-xs text-emerald-600/80">
+                {reviewStart !== null ? (
+                  <>
+                    开始于 {formatClock(reviewStart)} · 已持续 {formatElapsed(nowTick - reviewStart)}
+                  </>
+                ) : (
+                  '正在启动审校任务…'
+                )}
+              </div>
             </div>
-            <div className="mt-0.5 text-xs text-emerald-600/80">
-              {reviewStart !== null ? (
-                <>
-                  开始于 {formatClock(reviewStart)} · 已持续 {formatElapsed(nowTick - reviewStart)}
-                </>
-              ) : (
-                '正在启动审校任务…'
+          </div>
+          {/* 线性进度条：已完成百分比 */}
+          <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-emerald-100">
+            <div
+              className={clsx(
+                'h-full rounded-full bg-emerald-500 transition-all duration-500',
+                (reviewBlocks.total === null || reviewBlocks.total === 0) && 'animate-pulse',
               )}
-            </div>
+              style={{
+                width:
+                  reviewBlocks.total !== null && reviewBlocks.total > 0
+                    ? `${Math.min(100, Math.round((reviewBlocks.done / reviewBlocks.total) * 100))}%`
+                    : '15%',
+              }}
+            />
           </div>
         </div>
       )}
@@ -675,11 +699,24 @@ export default function DocumentsPage() {
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          disabled={runningId === doc.id || retrievingId === doc.id}
+                          disabled={
+                            runningId === doc.id ||
+                            retrievingId === doc.id ||
+                            !['uploaded', 'failed'].includes(doc.status)
+                          }
+                          title={
+                            ['uploaded', 'failed'].includes(doc.status)
+                              ? '解析 docx 并分句'
+                              : '已完成解析，不可重复运行（如需重解析请先删除后重新上传）'
+                          }
                           onClick={() => void handleRun(doc.id)}
-                          className="rounded border border-blue-200 px-2.5 py-1 text-xs text-blue-600 hover:bg-blue-50 disabled:opacity-50"
+                          className="rounded border border-blue-200 px-2.5 py-1 text-xs text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 disabled:hover:bg-slate-50"
                         >
-                          {runningId === doc.id ? '解析中…' : '解析'}
+                          {runningId === doc.id
+                            ? '解析中…'
+                            : ['uploaded', 'failed'].includes(doc.status)
+                              ? '解析'
+                              : '已解析'}
                         </button>
                         <button
                           type="button"
