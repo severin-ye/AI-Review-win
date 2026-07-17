@@ -60,3 +60,6 @@ app/server/.data/
 # archive/ 为旧数据存档（logs/material/hide_file，本地保留不入库）
 archive/
 
+# electron-builder 产物（安装包与 win-unpacked，体积大）
+release/
+

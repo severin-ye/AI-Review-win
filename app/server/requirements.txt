@@ -14,7 +14,7 @@ numpy>=1.26
 transformers>=4.46,<5
 wtpsplit>=2.1
 # torch 必须用 CPU 版单独安装（requirements.txt 无法表达 --index-url）：
-#   backend\.venv\Scripts\python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   app\server\.venv\Scripts\python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 # M3 检索：知识库索引（LanceDB + BM25）+ 查询重写 + 混合检索
 lancedb>=0.20            # 嵌入式向量库（含 pyarrow）
@@ -26,5 +26,11 @@ openai>=1.50             # OpenAI 兼容客户端（查询重写 / M4 审校 / o
 pypdf>=5.0               # 知识库 PDF 加载
 sentence-transformers>=3.0  # BGE-M3 本地 embedding 推理（复用 M2 的 CPU torch）
 tenacity>=9.0            # LLM 调用重试
+
+# 打包（npm run dist:backend 需要）：PyInstaller 本体 + setuptools 78 外部化依赖
+# （冻结 exe 内 pkg_resources 需真实 jaraco.text / platformdirs，见 ai-review-backend.spec）
+pyinstaller>=6.10
+jaraco.text>=4.0
+platformdirs>=4.0
 # 安装提示：pypi.org 直连不稳时可用清华镜像
-#   backend\.venv\Scripts\python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+#   app\server\.venv\Scripts\python -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple

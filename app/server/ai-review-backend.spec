@@ -29,8 +29,18 @@ for package in ("lancedb", "langchain", "langchain_community", "wtpsplit", "jieb
         # 包结构变化导致 collect 失败时退化为仅数据文件收集
         datas += collect_data_files(package)
 
-# pkg_resources 运行时钩子（pyi_rth_pkgres）依赖 jaraco.* 子模块，需显式收集
-for package in ("pkg_resources", "jaraco", "jaraco.text", "jaraco.functools", "jaraco.context"):
+# pkg_resources 运行时钩子（pyi_rth_pkgres）依赖 setuptools 78 的外部化依赖
+# （jaraco.text / platformdirs / packaging 等不再是 vendored，需显式安装并收集）
+for package in (
+    "pkg_resources",
+    "jaraco",
+    "jaraco.text",
+    "jaraco.functools",
+    "jaraco.context",
+    "platformdirs",
+    "packaging",
+    "more_itertools",
+):
     try:
         hiddenimports += collect_submodules(package)
     except Exception:
