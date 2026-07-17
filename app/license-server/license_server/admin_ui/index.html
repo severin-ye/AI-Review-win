@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Review 许可证管理</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --card: #ffffff; --border: #e3e6ea; --text: #1f2329;
+    --muted: #6b7280; --primary: #2563eb; --danger: #dc2626; --ok: #16a34a;
+    --warn: #d97706;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+         background: var(--bg); color: var(--text); font-size: 14px; }
+  header { background: #111827; color: #fff; padding: 14px 24px; display: flex;
+           align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  .dev-badge { background: var(--warn); color: #fff; font-size: 12px; padding: 2px 8px;
+               border-radius: 4px; }
+  main { max-width: 1280px; margin: 0 auto; padding: 20px 24px 60px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+          padding: 16px 20px; margin-bottom: 16px; }
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+               gap: 12px; }
+  .dash-item label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+  .dash-item .val { font-weight: 600; word-break: break-all; }
+  .status-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+                margin-right: 6px; }
+  .status-dot.on { background: var(--ok); } .status-dot.off { background: var(--danger); }
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+  .tabs button { background: none; border: none; padding: 10px 18px; cursor: pointer;
+                 font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent;
+                 margin-bottom: -2px; }
+  .tabs button.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+  .btn { border: 1px solid var(--border); background: #fff; border-radius: 6px;
+         padding: 6px 12px; cursor: pointer; font-size: 13px; }
+  .btn:hover { background: #f3f4f6; }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn.primary:hover { background: #1d4ed8; }
+  .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .btn.sm { padding: 3px 8px; font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border);
+           vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; white-space: nowrap; cursor: pointer; user-select: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+  .badge.active { background: #dcfce7; color: var(--ok); }
+  .badge.pending { background: #e0e7ff; color: #4f46e5; }
+  .badge.suspended { background: #fef3c7; color: var(--warn); }
+  .badge.revoked { background: #fee2e2; color: var(--danger); }
+  .badge.expired { background: #f3f4f6; color: var(--muted); }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+  input, select, textarea { border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px;
+                            font-size: 13px; font-family: inherit; }
+  input:focus, select:focus { outline: 2px solid #bfdbfe; border-color: var(--primary); }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .form-item label { display: block; margin-bottom: 5px; color: var(--muted); font-size: 13px; }
+  .form-item input, .form-item select { width: 100%; }
+  .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none;
+                align-items: center; justify-content: center; z-index: 50; }
+  .modal-mask.show { display: flex; }
+  .modal { background: #fff; border-radius: 10px; padding: 22px 24px; width: min(680px, 92vw);
+           max-height: 84vh; overflow: auto; }
+  .modal h3 { margin-bottom: 14px; font-size: 16px; }
+  .modal .close { float: right; cursor: pointer; color: var(--muted); font-size: 18px; }
+  .key-box { background: #111827; color: #4ade80; font-family: Consolas, monospace;
+             font-size: 18px; letter-spacing: 1px; padding: 14px; border-radius: 8px;
+             text-align: center; margin: 12px 0; word-break: break-all; }
+  .warn-text { color: var(--danger); font-size: 13px; }
+  .toast { position: fixed; top: 18px; right: 18px; z-index: 99; display: flex;
+           flex-direction: column; gap: 8px; }
+  .toast .msg { padding: 10px 16px; border-radius: 8px; color: #fff; font-size: 13px;
+                max-width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  .toast .msg.ok { background: var(--ok); } .toast .msg.err { background: var(--danger); }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.7; }
+  code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .event-item { border-left: 3px solid var(--border); padding: 6px 12px; margin-bottom: 8px; }
+  .event-item .t { color: var(--muted); font-size: 12px; }
+  pre.pem { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px;
+            padding: 10px; font-size: 12px; overflow: auto; white-space: pre-wrap; }
+  .row-actions button { margin: 1px 2px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AI-Review 许可证管理</h1>
+  <span id="devBadge" class="dev-badge" style="display:none">DEV 密钥</span>
+</header>
+<main>
+  <!-- 仪表盘 -->
+  <div class="card">
+    <div class="dash-grid">
+      <div class="dash-item"><label>员工服务状态</label>
+        <div class="val"><span id="srvDot" class="status-dot off"></span><span id="srvState">-</span></div></div>
+      <div class="dash-item"><label>监听地址 / 端口</label><div class="val" id="srvListen">-</div></div>
+      <div class="dash-item"><label>局域网 IP</label><div class="val" id="srvLan">-</div></div>
+      <div class="dash-item"><label>员工连接地址</label>
+        <div class="val"><span id="srvUrl">-</span>
+          <button class="btn sm" onclick="copyText(document.getElementById('srvUrl').textContent)">复制</button></div></div>
+      <div class="dash-item"><label>启动时间</label><div class="val" id="srvStarted">-</div></div>
+      <div class="dash-item"><label>近 10 分钟活跃客户端</label><div class="val" id="srvActive">-</div></div>
+      <div class="dash-item"><label>最近心跳时间</label><div class="val" id="srvLastHb">-</div></div>
+      <div class="dash-item"><label>控制</label>
+        <div class="val">
+          <button class="btn sm primary" onclick="serverCtrl('start')">启动</button>
+          <button class="btn sm danger" onclick="serverCtrl('stop')">停止</button>
+        </div></div>
+    </div>
+    <div class="hint">
+      防火墙放行（管理员 PowerShell 执行一次即可）：
+      <code id="fwCmd">netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=8768</code>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="active" data-tab="licenses" onclick="switchTab('licenses')">许可证</button>
+    <button data-tab="create" onclick="switchTab('create')">创建</button>
+    <button data-tab="events" onclick="switchTab('events')">事件</button>
+    <button data-tab="settings" onclick="switchTab('settings')">设置</button>
+  </div>
+
+  <!-- 许可证 Tab -->
+  <section id="tab-licenses">
+    <div class="card">
+      <div class="toolbar">
+        <input id="searchBox" placeholder="搜索名称 / 备注 / Key 前缀" style="width:240px"
+               oninput="debounceLoad()">
+        <select id="statusFilter" onchange="loadLicenses()">
+          <option value="">全部状态</option>
+          <option value="pending">待激活</option>
+          <option value="active">已激活</option>
+          <option value="suspended">已暂停</option>
+          <option value="revoked">已撤销</option>
+          <option value="expired">已过期</option>
+        </select>
+        <button class="btn" onclick="loadLicenses()">刷新</button>
+      </div>
+      <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th onclick="setSort('created_at')">Key</th>
+          <th onclick="setSort('name')">名称 / 备注</th>
+          <th onclick="setSort('status')">状态</th>
+          <th>有效期模式</th>
+          <th>首次激活</th>
+          <th onclick="setSort('expires_at')">截止时间</th>
+          <th>设备</th>
+          <th>最近心跳</th>
+          <th>客户端版本</th>
+          <th>操作</th>
+        </tr></thead>
+        <tbody id="licenseRows"><tr><td colspan="10">加载中…</td></tr></tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 创建 Tab -->
+  <section id="tab-create" style="display:none">
+    <div class="card">
+      <div class="form-grid">
+        <div class="form-item"><label>名称</label><input id="cName" placeholder="如：张三 / 市场部"></div>
+        <div class="form-item"><label>备注</label><input id="cNote" placeholder="内部备注（可选）"></div>
+        <div class="form-item"><label>有效期模式</label>
+          <select id="cMode" onchange="toggleMode()">
+            <option value="duration">按有效天数（首次激活起算）</option>
+            <option value="fixed">固定截止时间</option>
+          </select></div>
+        <div class="form-item" id="cDaysWrap"><label>有效天数</label>
+          <input id="cDays" type="number" value="365" min="1"></div>
+        <div class="form-item" id="cFixedWrap" style="display:none"><label>固定截止时间</label>
+          <input id="cFixed" type="datetime-local"></div>
+        <div class="form-item"><label>最大设备数</label>
+          <input id="cMaxDev" type="number" value="1" min="1"></div>
+        <div class="form-item"><label>允许功能（逗号分隔）</label>
+          <input id="cFeatures" value="main"></div>
+        <div class="form-item"><label>最低客户端版本</label>
+          <input id="cMinVer" value="0.0.0" placeholder="如 1.2.0"></div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn primary" onclick="createLicense()">创建许可证</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 事件 Tab -->
+  <section id="tab-events" style="display:none">
+    <div class="card">
+      <div class="toolbar">
+        <select id="eventLicenseSel" onchange="loadEvents()"><option value="">选择许可证…</option></select>
+        <button class="btn" onclick="loadEvents()">刷新</button>
+      </div>
+      <div id="eventList"><p class="hint">选择许可证后显示事件时间线。</p></div>
+    </div>
+  </section>
+
+  <!-- 设置 Tab -->
+  <section id="tab-settings" style="display:none">
+    <div class="card">
+      <h3 style="margin-bottom:12px">监听配置</h3>
+      <div class="form-grid">
+        <div class="form-item"><label>员工端监听地址</label><input id="sEmpHost" placeholder="0.0.0.0"></div>
+        <div class="form-item"><label>员工端端口</label><input id="sEmpPort" type="number"></div>
+        <div class="form-item"><label>仅局域网/本机</label>
+          <select id="sLanOnly"><option value="false">对局域网开放 (0.0.0.0)</option>
+          <option value="true">仅本机 (127.0.0.1)</option></select></div>
+        <div class="form-item"><label>日志级别</label>
+          <select id="sLogLevel"><option>debug</option><option selected>info</option>
+          <option>warning</option><option>error</option></select></div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn primary" onclick="saveConfig()">保存（下次启动员工监听生效）</button>
+      </div>
+      <div class="hint">管理端地址端口由环境变量 AI_REVIEW_LICENSE_ADMIN_HOST/PORT 控制，需重启进程。</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:12px">公钥（员工端验签用）</h3>
+      <div class="dash-item" style="margin-bottom:8px"><label>指纹</label><div class="val" id="pkFp">-</div></div>
+      <pre class="pem" id="pkPem">-</pre>
+      <div style="margin-top:10px">
+        <button class="btn" onclick="downloadPubKey()">下载公钥 PEM</button>
+      </div>
+    </div>
+    <div class="card" style="border-color:#fecaca">
+      <h3 style="margin-bottom:12px;color:var(--danger)">危险操作</h3>
+      <p class="warn-text" style="margin-bottom:10px">
+        重新生成密钥对将使所有已签发凭证立即失效：员工端本地验签全部失败，必须重新激活。</p>
+      <button class="btn danger" onclick="regenKeys()">重新生成密钥对</button>
+    </div>
+  </section>
+</main>
+
+<!-- 通用模态框 -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <span class="close" onclick="closeModal()">✕</span>
+    <div id="modalBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/v1/admin';
+let sortField = 'created_at', sortOrder = 'desc', licensesCache = [];
+
+// ---------- 基础 ----------
+function toast(text, ok) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + (ok ? 'ok' : 'err');
+  el.textContent = text;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+async function api(path, opts) {
+  const res = await fetch(API + path, opts ? {
+    method: opts.method || 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  } : undefined);
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    const detail = data && (data.reason_code || data.detail)
+      ? `${data.reason_code ? data.reason_code + '：' : ''}${data.message || data.detail}`
+      : `HTTP ${res.status}`;
+    throw new Error(detail);
+  }
+  return data;
+}
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('已复制', true),
+    () => toast('复制失败', false));
+}
+function fmtTime(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleString('zh-CN', {hour12: false, timeZoneName: 'long'});
+}
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showModal(html) {
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalMask').classList.add('show');
+}
+function closeModal() { document.getElementById('modalMask').classList.remove('show'); }
+
+// ---------- 仪表盘 ----------
+async function loadStatus() {
+  try {
+    const s = await api('/server/status');
+    document.getElementById('srvDot').className = 'status-dot ' + (s.employee_running ? 'on' : 'off');
+    document.getElementById('srvState').textContent = s.employee_running ? '运行中' : '已停止';
+    document.getElementById('srvListen').textContent = s.employee.host + ':' + s.employee.port;
+    document.getElementById('srvLan').textContent = s.lan_ip;
+    document.getElementById('srvUrl').textContent = s.employee_url;
+    document.getElementById('srvStarted').textContent = fmtTime(s.started_at);
+    document.getElementById('srvActive').textContent = s.active_clients_10m;
+    document.getElementById('srvLastHb').textContent = fmtTime(s.last_heartbeat_at);
+    document.getElementById('devBadge').style.display = s.dev ? '' : 'none';
+    document.getElementById('fwCmd').textContent =
+      'netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=' + s.employee.port;
+  } catch (e) { toast('状态加载失败：' + e.message, false); }
+}
+async function serverCtrl(action) {
+  try {
+    const r = await api('/server/' + action, {method: 'POST'});
+    toast(action === 'start' ? '员工监听已启动' : '员工监听已停止', true);
+    loadStatus();
+  } catch (e) { toast('操作失败：' + e.message, false); }
+}
+
+// ---------- 许可证 ----------
+function setSort(field) {
+  if (sortField === field) sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+  else { sortField = field; sortOrder = 'desc'; }
+  loadLicenses();
+}
+let debounceTimer = null;
+function debounceLoad() { clearTimeout(debounceTimer); debounceTimer = setTimeout(loadLicenses, 300); }
+const STATUS_LABEL = {pending: '待激活', active: '已激活', suspended: '已暂停',
+                      revoked: '已撤销', expired: '已过期'};
+async function loadLicenses() {
+  const q = document.getElementById('searchBox').value.trim();
+  const st = document.getElementById('statusFilter').value;
+  let url = '/licenses?sort=' + sortField + '&order=' + sortOrder;
+  if (q) url += '&search=' + encodeURIComponent(q);
+  if (st) url += '&status=' + encodeURIComponent(st);
+  try {
+    const data = await api(url);
+    licensesCache = data.items;
+    const sel = document.getElementById('eventLicenseSel');
+    sel.innerHTML = '<option value="">选择许可证…</option>' +
+      data.items.map(l => `<option value="${l.id}">${esc(l.name || l.masked_key)}（${esc(l.masked_key)}）</option>`).join('');
+    const rows = data.items.map(l => `
+      <tr>
+        <td><code>${esc(l.masked_key)}</code></td>
+        <td><b>${esc(l.name || '-')}</b><br><span style="color:var(--muted)">${esc(l.note || '')}</span></td>
+        <td><span class="badge ${l.status}">${STATUS_LABEL[l.status] || l.status}</span></td>
+        <td>${l.validity_mode === 'fixed' ? '固定截止' : '激活起 ' + Math.round((l.duration_seconds||0)/86400) + ' 天'}</td>
+        <td>${fmtTime(l.activated_at)}</td>
+        <td>${fmtTime(l.expires_at)}</td>
+        <td>${l.device_count} / ${l.max_devices}</td>
+        <td>${fmtTime(l.last_heartbeat_at)}</td>
+        <td>${esc(l.minimum_client_version || '-')}</td>
+        <td class="row-actions">
+          <button class="btn sm" onclick="renewMenu('${l.id}')">续期</button>
+          ${l.status === 'suspended'
+            ? `<button class="btn sm" onclick="doAction('${l.id}','resume')">恢复</button>`
+            : `<button class="btn sm" onclick="doAction('${l.id}','suspend')">暂停</button>`}
+          <button class="btn sm" onclick="revokeLicense('${l.id}')">撤销</button>
+          <button class="btn sm" onclick="showDevices('${l.id}')">设备</button>
+          <button class="btn sm" onclick="editNote('${l.id}')">备注</button>
+          <button class="btn sm" onclick="showEvents('${l.id}')">事件</button>
+        </td>
+      </tr>`).join('');
+    document.getElementById('licenseRows').innerHTML =
+      rows || '<tr><td colspan="10">暂无许可证，请到「创建」页新建。</td></tr>';
+  } catch (e) { toast('列表加载失败：' + e.message, false); }
+}
+function findLic(id) { return licensesCache.find(l => l.id === id) || {}; }
+function renewMenu(id) {
+  showModal(`<h3>续期许可证</h3>
+    <p style="margin-bottom:12px;color:var(--muted)">续期会使 license_version +1，客户端将在心跳后收到刷新提示。</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="btn" onclick="renew('${id}',1)">+1 天</button>
+      <button class="btn" onclick="renew('${id}',7)">+7 天</button>
+      <button class="btn" onclick="renew('${id}',30)">+30 天</button>
+    </div>
+    <div class="form-item"><label>自定义截止时间</label>
+      <input id="renewFixed" type="datetime-local"></div>
+    <div style="margin-top:12px"><button class="btn primary" onclick="renewFixed('${id}')">按此截止时间续期</button></div>`);
+}
+async function renew(id, days) {
+  try { await api(`/licenses/${id}/renew`, {body: {extend_days: days}});
+    toast(`已续期 ${days} 天`, true); closeModal(); loadLicenses();
+  } catch (e) { toast('续期失败：' + e.message, false); }
+}
+async function renewFixed(id) {
+  const v = document.getElementById('renewFixed').value;
+  if (!v) { toast('请选择截止时间', false); return; }
+  try { await api(`/licenses/${id}/renew`, {body: {new_expires_at: new Date(v).toISOString()}});
+    toast('已按自定义截止时间续期', true); closeModal(); loadLicenses();
+  } catch (e) { toast('续期失败：' + e.message, false); }
+}
+async function doAction(id, action) {
+  const label = action === 'suspend' ? '暂停' : '恢复';
+  try { await api(`/licenses/${id}/${action}`, {method: 'POST'});
+    toast(`已${label}`, true); loadLicenses();
+  } catch (e) { toast(`${label}失败：` + e.message, false); }
+}
+async function revokeLicense(id) {
+  if (!confirm('此操作将永久撤销许可证。客户端在下一次成功心跳后将停止使用。\n\n确定继续吗？')) return;
+  const reason = prompt('撤销原因（可选）：') || '';
+  try { await api(`/licenses/${id}/revoke`, {body: {reason}});
+    toast('已撤销', true); loadLicenses();
+  } catch (e) { toast('撤销失败：' + e.message, false); }
+}
+async function showDevices(id) {
+  try {
+    const d = await api(`/licenses/${id}`);
+    const rows = d.devices.map(dev => `
+      <tr>
+        <td><code>${esc(dev.device_id.slice(0, 16))}…</code></td>
+        <td>${esc(dev.device_name || '-')}</td>
+        <td>${esc(dev.platform)} ${esc(dev.os_version)}</td>
+        <td>${fmtTime(dev.last_seen_at)}</td>
+        <td>${esc(dev.last_client_version || '-')}</td>
+        <td>${dev.revoked ? '<span class="badge revoked">已解绑</span>'
+          : `<button class="btn sm danger" onclick="unbind('${id}','${dev.id}')">解绑</button>`}</td>
+      </tr>`).join('');
+    showModal(`<h3>设备管理</h3>
+      <table><thead><tr><th>设备 ID</th><th>名称</th><th>平台</th><th>最近在线</th><th>版本</th><th>操作</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="6">暂无设备</td></tr>'}</tbody></table>
+      <div style="margin-top:12px"><button class="btn danger" onclick="resetDevices('${id}')">重置全部设备</button></div>`);
+  } catch (e) { toast('设备加载失败：' + e.message, false); }
+}
+async function unbind(licId, devId) {
+  try { await api(`/licenses/${licId}/devices/${devId}`, {method: 'DELETE'});
+    toast('设备已解绑', true); showDevices(licId); loadLicenses();
+  } catch (e) { toast('解绑失败：' + e.message, false); }
+}
+async function resetDevices(licId) {
+  if (!confirm('确定解绑该许可证下全部设备吗？')) return;
+  try { const r = await api(`/licenses/${licId}/devices/reset`, {method: 'POST'});
+    toast(`已解绑 ${r.unbound} 台设备`, true); showDevices(licId); loadLicenses();
+  } catch (e) { toast('重置失败：' + e.message, false); }
+}
+function editNote(id) {
+  const l = findLic(id);
+  showModal(`<h3>编辑名称 / 备注</h3>
+    <div class="form-item" style="margin-bottom:10px"><label>名称</label>
+      <input id="eName" value="${esc(l.name || '')}"></div>
+    <div class="form-item"><label>备注</label><input id="eNote" value="${esc(l.note || '')}"></div>
+    <div style="margin-top:12px"><button class="btn primary" onclick="saveNote('${id}')">保存</button></div>`);
+}
+async function saveNote(id) {
+  try { await api(`/licenses/${id}`, {method: 'PATCH',
+      body: {name: document.getElementById('eName').value, note: document.getElementById('eNote').value}});
+    toast('已保存', true); closeModal(); loadLicenses();
+  } catch (e) { toast('保存失败：' + e.message, false); }
+}
+function showEvents(id) {
+  switchTab('events');
+  document.getElementById('eventLicenseSel').value = id;
+  loadEvents();
+}
+
+// ---------- 创建 ----------
+function toggleMode() {
+  const fixed = document.getElementById('cMode').value === 'fixed';
+  document.getElementById('cDaysWrap').style.display = fixed ? 'none' : '';
+  document.getElementById('cFixedWrap').style.display = fixed ? '' : 'none';
+}
+async function createLicense() {
+  const mode = document.getElementById('cMode').value;
+  const body = {
+    name: document.getElementById('cName').value.trim(),
+    note: document.getElementById('cNote').value.trim(),
+    validity_mode: mode,
+    max_devices: parseInt(document.getElementById('cMaxDev').value) || 1,
+    features: document.getElementById('cFeatures').value.split(',').map(s => s.trim()).filter(Boolean),
+    minimum_client_version: document.getElementById('cMinVer').value.trim() || '0.0.0',
+  };
+  if (mode === 'duration') body.duration_days = parseInt(document.getElementById('cDays').value) || 365;
+  else {
+    const v = document.getElementById('cFixed').value;
+    if (!v) { toast('请选择固定截止时间', false); return; }
+    body.fixed_expires_at = new Date(v).toISOString();
+  }
+  try {
+    const r = await api('/licenses', {body});
+    showModal(`<h3>许可证创建成功</h3>
+      <p class="warn-text">完整 Key 仅此一次显示，请立即保存！</p>
+      <div class="key-box">${esc(r.license_key)}</div>
+      <button class="btn primary" onclick="copyText('${esc(r.license_key)}')">复制 Key</button>`);
+    loadLicenses();
+  } catch (e) { toast('创建失败：' + e.message, false); }
+}
+
+// ---------- 事件 ----------
+async function loadEvents() {
+  const id = document.getElementById('eventLicenseSel').value;
+  if (!id) { document.getElementById('eventList').innerHTML = '<p class="hint">选择许可证后显示事件时间线。</p>'; return; }
+  try {
+    const r = await api(`/licenses/${id}/events`);
+    document.getElementById('eventList').innerHTML = r.items.map(e => `
+      <div class="event-item">
+        <div><b>${esc(e.event_type)}</b>
+          <span class="badge ${e.result === 'failure' ? 'revoked' : 'active'}">${esc(e.result || '-')}</span>
+          ${e.reason_code ? `<code>${esc(e.reason_code)}</code>` : ''}</div>
+        <div class="t">${fmtTime(e.event_time)} · IP ${esc(e.ip_address || '-')} · 客户端 ${esc(e.client_version || '-')}
+          ${e.device_id ? '· 设备 <code>' + esc(e.device_id.slice(0, 12)) + '…</code>' : ''}</div>
+        ${e.metadata && Object.keys(e.metadata).length
+          ? '<div class="t">' + esc(JSON.stringify(e.metadata)) + '</div>' : ''}
+      </div>`).join('') || '<p class="hint">暂无事件。</p>';
+  } catch (e) { toast('事件加载失败：' + e.message, false); }
+}
+
+// ---------- 设置 ----------
+async function loadConfig() {
+  try {
+    const r = await api('/server/config');
+    document.getElementById('sEmpHost').value = r.config.employee_host;
+    document.getElementById('sEmpPort').value = r.config.employee_port;
+    document.getElementById('sLanOnly').value = String(r.config.lan_only);
+    document.getElementById('sLogLevel').value = r.config.log_level;
+  } catch (e) { toast('配置加载失败：' + e.message, false); }
+  try {
+    const pk = await api('/server/public-key');
+    document.getElementById('pkPem').textContent = pk.public_key_pem;
+    document.getElementById('pkFp').textContent = pk.fingerprint + (pk.dev ? '（DEV）' : '');
+  } catch (e) { toast('公钥加载失败：' + e.message, false); }
+}
+async function saveConfig() {
+  try {
+    await api('/server/config', {method: 'PUT', body: {
+      employee_host: document.getElementById('sEmpHost').value.trim() || null,
+      employee_port: parseInt(document.getElementById('sEmpPort').value) || null,
+      lan_only: document.getElementById('sLanOnly').value === 'true',
+      log_level: document.getElementById('sLogLevel').value,
+    }});
+    toast('配置已保存，重启员工监听后生效', true);
+  } catch (e) { toast('保存失败：' + e.message, false); }
+}
+function downloadPubKey() {
+  const pem = document.getElementById('pkPem').textContent;
+  const blob = new Blob([pem], {type: 'application/x-pem-file'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'license-public.pem';
+  a.click();
+}
+async function regenKeys() {
+  if (!confirm('警告：重新生成密钥对将使所有已签发凭证立即失效！\n\n确定继续吗？')) return;
+  if (!confirm('再次确认：所有员工客户端都需要重新激活。仍要继续吗？')) return;
+  try {
+    const r = await api('/server/regenerate-keys', {method: 'POST'});
+    toast('密钥对已重新生成（' + r.fingerprint + '）', true);
+    loadConfig();
+  } catch (e) { toast('操作失败：' + e.message, false); }
+}
+
+// ---------- 初始化 ----------
+function switchTab(name) {
+  document.querySelectorAll('.tabs button').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === name));
+  ['licenses', 'create', 'events', 'settings'].forEach(t =>
+    document.getElementById('tab-' + t).style.display = t === name ? '' : 'none');
+  if (name === 'settings') loadConfig();
+  if (name === 'licenses') loadLicenses();
+}
+loadStatus();
+loadLicenses();
+setInterval(loadStatus, 15000);
+</script>
+</body>
+</html>

@@ -5,6 +5,8 @@ import WorkbenchPage from '@/pages/WorkbenchPage'
 import KnowledgeBasePage from '@/pages/KnowledgeBasePage'
 import SettingsPage from '@/pages/SettingsPage'
 import BackendStatus from '@/components/BackendStatus'
+import LicenseGate from '@/license/LicenseGate'
+import LicenseBanner from '@/license/LicenseBanner'
 import { Toaster } from '@/components/ui/sonner'
 import { isBrowserPreview } from '@/api/client'
 
@@ -17,7 +19,8 @@ const navItems = [
 
 export default function App() {
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-800">
+    <LicenseGate>
+      <div className="flex h-screen bg-slate-50 text-slate-800">
       <aside className="flex w-52 shrink-0 flex-col border-r border-slate-200 bg-white">
         <div className="px-4 py-4 text-lg font-semibold">AI 审校助手</div>
         <nav className="flex-1 space-y-1 px-2">
@@ -43,6 +46,7 @@ export default function App() {
         </div>
       </aside>
       <main className="flex-1 overflow-auto p-6">
+        <LicenseBanner />
         {isBrowserPreview() && (
           <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
             浏览器预览模式：后端连接 http://127.0.0.1:8765（npm run backend:dev）；
@@ -59,5 +63,6 @@ export default function App() {
       </main>
       <Toaster />
     </div>
+    </LicenseGate>
   )
 }

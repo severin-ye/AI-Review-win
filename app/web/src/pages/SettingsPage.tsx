@@ -8,6 +8,7 @@ import {
   testLlmConnection,
   type ModelsStatus,
 } from '@/api/client'
+import LicenseStatusSection from '@/license/LicenseStatusSection'
 
 interface FieldDef {
   key: string
@@ -345,6 +346,7 @@ export default function SettingsPage() {
           </div>
         ))}
         <ModelManager />
+        <LicenseStatusSection />
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"

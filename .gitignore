@@ -63,3 +63,10 @@ archive/
 # electron-builder 产物（安装包与 win-unpacked，体积大）
 release/
 
+
+# 许可证服务器数据目录（SQLite + 私钥，不入库）
+app/license-server/.data/
+!app/license-server/ai-review-license-server.spec
+
+# 许可证集成冒烟脚本的临时打包产物
+scripts/.license-smoke.bundle.mjs

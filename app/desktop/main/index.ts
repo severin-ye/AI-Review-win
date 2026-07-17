@@ -1,14 +1,21 @@
 import path from 'node:path'
 import { BrowserWindow, app, ipcMain, shell } from 'electron'
 import { startSidecar, stopSidecar, waitForHealthy, type SidecarHandle } from './sidecar'
+import { createLicenseService, registerLicenseIpc, type LicenseIpcContext } from './license/ipc'
 
 const isDev = !app.isPackaged
 
 let mainWindow: BrowserWindow | null = null
 let sidecar: SidecarHandle | null = null
 let backendUrl = ''
+let licenseCtx: LicenseIpcContext | null = null
 
 async function bootstrap(): Promise<void> {
+  // 0. 初始化许可证服务（先完成本地凭证校验，再创建窗口；心跳后台进行）
+  const service = createLicenseService()
+  await service.init()
+  licenseCtx = registerLicenseIpc(service, () => mainWindow)
+
   // 1. 启动 Python FastAPI sidecar
   sidecar = await startSidecar({
     isDev,
@@ -69,6 +76,9 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
+  licenseCtx?.unsubscribe()
+  licenseCtx?.service.dispose()
+  licenseCtx = null
   stopSidecar(sidecar)
   sidecar = null
 })

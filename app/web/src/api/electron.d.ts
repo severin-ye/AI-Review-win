@@ -9,6 +9,8 @@ export interface RendererApi {
 declare global {
   interface Window {
     api: RendererApi
+    /** 预加载脚本暴露的许可证 API（浏览器预览模式下不存在） */
+    licenseApi?: import('@/license/types').LicenseApi
   }
 }
 

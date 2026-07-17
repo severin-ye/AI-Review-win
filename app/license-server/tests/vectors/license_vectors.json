@@ -1,0 +1,79 @@
+{
+  "description": "AI-Review 许可证签名对拍向量。canonical 规则：JSON 键递归排序、无空白、UTF-8 原样非 ASCII（Python: json.dumps(obj, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode('utf-8')）。签名 = Ed25519(canonical bytes)，base64 编码。",
+  "seed_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "private_key_seed_note": "私钥 = Ed25519PrivateKey.from_private_bytes(seed_hex)，仅供对拍，非生产密钥",
+  "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAA6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=\n-----END PUBLIC KEY-----\n",
+  "cases": [
+    {
+      "name": "valid_token",
+      "token": {
+        "schema_version": 1,
+        "license_id": "lic_abababababababababababababababab",
+        "device_id": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "issued_at": "2026-07-17T15:00:00Z",
+        "expires_at": "2026-07-24T15:00:00Z",
+        "features": [
+          "main"
+        ],
+        "license_version": 1
+      },
+      "canonical": "{\"device_id\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"expires_at\":\"2026-07-24T15:00:00Z\",\"features\":[\"main\"],\"issued_at\":\"2026-07-17T15:00:00Z\",\"license_id\":\"lic_abababababababababababababababab\",\"license_version\":1,\"schema_version\":1}",
+      "signature": "RzFTr57kob2ucDLpXU5DtSqoSsLUok+KHi5/rYWvpVfJ9uyPqaiYTV/14qBQmGh6vQklYNP3IZYnIVpiPoufCA==",
+      "expect_verify": true
+    },
+    {
+      "name": "tampered_expires_at",
+      "token": {
+        "schema_version": 1,
+        "license_id": "lic_abababababababababababababababab",
+        "device_id": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "issued_at": "2026-07-17T15:00:00Z",
+        "expires_at": "2026-07-25T15:00:00Z",
+        "features": [
+          "main"
+        ],
+        "license_version": 1
+      },
+      "canonical": "{\"device_id\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"expires_at\":\"2026-07-25T15:00:00Z\",\"features\":[\"main\"],\"issued_at\":\"2026-07-17T15:00:00Z\",\"license_id\":\"lic_abababababababababababababababab\",\"license_version\":1,\"schema_version\":1}",
+      "signature": "RzFTr57kob2ucDLpXU5DtSqoSsLUok+KHi5/rYWvpVfJ9uyPqaiYTV/14qBQmGh6vQklYNP3IZYnIVpiPoufCA==",
+      "expect_verify": false,
+      "note": "expires_at 被篡改后，原签名验签必须失败"
+    },
+    {
+      "name": "tampered_device_id",
+      "token": {
+        "schema_version": 1,
+        "license_id": "lic_abababababababababababababababab",
+        "device_id": "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+        "issued_at": "2026-07-17T15:00:00Z",
+        "expires_at": "2026-07-24T15:00:00Z",
+        "features": [
+          "main"
+        ],
+        "license_version": 1
+      },
+      "canonical": "{\"device_id\":\"efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef\",\"expires_at\":\"2026-07-24T15:00:00Z\",\"features\":[\"main\"],\"issued_at\":\"2026-07-17T15:00:00Z\",\"license_id\":\"lic_abababababababababababababababab\",\"license_version\":1,\"schema_version\":1}",
+      "signature": "RzFTr57kob2ucDLpXU5DtSqoSsLUok+KHi5/rYWvpVfJ9uyPqaiYTV/14qBQmGh6vQklYNP3IZYnIVpiPoufCA==",
+      "expect_verify": false,
+      "note": "device_id 被篡改后，原签名验签必须失败"
+    },
+    {
+      "name": "bad_signature",
+      "token": {
+        "schema_version": 1,
+        "license_id": "lic_abababababababababababababababab",
+        "device_id": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+        "issued_at": "2026-07-17T15:00:00Z",
+        "expires_at": "2026-07-24T15:00:00Z",
+        "features": [
+          "main"
+        ],
+        "license_version": 1
+      },
+      "canonical": "{\"device_id\":\"cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd\",\"expires_at\":\"2026-07-24T15:00:00Z\",\"features\":[\"main\"],\"issued_at\":\"2026-07-17T15:00:00Z\",\"license_id\":\"lic_abababababababababababababababab\",\"license_version\":1,\"schema_version\":1}",
+      "signature": "RzFTr57kob2ucDLpXU5DtSqoSsLUok+KHi5/rYWvpVfJ9uyPqaiYTV/14qBQmGh6vQklYNP3IZYnIVpiPoufAAAA",
+      "expect_verify": false,
+      "note": "签名串本身被破坏，验签必须失败"
+    }
+  ]
+}

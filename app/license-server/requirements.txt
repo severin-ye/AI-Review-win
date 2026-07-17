@@ -1,0 +1,10 @@
+# AI-Review 许可证服务器（老板端）依赖
+# 与 app/server 共用 venv 时仅需补装 cryptography / pywin32
+fastapi            # Web 框架（admin / employee 双 app）
+uvicorn[standard]  # ASGI 服务器（双监听）
+sqlmodel           # ORM（SQLite）
+pydantic-settings  # 配置（env 前缀 AI_REVIEW_LICENSE_）
+cryptography       # Ed25519 签名/验签
+pywin32; sys_platform == 'win32'  # DPAPI 私钥保护（win32crypt CryptProtectData）
+httpx              # TestClient 依赖
+pytest             # 测试

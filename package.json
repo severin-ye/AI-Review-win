@@ -8,6 +8,8 @@
     "dev": "electron-vite dev",
     "dev:renderer": "vite --config app/web/vite.config.ts",
     "build": "electron-vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "test:license": "vitest run",
     "start": "electron-vite preview",
     "backend:dev": "cd app/server && .venv\\Scripts\\python -m uvicorn app.main:app --reload --port 8765",
     "backend:setup": "cd app/server && python -m venv .venv && .venv\\Scripts\\python -m pip install -r requirements.txt",
@@ -34,6 +36,7 @@
     "electron-builder": "^26.0.12",
     "electron-vite": "^5.0.0",
     "typescript": "^7.0.2",
-    "vite": "^7.3.6"
+    "vite": "^7.3.6",
+    "vitest": "^3.2.4"
   }
 }

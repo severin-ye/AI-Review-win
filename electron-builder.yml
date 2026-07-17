@@ -16,6 +16,9 @@ files:
 extraResources:
   - from: app/server/dist/ai-review-backend.exe
     to: backend/ai-review-backend.exe
+  # 许可证验签公钥（客户端只含公钥）；主进程从 process.resourcesPath/license-public.pem 读取
+  - from: app/desktop/resources/license-public.pem
+    to: license-public.pem
 
 # 模型文件不打包（数 GB）：首次启动后经 设置页 → 模型管理 从 hf-mirror 预下载（断点续传）
 nsis:

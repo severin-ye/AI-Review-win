@@ -20,6 +20,18 @@ export function isBrowserPreview(): boolean {
   return typeof window !== 'undefined' && !window.api
 }
 
+/**
+ * 许可证前置检查（requireActiveLicense）：审校等核心请求发出前调用。
+ * 实时查询主进程状态机，非可用状态直接拒绝；浏览器预览模式（无 licenseApi）放行。
+ */
+export async function requireActiveLicense(): Promise<void> {
+  if (typeof window === 'undefined' || !window.licenseApi) return
+  const snapshot = await window.licenseApi.getState()
+  if (!snapshot.usable) {
+    throw new Error(snapshot.message ?? '许可证不可用，请先激活或联系管理员')
+  }
+}
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const base = await getBaseUrl()
   const res = await fetch(`${base}${path}`, {
@@ -89,6 +101,7 @@ export interface RunResult {
 }
 
 export async function uploadDocument(file: File): Promise<DocumentItem> {
+  await requireActiveLicense()
   const base = await getBaseUrl()
   const form = new FormData()
   form.append('file', file)
@@ -105,6 +118,7 @@ export function listDocuments(): Promise<DocumentItem[]> {
 }
 
 export async function runDocument(id: string): Promise<RunResult> {
+  await requireActiveLicense()
   const base = await getBaseUrl()
   const res = await fetch(`${base}/api/documents/${id}/run`, { method: 'POST' })
   if (!res.ok) {
@@ -183,6 +197,7 @@ export interface RetrieveResult {
 }
 
 export async function retrieveDocument(id: string): Promise<RetrieveResult> {
+  await requireActiveLicense()
   const base = await getBaseUrl()
   const res = await fetch(`${base}/api/documents/${id}/retrieve`, { method: 'POST' })
   if (!res.ok) {
@@ -278,6 +293,7 @@ export interface ReviewStartResult {
 
 /** 触发 LLM 审校（后台线程）；进度用 subscribeJobEvents(job_id) 订阅。 */
 export async function reviewDocument(id: string, force = false): Promise<ReviewStartResult> {
+  await requireActiveLicense()
   const base = await getBaseUrl()
   const res = await fetch(`${base}/api/documents/${id}/review?force=${force}`, { method: 'POST' })
   if (!res.ok) {
@@ -297,6 +313,7 @@ export async function decideCorrection(
   decision: 'accepted' | 'rejected' | 'custom' | 'pending',
   customText?: string,
 ): Promise<DecisionResult> {
+  await requireActiveLicense()
   const base = await getBaseUrl()
   const res = await fetch(`${base}/api/corrections/${id}/decision`, {
     method: 'POST',
@@ -326,6 +343,7 @@ export async function batchDecide(
   filter: BatchFilter,
   action: 'accept' | 'reject',
 ): Promise<BatchResult> {
+  await requireActiveLicense()
   const base = await getBaseUrl()
   const res = await fetch(`${base}/api/documents/${docId}/decisions/batch`, {
     method: 'POST',
@@ -378,6 +396,7 @@ export interface ExportListResult {
 
 /** 触发导出（同步执行）：生成 清洁版(_审校修订1_) + 留痕版(_审校修订2_)。 */
 export async function exportDocument(id: string): Promise<ExportResult> {
+  await requireActiveLicense()
   const base = await getBaseUrl()
   const res = await fetch(`${base}/api/documents/${id}/export`, { method: 'POST' })
   if (!res.ok) {
