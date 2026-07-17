@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["electron", "electron.vite.config.ts"]
+  "include": ["app/desktop", "electron.vite.config.ts"]
 }

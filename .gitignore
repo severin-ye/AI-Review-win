@@ -20,8 +20,8 @@ wheels/
 .installed.cfg
 *.egg
 # 虚拟环境相关文件和目录
-.env                # 环境变量配置文件
-.venv              # 虚拟环境目录
+.env
+.venv/
 env/               # 虚拟环境目录（另一种命名）
 venv/              # 虚拟环境目录（标准命名）
 ENV/               # 虚拟环境目录（大写命名）
@@ -40,7 +40,6 @@ data/input/*       # 输入数据目录下的所有文件
 data/output/*      # 输出数据目录下的所有文件
 !data/input/.gitkeep   # 保留空的input目录
 !data/output/.gitkeep  # 保留空的output目录
-hide_file/         # 隐藏文件目录
 *.key              # 密钥文件
 *.log              # 日志文件
 *.spec             # PyInstaller规范文件
@@ -49,17 +48,15 @@ hide_file/         # 隐藏文件目录
 # 操作系统生成的文件
 .DS_Store          # macOS系统文件
 Thumbs.db          # Windows缩略图缓存文件
-# 配置文件和敏感信息
-hide_file/config_files/config.json       # 包含敏感信息的配置文件
-!hide_file/config_files/config.example.json  # 配置文件模板除外
-hide_file/config_files/*.json
-!hide_file/config_files/config_demo.json
 
 # --- Electron / Node（M1 重构新增） ---
 node_modules/
 out/
-backend/.venv/
-backend/.data/
+app/server/.venv/
+app/server/.data/
 .pytest_cache/
-!backend/ai-review-backend.spec
+!app/server/ai-review-backend.spec
+
+# archive/ 为旧数据存档（logs/material/hide_file，本地保留不入库）
+archive/
 

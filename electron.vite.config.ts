@@ -3,17 +3,17 @@ import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// 目录布局（M1 骨架）：
-//   electron/main    → 主进程（含 Python sidecar 守护）
-//   electron/preload → 预加载（contextBridge 类型安全 API）
-//   renderer/        → React 渲染层（不能用 src/，与旧 Python 代码冲突）
+// 目录布局（方案 D 重构后）：
+//   app/desktop/main    → 主进程（含 Python sidecar 守护）
+//   app/desktop/preload → 预加载（contextBridge 类型安全 API）
+//   app/web/            → React 渲染层（不能用 src/，与旧 Python 代码冲突）
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
         input: {
-          index: resolve(__dirname, 'electron/main/index.ts'),
+          index: resolve(__dirname, 'app/desktop/main/index.ts'),
         },
       },
     },
@@ -23,22 +23,22 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          index: resolve(__dirname, 'electron/preload/index.ts'),
+          index: resolve(__dirname, 'app/desktop/preload/index.ts'),
         },
       },
     },
   },
   renderer: {
-    root: resolve(__dirname, 'renderer'),
+    root: resolve(__dirname, 'app/web'),
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'renderer/src'),
+        '@': resolve(__dirname, 'app/web/src'),
       },
     },
     build: {
       rollupOptions: {
-        input: resolve(__dirname, 'renderer/index.html'),
+        input: resolve(__dirname, 'app/web/index.html'),
       },
     },
   },

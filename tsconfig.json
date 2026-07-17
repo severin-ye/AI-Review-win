@@ -13,8 +13,8 @@
     "noEmit": true,
     "useDefineForClassFields": true,
     "paths": {
-      "@/*": ["./renderer/src/*"]
+      "@/*": ["./app/web/src/*"]
     }
   },
-  "include": ["renderer/src"]
+  "include": ["app/web/src"]
 }

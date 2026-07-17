@@ -1,9 +1,0 @@
-{
-    "openai_api_key": "",
-    "tyqw_api_key": "",
-    "module_type": "",
-    "has_review_table": "",
-    "output_dir": "",
-    "prompt": "",
-    "enable_medical_rag": false
-}

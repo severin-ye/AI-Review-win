@@ -6,12 +6,12 @@
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
-    "dev:renderer": "vite --config renderer/vite.config.ts",
+    "dev:renderer": "vite --config app/web/vite.config.ts",
     "build": "electron-vite build",
     "start": "electron-vite preview",
-    "backend:dev": "cd backend && .venv\\Scripts\\python -m uvicorn app.main:app --reload --port 8765",
-    "backend:setup": "cd backend && python -m venv .venv && .venv\\Scripts\\python -m pip install -r requirements.txt",
-    "dist:backend": "cd backend && .venv\\Scripts\\python -m PyInstaller ai-review-backend.spec --noconfirm",
+    "backend:dev": "cd app/server && .venv\\Scripts\\python -m uvicorn app.main:app --reload --port 8765",
+    "backend:setup": "cd app/server && python -m venv .venv && .venv\\Scripts\\python -m pip install -r requirements.txt",
+    "dist:backend": "cd app/server && .venv\\Scripts\\python -m PyInstaller ai-review-backend.spec --noconfirm",
     "dist": "npm run build && electron-builder"
   },
   "dependencies": {
