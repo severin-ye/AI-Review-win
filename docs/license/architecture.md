@@ -30,6 +30,10 @@
   （`app/web/src/api/client.ts`）。
 - **客户端只含公钥**（`app/desktop/resources/license-public.pem`），私钥只在老板端数据目录。
 - 管理 API 只监听 `127.0.0.1`，员工无法访问管理功能。
+- **防火墙自动放行**（`license_server/core/firewall.py`）：打包 exe 启动员工监听前
+  "先查后建"——netsh 查询放行规则，缺失才经 `ShellExecuteW("runas")` 弹一次 UAC 提权添加；
+  用户取消/失败只记警告、**不阻断启动**；仅 win32 + frozen exe 生效（源码运行不弹），
+  `AI_REVIEW_LICENSE_SKIP_FIREWALL=1` 可完全跳过。
 
 ## 2. 数据库存储（老板端）
 

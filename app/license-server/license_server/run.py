@@ -82,10 +82,27 @@ class EmployeeServerController:
         self.stop_employee()
 
 
+def _effective_employee_port(settings: Settings) -> int:
+    """员工监听实际端口（管理页「设置」保存的运行时配置可能覆盖默认 8768）。"""
+    path = settings.runtime_config_path
+    if path.exists():
+        try:
+            overrides = json.loads(path.read_text(encoding="utf-8"))
+            return int(overrides.get("employee_port") or settings.employee_port)
+        except Exception:  # noqa: BLE001
+            pass
+    return settings.employee_port
+
+
 def main() -> None:
     multiprocessing.freeze_support()
     settings = get_settings()
     settings.data_dir.mkdir(parents=True, exist_ok=True)
+
+    # frozen exe 首次启动：UAC 提权放行防火墙（源码运行/非 Windows/失败均不阻断）
+    from .core.firewall import ensure_firewall_rule
+
+    ensure_firewall_rule(_effective_employee_port(settings))
 
     controller = EmployeeServerController(settings)
     admin_app = create_admin_app(settings, controller=controller)

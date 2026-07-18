@@ -34,6 +34,14 @@
 | `tests/conftest.py`、`test_crypto.py`（11）、`test_core.py`（9）、`test_api.py`（28）、`test_scenarios.py`（6） | 54 个 pytest 用例 | 服务端测试 |
 | `tests/vectors/license_vectors.json` + `tests/vectors/_generate.py` | 4 组 canonical/签名对拍向量（含篡改用例） | 员工端验签对拍基准 |
 
+### 增补：Windows 防火墙自动放行（打包 exe 首启提权）
+
+| 路径 | 状态 | 内容 / 原因 |
+|---|---|---|
+| `license_server/core/firewall.py` | 🆕 | 防火墙规则"先查后建"：netsh show rule 查询（mbcs/utf-8 解码，按输出含端口号判断），缺失时 `ShellExecuteW("runas")` UAC 提权添加，2 秒后复查；取消/失败/异常均只记警告、不阻断启动；仅 win32 + frozen 且 `AI_REVIEW_LICENSE_SKIP_FIREWALL!=1` 时生效 | 老板 exe 首启免手动配防火墙 |
+| `license_server/run.py` | ✏️ | `main()` 在启动监听前调用 `ensure_firewall_rule()`；新增 `_effective_employee_port()` 读取 `.data/server_config.json` 运行时端口覆盖，保证放行端口与实际监听端口一致 | 接入防火墙自检 |
+| `tests/test_firewall.py` | 🆕 | 12 个 pytest 用例（启用条件 3 / rule_exists 4 / ensure 5），全 mock subprocess/ctypes/sys | 服务端测试（总数 54→66） |
+
 ## 2. 员工端主进程 `app/desktop/`（阶段 5 新建 license 模块）
 
 | 路径 | 状态 | 内容 / 原因 |

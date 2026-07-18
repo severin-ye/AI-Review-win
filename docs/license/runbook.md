@@ -86,7 +86,11 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8767/api/v1/admin/licenses/
    exe 运行在 **exe 同目录的 `.data`**）。私钥丢失 = 所有凭证无法验签，
    只能重新生成密钥对并全员重新激活。
 2. 生产设 `$env:AI_REVIEW_LICENSE_DEV_KEYS="0"` 关闭 DEV 标记。
-3. Windows 防火墙放行员工端口（管理员 PowerShell，一次即可）：
+3. Windows 防火墙放行员工端口：**打包 exe 首次启动自动处理**——启动时检查放行规则，
+   缺失则弹一次「用户账户控制」(UAC) 提权窗口自动添加（规则名 `AI-Review License Server`，
+   点「是」即可；取消/失败只记警告、不阻断启动），之后每次启动复查、已存在则静默跳过。
+   设 `$env:AI_REVIEW_LICENSE_SKIP_FIREWALL="1"` 可完全跳过该自动行为。
+   **提权失败时的兜底做法**（源码运行不触发自动放行，也用此法）：管理员 PowerShell 手动执行一次：
 
    ```powershell
    netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=8768

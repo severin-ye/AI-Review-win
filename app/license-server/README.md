@@ -25,7 +25,13 @@ cd app/license-server
 管理页顶部仪表盘显示「员工连接地址」（`http://<局域网IP>:8768`），一键复制发给员工；
 也可在员工端调用 `GET /api/v1/ping` 做连通测试（返回 server_time 与公钥指纹）。
 
-## Windows 防火墙放行（管理员 PowerShell，一次即可）
+## Windows 防火墙放行
+
+- **打包 exe**：首次启动自动检查放行规则（规则名 `AI-Review License Server`），缺失时
+  弹一次「用户账户控制」(UAC) 提权窗口自动添加，点「是」即可；取消或失败只记警告，
+  **不阻断服务器启动**。之后每次启动复查，规则已存在则静默跳过。
+- 设 `AI_REVIEW_LICENSE_SKIP_FIREWALL=1` 可完全跳过自动放行（自动化测试/特殊部署用）。
+- **源码运行不触发自动放行**；提权失败时的兜底做法：管理员 PowerShell 手动执行一次——
 
 ```powershell
 netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=8768

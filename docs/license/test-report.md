@@ -1,12 +1,13 @@
 # 许可证系统测试报告
 
 > 报告时点：阶段 6 结束。所有命令均为实际执行并记录真实输出。
+> （防火墙模块增补后，命令 1 与服务端 pytest 分布已按最新重跑结果更新为 66 passed。）
 
 ## 1. 已执行命令与结果
 
 | # | 命令 | 结果 |
 |---|---|---|
-| 1 | `cd app\license-server; ..\server\.venv\Scripts\python.exe -m pytest tests/ -q` | **54 passed**, 1 warning, 6.47s |
+| 1 | `cd app\license-server; ..\server\.venv\Scripts\python.exe -m pytest tests/ -q` | **66 passed**, 1 warning, 9.74s（防火墙模块新增后重跑实测） |
 | 2 | `cd app\server; .\.venv\Scripts\python.exe -m pytest tests/ -q` | **30 passed**, 240 warnings（存量 `datetime.utcnow` 弃用告警）, 17.81s |
 | 3 | `npm.cmd run test:license`（vitest run） | **5 files / 60 tests 全 passed**, ≈0.8s |
 | 4 | `npm.cmd run typecheck`（两套 tsconfig） | 通过，0 错误 |
@@ -21,7 +22,8 @@
 | `tests/test_crypto.py` | 11 | canonical JSON、Ed25519、License Key 哈希 |
 | `tests/test_core.py` | 9 | 时间工具、密钥管理、配置 |
 | `tests/test_scenarios.py` | 6 | 端到端业务场景（激活→心跳→撤销等） |
-| 合计 | **54** | |
+| `tests/test_firewall.py` | 12 | 防火墙自动放行：启用条件（win32+frozen+SKIP 开关）、netsh 输出解析与端口判定、UAC 提权添加/取消/复查/异常兜底 |
+| 合计 | **66** | |
 
 客户端 vitest 分布（`app/desktop/main/license/__tests__/`）：
 
@@ -51,7 +53,7 @@
 | 错误码映射：renderer reason_code → 中文文案与 schemas.py 一致（正则提取对比，来源已注明） | `__tests__/errorMessages.test.ts`（主进程 + 渲染层两份映射都与 schemas.py `toEqual`） | ✅ |
 | 假 fetch / 假 storage / 假时钟注入，不依赖 electron 与真实服务器 | `__tests__/fakeServer.ts`（真实 Ed25519 密钥对按协议签名响应） | ✅ |
 
-服务端 §十九 条目由 54 个 pytest 覆盖（test_crypto / test_core / test_api / test_scenarios）。
+服务端 §十九 条目由 66 个 pytest 覆盖（test_crypto / test_core / test_api / test_scenarios / test_firewall）。
 
 ## 3. 验收标准（任务书 §二十）逐项核对
 
@@ -85,3 +87,7 @@
 6. **专业逆向无法完全防御**：客户端校验可被本地调试/补丁绕过（详见
    [security.md](security.md) 第 8 节的诚实声明与缓解思路）。
 7. vitest 未纳入根目录统一 `npm test`（当前脚本为 `test:license`，避免与未来其它套件冲突）。
+8. **防火墙 UAC 提权真机路径未实测**：`test_firewall.py` 全部 mock subprocess/ctypes/sys；
+   exe 冒烟走 `AI_REVIEW_LICENSE_SKIP_FIREWALL=1` 跳过路径验证。真实 UAC 弹窗点「是」后的
+   规则添加链路未在真机走查，首次在老板机器上运行时需人工确认（失败也只记警告、不阻断启动，
+   兜底为手动 netsh 命令，见 [runbook.md](runbook.md) §一.6）。
