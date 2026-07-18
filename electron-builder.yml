@@ -28,6 +28,8 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: AI 审校助手
+  # 自定义钩子：安装/卸载前静默 taskkill 强制结束托盘常驻的旧进程（build/installer.nsh）
+  include: build/installer.nsh
 
 win:
   icon: build/icon.ico
