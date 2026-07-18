@@ -4,6 +4,14 @@ import { BrowserWindow, Menu, Tray, app, dialog, ipcMain, nativeImage, shell } f
 import { startSidecar, stopSidecar, waitForHealthy, type SidecarHandle } from './sidecar'
 import { createLicenseService, registerLicenseIpc, type LicenseIpcContext } from './license/ipc'
 
+// ---- 单实例（任务 1a，依据 docs/research/single-instance-chatgpt.md）----
+// 锁必须在 splash/窗口/sidecar/许可证服务等一切启动动作之前申请。
+// 第二实例抢锁失败：Electron 已代为通知第一实例（second-instance 事件），本实例直接退出。
+const hasSingleInstanceLock = app.requestSingleInstanceLock()
+if (!hasSingleInstanceLock) {
+  app.quit()
+}
+
 const isDev = !app.isPackaged
 
 let mainWindow: BrowserWindow | null = null
@@ -13,6 +21,9 @@ let isQuitting = false
 let sidecar: SidecarHandle | null = null
 let backendUrl = ''
 let licenseCtx: LicenseIpcContext | null = null
+// 单实例时序：启动阶段（splash 在/主窗口未 ready）收到 second-instance 时挂起，ready-to-show 后补聚焦
+let pendingSecondInstanceActivate = false
+let mainWindowShownOnce = false
 
 // ---- 启动画面（任务 2）----
 // 依据 docs/research/electron-splash-tray.md：whenReady 后立即展示 splash，
@@ -113,8 +124,14 @@ function createWindow(): void {
   })
 
   mainWindow.once('ready-to-show', () => {
+    mainWindowShownOnce = true
     closeSplash()
     mainWindow?.show()
+    // 启动期间有第二实例到来：就绪后补聚焦
+    if (pendingSecondInstanceActivate) {
+      pendingSecondInstanceActivate = false
+      mainWindow?.focus()
+    }
   })
 
   // 渲染层加载失败时也不能让 splash 永久悬挂：关掉 splash 并显示主窗口，让用户看到失败页面
@@ -140,6 +157,7 @@ function createWindow(): void {
 
   mainWindow.on('closed', () => {
     mainWindow = null
+    mainWindowShownOnce = false
   })
 }
 
@@ -149,6 +167,27 @@ function showMainWindow(): void {
   if (mainWindow.isMinimized()) mainWindow.restore()
   mainWindow.show()
   mainWindow.focus()
+}
+
+/** 第二实例到来（任务 1a）：
+ * 主窗口已就绪 → restore/show/focus（覆盖最小化与托盘隐藏两种场景）；
+ * 仍在启动（splash 阶段或主窗口等待 ready-to-show）→ 挂起，ready-to-show 后补聚焦；
+ * 主窗口已销毁（极端场景）→ 重建。 */
+function activateForSecondInstance(): void {
+  const win = mainWindow
+  if (win && !win.isDestroyed() && mainWindowShownOnce) {
+    showMainWindow()
+    return
+  }
+  if ((win && !win.isDestroyed()) || (splash && !splash.isDestroyed())) {
+    pendingSecondInstanceActivate = true
+    return
+  }
+  createWindow()
+}
+
+if (hasSingleInstanceLock) {
+  app.on('second-instance', activateForSecondInstance)
 }
 
 async function resolveTrayIcon(): Promise<Electron.NativeImage | null> {
@@ -219,19 +258,21 @@ ipcMain.handle('shell:showItemInFolder', (_event, targetPath: unknown) => {
 })
 
 // ---- 生命周期 ----
-void app.whenReady().then(async () => {
-  // splash 最先展示，覆盖许可证校验 + sidecar 启动 + 健康检查这段耗时
-  createSplash()
-  try {
-    await bootstrap()
-    await createTray()
-  } catch (err) {
-    console.error('[bootstrap] 启动失败', err)
-    closeSplash()
-    dialog.showErrorBox('启动失败', err instanceof Error ? err.message : String(err))
-    app.quit()
-  }
-})
+if (hasSingleInstanceLock) {
+  void app.whenReady().then(async () => {
+    // splash 最先展示，覆盖许可证校验 + sidecar 启动 + 健康检查这段耗时
+    createSplash()
+    try {
+      await bootstrap()
+      await createTray()
+    } catch (err) {
+      console.error('[bootstrap] 启动失败', err)
+      closeSplash()
+      dialog.showErrorBox('启动失败', err instanceof Error ? err.message : String(err))
+      app.quit()
+    }
+  })
+}
 
 app.on('window-all-closed', () => {
   // 托盘可用时进程驻留（窗口只是被隐藏，不会走到这里）；

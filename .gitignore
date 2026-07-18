@@ -71,3 +71,4 @@ app/license-server/.data/
 
 # 许可证集成冒烟脚本的临时打包产物
 scripts/.license-smoke.bundle.mjs
+app/license-server/dist-test/
