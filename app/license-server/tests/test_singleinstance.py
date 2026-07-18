@@ -100,7 +100,7 @@ def test_main_rejects_second_instance(monkeypatch, capsys, tmp_path):
 
     assert exc_info.value.code == 0
     out = capsys.readouterr().out
-    assert "许可证服务器已在运行，请勿重复启动。" in out
+    assert "句读授权中心已在运行，请勿重复启动。" in out
     assert "管理页：http://127.0.0.1:8767/" in out
     assert not (tmp_path / "data").exists()
 

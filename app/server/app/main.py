@@ -51,7 +51,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="AI 审校助手 Backend", version=get_settings().version, lifespan=lifespan)
+app = FastAPI(title="句读 Caret Backend", version=get_settings().version, lifespan=lifespan)
 
 # 仅允许本地渲染层来源（Electron dev server / 任意 localhost 端口）
 app.add_middleware(

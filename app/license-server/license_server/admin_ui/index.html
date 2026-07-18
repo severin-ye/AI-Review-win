@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI-Review 许可证管理</title>
+<title>句读授权中心</title>
 <style>
   :root {
     --bg: #f4f5f7; --card: #ffffff; --border: #e3e6ea; --text: #1f2329;
@@ -84,7 +84,7 @@
 </head>
 <body>
 <header>
-  <h1>AI-Review 许可证管理</h1>
+  <h1>句读授权中心</h1>
   <span id="devBadge" class="dev-badge" style="display:none">DEV 密钥</span>
 </header>
 <main>
@@ -109,7 +109,7 @@
     </div>
     <div class="hint">
       防火墙放行（管理员 PowerShell 执行一次即可）：
-      <code id="fwCmd">netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=8768</code>
+      <code id="fwCmd">netsh advfirewall firewall add rule name="Caret License Server" dir=in action=allow protocol=TCP localport=8768</code>
     </div>
   </div>
 
@@ -302,7 +302,7 @@ async function loadStatus() {
     document.getElementById('srvLastHb').textContent = fmtTime(s.last_heartbeat_at);
     document.getElementById('devBadge').style.display = s.dev ? '' : 'none';
     document.getElementById('fwCmd').textContent =
-      'netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=' + s.employee.port;
+      'netsh advfirewall firewall add rule name="Caret License Server" dir=in action=allow protocol=TCP localport=' + s.employee.port;
   } catch (e) { toast('状态加载失败：' + e.message, false); }
 }
 async function serverCtrl(action) {

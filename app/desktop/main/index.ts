@@ -50,7 +50,7 @@ const SPLASH_HTML = `<!DOCTYPE html>
       <rect x="4" y="4" width="56" height="56" rx="14" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
       <path d="M20 34l8 8 16-18" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <div class="title">AI 审校助手</div>
+    <div class="title">句读</div>
     <div class="spinner"></div>
     <div class="sub">正在启动，请稍候…</div>
   </div>
@@ -112,7 +112,7 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 900,
-    title: 'AI 审校助手',
+    title: '句读 Caret',
     show: false,
     // 官方建议：与 ready-to-show 配合设置背景色，避免页面加载完成前白闪
     backgroundColor: '#f8fafc',
@@ -224,12 +224,12 @@ async function createTray(): Promise<void> {
       return
     }
     tray = new Tray(icon)
-    tray.setToolTip('AI 审校助手')
+    tray.setToolTip('句读 Caret')
     const menu = Menu.buildFromTemplate([
       { label: '显示主窗口', click: showMainWindow },
       { type: 'separator' },
       {
-        label: '退出 AI 审校助手',
+        label: '退出 句读 Caret',
         click: () => {
           isQuitting = true
           app.quit()

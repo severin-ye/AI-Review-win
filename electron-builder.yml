@@ -1,7 +1,7 @@
 # electron-builder 配置（设计文档 §9：PyInstaller 后端 exe + NSIS 安装包）
 # 使用顺序：npm run dist:backend（先出 app/server/dist/ai-review-backend.exe）→ npm run dist
 appId: com.ai-review.app
-productName: AI 审校助手
+productName: 句读 Caret
 copyright: Copyright © 2026
 
 directories:
@@ -30,7 +30,7 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: AI 审校助手
+  shortcutName: 句读 Caret
   # 自定义钩子：安装/卸载前静默 taskkill 强制结束托盘常驻的旧进程（build/installer.nsh）
   include: build/installer.nsh
 

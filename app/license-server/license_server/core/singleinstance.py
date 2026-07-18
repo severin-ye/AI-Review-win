@@ -4,7 +4,7 @@
 （调研见 docs/research/single-instance-chatgpt.md）。
 
 实现要点：
-- Windows：ctypes 调 kernel32 CreateMutexW(None, False, "Local\\AIReviewLicenseServer")，
+- Windows：ctypes 调 kernel32 CreateMutexW(None, False, "Local\\CaretLicenseServer")，
   句柄非空且 GetLastError == ERROR_ALREADY_EXISTS(183) → 已有实例在跑。
   CreateMutex 是原子操作，不存在「先检查再创建」的竞争窗口。
   用 Local\\ 而非 Global\\：老板机单用户场景，且避免全局命名空间需要的额外权限。
@@ -20,7 +20,7 @@ from __future__ import annotations
 import ctypes
 import sys
 
-MUTEX_NAME = r"Local\AIReviewLicenseServer"
+MUTEX_NAME = r"Local\CaretLicenseServer"
 ERROR_ALREADY_EXISTS = 183
 
 # 模块级句柄：防 GC 回收导致锁提前释放（进程退出由内核自动回收）

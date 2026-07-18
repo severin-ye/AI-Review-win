@@ -1,4 +1,4 @@
-# AI 审校助手（AI-Review-win）
+# 句读 Caret（AI-Review-win）
 
 医学文稿 AI 审校桌面应用：上传 Word 文稿 → AI 自动审校（事实/术语/语法/格式四类问题，附医学知识库证据）→ 人工逐条确认 → 导出双版本 Word 成稿。
 
@@ -73,7 +73,7 @@ cd app/server
 ```bash
 npm run build          # electron-vite 三端构建到 out/
 npm run dist:backend   # PyInstaller 打 app/server/dist/ai-review-backend.exe（约 362MB）
-npm run dist           # npm run build + electron-builder → release/AI 审校助手 Setup 0.1.0.exe（约 459MB）
+npm run dist           # npm run build + electron-builder → release/句读 Caret Setup 0.1.0.exe（约 459MB）
 ```
 
 安装包为 NSIS 向导式安装（下一步→完成，免管理员、按用户安装，自动建桌面/开始菜单快捷方式），已实测：静默安装 → 双击启动 → 主进程拉起后端 sidecar → 卸载干净。模型文件（数 GB）不打入安装包；首次启动后在「设置 → 模型管理」一键预下载。

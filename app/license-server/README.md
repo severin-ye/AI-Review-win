@@ -1,4 +1,4 @@
-# AI-Review 许可证服务器（老板端）
+# 句读授权中心（授权端）
 
 许可证核心库 + 许可证服务器（员工 API + 管理 API）+ 内置 Web 管理界面。
 技术栈与 app/server 对齐：Python 3.12 + FastAPI + SQLModel(SQLite) + pydantic-settings。
@@ -27,14 +27,14 @@ cd app/license-server
 
 ## Windows 防火墙放行
 
-- **打包 exe**：首次启动自动检查放行规则（规则名 `AI-Review License Server`），缺失时
+- **打包 exe**：首次启动自动检查放行规则（规则名 `Caret License Server`），缺失时
   弹一次「用户账户控制」(UAC) 提权窗口自动添加，点「是」即可；取消或失败只记警告，
   **不阻断服务器启动**。之后每次启动复查，规则已存在则静默跳过。
 - 设 `AI_REVIEW_LICENSE_SKIP_FIREWALL=1` 可完全跳过自动放行（自动化测试/特殊部署用）。
 - **源码运行不触发自动放行**；提权失败时的兜底做法：管理员 PowerShell 手动执行一次——
 
 ```powershell
-netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=8768
+netsh advfirewall firewall add rule name="Caret License Server" dir=in action=allow protocol=TCP localport=8768
 ```
 
 ## 公钥导出（员工端验签内嵌）
@@ -67,7 +67,7 @@ cd app/license-server
 ```bash
 ../server/.venv/Scripts/python.exe -m pip install pyinstaller
 ../server/.venv/Scripts/python.exe -m PyInstaller ai-review-license-server.spec --noconfirm
-# → dist/ai-review-license-server.exe
+# → dist/句读授权中心.exe
 ```
 
 ## 员工端协议速览

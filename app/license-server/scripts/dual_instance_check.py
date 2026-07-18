@@ -1,4 +1,4 @@
-"""双开实测：验证打包后的 ai-review-license-server.exe 单实例行为。
+"""双开实测：验证打包后的 句读授权中心.exe 单实例行为。
 
 流程：
   1. 以 89xx 端口 + 临时 .data + AI_REVIEW_LICENSE_SKIP_FIREWALL=1 启动实例 #1
@@ -23,7 +23,7 @@ from pathlib import Path
 
 ADMIN_PORT = 8977
 EMPLOYEE_PORT = 8978
-DEFAULT_EXE = Path(__file__).resolve().parents[1] / "dist-test" / "ai-review-license-server.exe"
+DEFAULT_EXE = Path(__file__).resolve().parents[1] / "dist" / "句读授权中心.exe"
 
 
 def wait_ping(url: str, timeout: float = 60.0) -> bool:
@@ -81,7 +81,7 @@ def main() -> int:
         results["second_returncode"] = second.returncode
         results["second_output"] = out.strip()
         results["second_rejected_ok"] = (
-            second.returncode == 0 and "许可证服务器已在运行，请勿重复启动。" in out
+            second.returncode == 0 and "句读授权中心已在运行，请勿重复启动。" in out
         )
 
         # —— 实例 #1 仍健康 ——

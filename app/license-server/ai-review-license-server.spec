@@ -1,9 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec：把许可证服务器打成单文件 ai-review-license-server.exe。
+"""PyInstaller spec：把许可证服务器打成单文件 句读授权中心.exe。
 
 构建（在 app/license-server/ 下，venv 需 pip install pyinstaller）：
     ..\\server\\.venv\\Scripts\\python -m PyInstaller ai-review-license-server.spec --noconfirm
-产物：app/license-server/dist/ai-review-license-server.exe
+产物：app/license-server/dist/句读授权中心.exe
 
 说明（仿 app/server/ai-review-backend.spec）：
 - pkg_resources 运行时钩子（pyi_rth_pkgres）依赖 setuptools 78 的外部化依赖
@@ -63,7 +63,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="ai-review-license-server",
+    name="句读授权中心",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

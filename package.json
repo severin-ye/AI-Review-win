@@ -2,7 +2,7 @@
   "name": "ai-review",
   "version": "0.1.0",
   "private": true,
-  "description": "AI 审校助手 — Electron + React + TypeScript + Python FastAPI sidecar",
+  "description": "句读 Caret — Electron + React + TypeScript + Python FastAPI sidecar",
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",

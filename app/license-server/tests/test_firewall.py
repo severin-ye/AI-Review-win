@@ -93,7 +93,7 @@ class TestRuleExists:
             seen["cmd"] = cmd
             seen["kwargs"] = kwargs
             detail = (
-                'Rule Name:                            AI-Review License Server\r\n'
+                'Rule Name:                            Caret License Server\r\n'
                 'LocalPort:                            8768\r\n'
             ).encode("mbcs", errors="ignore")
             return _FakeCompleted(stdout=detail)

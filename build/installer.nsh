@@ -1,4 +1,4 @@
-; AI 审校助手 — NSIS 自定义钩子（electron-builder 26.x）
+; 句读 Caret — NSIS 自定义钩子（electron-builder 26.x）
 ;
 ; 背景：客户端是托盘常驻设计（窗口收到 WM_CLOSE 只隐藏不退出，进程与后端 sidecar 驻留）。
 ; electron-builder 默认的 _CHECK_APP_RUNNING「先礼后兵」（allowOnlyOneInstallerInstance.nsh:105-164）：

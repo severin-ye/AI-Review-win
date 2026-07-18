@@ -21,7 +21,7 @@ import time
 
 logger = logging.getLogger("license_server.core.firewall")
 
-RULE_NAME = "AI-Review License Server"
+RULE_NAME = "Caret License Server"
 
 # 子进程不弹黑色控制台窗口
 _CREATE_NO_WINDOW = 0x08000000

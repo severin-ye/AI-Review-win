@@ -2,7 +2,7 @@
 
 > 命令以 Windows PowerShell 为准（Git Bash 亦可，差异处另行注明）。路径均相对仓库根。
 
-## 一、老板端（许可证服务器）
+## 一、授权端（许可证服务器）
 
 ### 1. 安装依赖
 
@@ -87,19 +87,19 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8767/api/v1/admin/licenses/
    只能重新生成密钥对并全员重新激活。
 2. 生产设 `$env:AI_REVIEW_LICENSE_DEV_KEYS="0"` 关闭 DEV 标记。
 3. Windows 防火墙放行员工端口：**打包 exe 首次启动自动处理**——启动时检查放行规则，
-   缺失则弹一次「用户账户控制」(UAC) 提权窗口自动添加（规则名 `AI-Review License Server`，
+   缺失则弹一次「用户账户控制」(UAC) 提权窗口自动添加（规则名 `Caret License Server`，
    点「是」即可；取消/失败只记警告、不阻断启动），之后每次启动复查、已存在则静默跳过。
    设 `$env:AI_REVIEW_LICENSE_SKIP_FIREWALL="1"` 可完全跳过该自动行为。
    **提权失败时的兜底做法**（源码运行不触发自动放行，也用此法）：管理员 PowerShell 手动执行一次：
 
    ```powershell
-   netsh advfirewall firewall add rule name="AI-Review License Server" dir=in action=allow protocol=TCP localport=8768
+   netsh advfirewall firewall add rule name="Caret License Server" dir=in action=allow protocol=TCP localport=8768
    ```
 
 4. 管理页「设置 → 危险操作 → 重新生成密钥对」会使**所有已签发凭证立即失效**，慎用。
-5. 打包成 exe（可选）：`..\server\.venv\Scripts\python.exe -m PyInstaller ai-review-license-server.spec --noconfirm` → `dist\ai-review-license-server.exe`。
+5. 打包成 exe（可选）：`..\server\.venv\Scripts\python.exe -m PyInstaller ai-review-license-server.spec --noconfirm` → `dist\句读授权中心.exe`。
 
-## 二、员工端
+## 二、客户端
 
 ### 1. 开发模式
 
@@ -138,7 +138,7 @@ npm.cmd run dist           # electron-vite build + electron-builder（NSIS 到 r
   `app\desktop\resources\license-public.pem → license-public.pem`，
   主进程打包后从 `process.resourcesPath\license-public.pem` 读取，无需额外配置。
 - **生产构建前必须替换正式公钥**：
-  1. 老板端生产环境设 `AI_REVIEW_LICENSE_DEV_KEYS=0` 并生成正式密钥对（备份 `.data\keys\`）；
+  1. 授权端生产环境设 `AI_REVIEW_LICENSE_DEV_KEYS=0` 并生成正式密钥对（备份 `.data\keys\`）；
   2. 运行 `scripts\export_public_key.py` 重新导出公钥；
   3. 确认 `app\desktop\resources\license-public.dev.json` 不再生成（DEV 标注消失）后再打包；
   4. 换公钥后所有员工端需用新包重新激活。

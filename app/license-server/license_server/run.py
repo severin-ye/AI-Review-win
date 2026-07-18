@@ -136,7 +136,7 @@ def main() -> None:
     if not acquire_single_instance_lock():
         print(
             "=" * 64,
-            "许可证服务器已在运行，请勿重复启动。",
+            "句读授权中心已在运行，请勿重复启动。",
             f"管理页：http://{settings.admin_host}:{settings.admin_port}/",
             "=" * 64,
             sep="\n",

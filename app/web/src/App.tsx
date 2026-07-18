@@ -22,7 +22,7 @@ export default function App() {
     <LicenseGate>
       <div className="flex h-screen bg-slate-50 text-slate-800">
       <aside className="flex w-52 shrink-0 flex-col border-r border-slate-200 bg-white">
-        <div className="px-4 py-4 text-lg font-semibold">AI 审校助手</div>
+        <div className="px-4 py-4 text-lg font-semibold">句读</div>
         <nav className="flex-1 space-y-1 px-2">
           {navItems.map((item) => (
             <NavLink
