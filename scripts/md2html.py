@@ -25,7 +25,7 @@ a { color: #4f46e5; text-decoration: none; }
 
 md = MarkdownIt("commonmark", {"html": True, "breaks": False}).enable("table")
 
-for name in ["老板使用手册", "员工使用手册"]:
+for name in ["授权管理指南", "使用指南"]:
     src = Path(f"docs/handover/{name}.md")
     html_body = md.render(src.read_text(encoding="utf-8"))
     html = f"""<!DOCTYPE html>
