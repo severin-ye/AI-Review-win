@@ -1,13 +1,25 @@
 """运行配置：pydantic-settings，环境变量前缀 AI_REVIEW_LICENSE_。
 
-默认数据目录为 app/license-server/.data（可用 AI_REVIEW_LICENSE_DATA_DIR 覆盖，
-测试里每个用例指向独立临时目录）。
+默认数据目录：源码运行时为 app/license-server/.data；PyInstaller 打包后为
+exe 所在目录下的 .data（__file__ 在 frozen 模式指向 _MEI 临时目录，
+退出即被清除，密钥/数据库绝不能放那里）。可用 AI_REVIEW_LICENSE_DATA_DIR
+覆盖，测试里每个用例指向独立临时目录。
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _default_data_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        # 打包 exe：数据放 exe 旁边，持久且用户可见（便于备份）
+        return Path(sys.executable).resolve().parent / ".data"
+    # 源码运行：app/license-server/.data
+    return Path(__file__).resolve().parents[2] / ".data"
+
 
 # app/license-server/
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
@@ -19,7 +31,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="AI_REVIEW_LICENSE_")
 
     # 数据目录（SQLite、密钥、运行时配置都放这里）
-    data_dir: Path = PACKAGE_ROOT / ".data"
+    data_dir: Path = _default_data_dir()
 
     # 管理端监听（仅本机）
     admin_host: str = "127.0.0.1"

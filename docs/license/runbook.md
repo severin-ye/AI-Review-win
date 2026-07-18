@@ -82,7 +82,8 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8767/api/v1/admin/licenses/
 
 ### 6. 生产部署注意
 
-1. **备份即备份整个 `.data\` 目录**（`license.db` + `keys\`）。私钥丢失 = 所有凭证无法验签，
+1. **备份即备份整个 `.data\` 目录**（`license.db` + `keys\`；源码运行在 `app\license-server\.data`，
+   exe 运行在 **exe 同目录的 `.data`**）。私钥丢失 = 所有凭证无法验签，
    只能重新生成密钥对并全员重新激活。
 2. 生产设 `$env:AI_REVIEW_LICENSE_DEV_KEYS="0"` 关闭 DEV 标记。
 3. Windows 防火墙放行员工端口（管理员 PowerShell，一次即可）：
