@@ -1,5 +1,1 @@
-{
-  "dev": true,
-  "fingerprint": "SHA256:50cbd7137549893bb78d93128f40cbd439e4e45b83cf1514b7634c5877524802",
-  "warning": "DEV 密钥对，仅用于开发联调，生产构建前必须重新导出正式公钥"
-}
+{"dev": false, "note": "与 dist exe 服务端密钥配对", "exported_at": "2026-07-18"}
