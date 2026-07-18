@@ -17,6 +17,15 @@ export default function LicenseActivatePage({ snapshot }: { snapshot?: LicenseSn
   const [activating, setActivating] = useState(false)
   const [errorText, setErrorText] = useState<string | null>(null)
 
+  // 激活失败兜底：doActivate 会先置 CONNECTING_SERVER（本页被全屏「正在连接」卸载），
+  // 失败后状态机回退 NO_LICENSE 并携带 reasonCode/message，本页重新挂载时本地 errorText 已丢失，
+  // 必须从 snapshot 恢复错误提示，否则用户看到"loading 一闪回到激活页、毫无反馈"。
+  const stateErrorText =
+    snapshot?.state === 'NO_LICENSE' && snapshot.reasonCode
+      ? licenseErrorMessage(snapshot.reasonCode, snapshot.message)
+      : null
+  const displayError = errorText ?? stateErrorText
+
   // 进入页面时：带出上次服务器地址与设备名；状态带过来的错误（如凭证校验失败）展示在错误区
   useEffect(() => {
     const api = getLicenseApi()
@@ -135,8 +144,8 @@ export default function LicenseActivatePage({ snapshot }: { snapshot?: LicenseSn
               连接失败：{testState.message}
             </div>
           )}
-          {errorText && (
-            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{errorText}</div>
+          {displayError && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{displayError}</div>
           )}
 
           <div className="flex gap-3 pt-2">

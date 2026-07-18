@@ -273,6 +273,57 @@ describe('离线规则表（任务书 §五）', () => {
   })
 })
 
+describe('激活推送与失败状态（任务 1 回归：激活后必须可跳转/可见错误）', () => {
+  it('激活成功：依次推送 CONNECTING_SERVER → SERVER_ACTIVE，凭证落盘', async () => {
+    const { service, storage } = makeHarness()
+    await service.init()
+    const pushed: string[] = []
+    service.subscribe((s) => pushed.push(s.state))
+    const result = await service.activate({
+      serverUrl: SERVER_URL,
+      licenseKey: 'AIREV-TEST-KEY1-KEY2',
+      deviceName: 'test',
+    })
+    expect(result.success).toBe(true)
+    // LicenseGate 依赖这条推送序列从激活页切到主界面
+    expect(pushed).toEqual(['CONNECTING_SERVER', 'SERVER_ACTIVE'])
+    expect(service.getState().state).toBe('SERVER_ACTIVE')
+    expect(storage.value).not.toBeNull()
+  })
+
+  it('激活失败（密钥无效）：回退 NO_LICENSE 且携带 reasonCode/message（激活页重挂后据此显示错误）', async () => {
+    const { service } = makeHarness()
+    await service.init()
+    const result = await service.activate({
+      serverUrl: SERVER_URL,
+      licenseKey: 'AIREV-WRON-KEY0-0000',
+      deviceName: 'test',
+    })
+    expect(result.success).toBe(false)
+    expect(result.reasonCode).toBe('LICENSE_NOT_FOUND')
+    const snap = service.getState()
+    expect(snap.state).toBe('NO_LICENSE')
+    expect(snap.reasonCode).toBe('LICENSE_NOT_FOUND')
+    expect(snap.message).toBeTruthy()
+  })
+
+  it('激活失败（服务器不可达）：回退 NO_LICENSE 且携带 SERVER_UNREACHABLE', async () => {
+    const { service, server } = makeHarness()
+    await service.init()
+    server.reachable = false
+    const result = await service.activate({
+      serverUrl: SERVER_URL,
+      licenseKey: 'AIREV-TEST-KEY1-KEY2',
+      deviceName: 'test',
+    })
+    expect(result.success).toBe(false)
+    const snap = service.getState()
+    expect(snap.state).toBe('NO_LICENSE')
+    expect(snap.reasonCode).toBe('SERVER_UNREACHABLE')
+    expect(snap.message).toBeTruthy()
+  })
+})
+
 describe('license_version 单调性', () => {
   it('旧版本心跳响应不覆盖新状态（忽略）', async () => {
     const server0 = new FakeLicenseServer(
