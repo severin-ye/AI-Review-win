@@ -7,6 +7,8 @@ from uuid import uuid4
 
 from sqlmodel import Field, SQLModel
 
+from app.core.timeutil import utc_now
+
 
 def _uuid() -> str:
     return uuid4().hex
@@ -17,10 +19,13 @@ class Document(SQLModel, table=True):
 
     id: str = Field(default_factory=_uuid, primary_key=True)
     filename: str
+    # Electron 上传时记录原文件绝对路径；默认导出到其父目录/Caret/。
+    # 浏览器预览无法取得本机路径时保持为空，并退回应用数据目录。
+    source_path: Optional[str] = None
     # 状态机：uploaded → parsing → segmenting → retrieving → reviewing → done / error
     status: str = "uploaded"
     error: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     # M5：最近一次导出结果（JSON：clean/marked 路径、adopted 数、exported_at、warnings）
     exports_json: Optional[str] = None
 
@@ -92,7 +97,7 @@ class KbDocument(SQLModel, table=True):
     content_hash: str = ""
     status: str = "uploaded"
     chunk_count: int = 0
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
 
 
 class KbChunk(SQLModel, table=True):
@@ -122,8 +127,8 @@ class Job(SQLModel, table=True):
     )  # M3：知识库索引任务
     type: str = "pipeline"  # pipeline | kb_index | retrieve | review
     status: str = "pending"  # pending | running | done | error
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
 
 
 class JobEvent(SQLModel, table=True):
@@ -132,6 +137,6 @@ class JobEvent(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     job_id: str = Field(foreign_key="jobs.id", index=True)
-    ts: datetime = Field(default_factory=datetime.utcnow)
+    ts: datetime = Field(default_factory=utc_now)
     event: str
     data: str = "{}"  # json

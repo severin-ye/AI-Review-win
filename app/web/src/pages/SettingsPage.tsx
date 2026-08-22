@@ -73,8 +73,8 @@ const sections: { title: string; fields: FieldDef[] }[] = [
       {
         key: 'output.dir',
         label: '导出目录',
-        placeholder: '留空 = projects/<doc_id>/exports/',
-        hint: '双版本 docx（清洁版 _审校修订1_ / 留痕版 _审校修订2_）的输出目录；留空则随文档项目目录',
+        placeholder: '留空 = 原文所在目录/Caret/',
+        hint: '双版本 docx（清洁版 _审校修订1_ / 留痕版 _审校修订2_）的输出目录；留空则在原文旁新建 Caret 文件夹',
       },
     ],
   },

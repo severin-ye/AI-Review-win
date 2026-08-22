@@ -52,6 +52,8 @@ export interface DocumentItem {
   status: string
   error: string | null
   created_at: string
+  active_review_job_id: string | null
+  active_review_started_at: string | null
 }
 
 export interface CorrectionItem {
@@ -105,6 +107,10 @@ export async function uploadDocument(file: File): Promise<DocumentItem> {
   const base = await getBaseUrl()
   const form = new FormData()
   form.append('file', file)
+  if (!isBrowserPreview()) {
+    const sourcePath = window.api.getPathForFile(file)
+    if (sourcePath) form.append('source_path', sourcePath)
+  }
   const res = await fetch(`${base}/api/documents`, { method: 'POST', body: form })
   if (!res.ok) {
     const detail = await res.text()
@@ -373,6 +379,7 @@ export function getJob(jobId: string): Promise<JobInfo> {
 export interface ExportResult {
   job_id: string
   status: string
+  output_dir: string
   clean_path: string
   marked_path: string
   adopted: number

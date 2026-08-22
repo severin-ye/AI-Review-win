@@ -13,6 +13,7 @@ from typing import Any, Optional
 from sqlmodel import Session, func, select
 
 from ..core import timeutil
+from ..core.keys import KeyManager
 from ..crypto import (
     generate_license_key,
     hash_license_key,
@@ -123,8 +124,8 @@ def bound_device_count(session: Session, license_id: str) -> int:
 
 # ---------- 管理操作 ----------
 
-def create_license(session: Session, req) -> dict:
-    """创建许可证，返回完整 key（仅此一次可见）。"""
+def create_license(session: Session, req, key_manager: KeyManager) -> dict:
+    """创建许可证；完整 key 加密保存，可由本机管理员以后再次复制。"""
     key = generate_license_key()
     now = timeutil.now()
     validity_mode = req.validity_mode if req.validity_mode in ("duration", "fixed") else "duration"
@@ -141,6 +142,7 @@ def create_license(session: Session, req) -> dict:
         id=new_license_id(),
         license_key_hash=hash_license_key(key),
         license_key_prefix=license_key_prefix(key),
+        license_key_encrypted=key_manager.encrypt_license_key(key),
         name=req.name or "",
         note=req.note or "",
         status="pending",
@@ -168,6 +170,45 @@ def create_license(session: Session, req) -> dict:
     )
     logger.info("创建许可证 %s（前缀 %s）", license.id, license.license_key_prefix)
     return {"license": license, "license_key": key}
+
+
+def reveal_license_key(license: License, key_manager: KeyManager) -> str | None:
+    """解密完整许可证密钥；旧数据库只有哈希时返回 None。"""
+    if not license.license_key_encrypted:
+        return None
+    try:
+        key = key_manager.decrypt_license_key(license.license_key_encrypted)
+    except (ValueError, TypeError):
+        logger.exception("许可证 %s 的加密密钥无法解密", license.id)
+        return None
+    if hash_license_key(key) != license.license_key_hash:
+        logger.error("许可证 %s 的解密密钥与哈希不一致", license.id)
+        return None
+    return key
+
+
+def reset_license_key(
+    session: Session,
+    license: License,
+    key_manager: KeyManager,
+    ip_address: str = "",
+) -> str:
+    """为旧许可证或遗失密钥生成新 key；旧 key 立即不能再用于激活。"""
+    key = generate_license_key()
+    license.license_key_hash = hash_license_key(key)
+    license.license_key_prefix = license_key_prefix(key)
+    license.license_key_encrypted = key_manager.encrypt_license_key(key)
+    license.updated_at = timeutil.now()
+    session.add(license)
+    record_event(
+        session,
+        EventType.LICENSE_KEY_RESET,
+        license_id=license.id,
+        ip_address=ip_address,
+        metadata={"key_prefix": license.license_key_prefix},
+    )
+    logger.warning("许可证 %s 的激活密钥已重置（前缀 %s）", license.id, license.license_key_prefix)
+    return key
 
 
 def list_licenses(session: Session, search: str | None = None, status: str | None = None,

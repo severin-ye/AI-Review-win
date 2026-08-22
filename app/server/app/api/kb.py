@@ -11,6 +11,7 @@ from sqlmodel import Session, select
 
 from app.core.db import engine
 from app.core.joblog import create_job, finish_job, make_emit
+from app.core.timeutil import to_iso_utc
 from app.models import Job, JobEvent, KbDocument
 from app.rag.index import SUPPORTED_SUFFIXES, delete_kb_document, index_kb_document, kb_file_path
 
@@ -24,7 +25,7 @@ def _kb_json(row: KbDocument) -> dict:
         "status": row.status,
         "chunk_count": row.chunk_count,
         "content_hash": row.content_hash[:12] if row.content_hash else "",
-        "created_at": row.created_at.isoformat(),
+        "created_at": to_iso_utc(row.created_at),
     }
 
 

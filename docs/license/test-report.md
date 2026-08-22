@@ -1,5 +1,7 @@
 # 许可证系统测试报告
 
+> 历史说明：下表记录的是阶段 6 当时的里程碑输出，不代表当前基线。2026-07-18 最新结果为：业务后端 34 passed / 2 条上游警告、授权端 72 passed / 0 warning、Electron 许可证 63 passed、renderer 主 JS 852.14 KB；完整可重复结果见 [`../development/Caret-质量基线.md`](../development/Caret-质量基线.md)。
+>
 > 报告时点：阶段 6 结束。所有命令均为实际执行并记录真实输出。
 > （防火墙模块增补后，命令 1 与服务端 pytest 分布已按最新重跑结果更新为 66 passed。）
 

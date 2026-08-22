@@ -34,6 +34,8 @@ export interface LicenseToken {
 export interface StoredCredential {
   token: LicenseToken
   signature: string
+  /** 首次激活时从服务器取得并验签通过的公钥；旧凭证缺省时兼容内置公钥。 */
+  server_public_key_pem?: string
   server_url: string
   /** 最近一次验签通过的服务器 server_time（ISO Z） */
   last_trusted_server_time: string | null

@@ -61,7 +61,7 @@ def create_employee_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     _configure_logging(settings)
     app = FastAPI(
-        title="句读授权中心 (employee)",
+        title="Caret License Center (employee)",
         version=__version__,
     )
     app.router.lifespan_context = _lifespan(app, settings, with_rate_limiter=True)
@@ -74,7 +74,7 @@ def create_admin_app(settings: Settings | None = None, controller=None) -> FastA
     settings = settings or get_settings()
     _configure_logging(settings)
     app = FastAPI(
-        title="句读授权中心 (admin)",
+        title="Caret License Center (admin)",
         version=__version__,
     )
     app.router.lifespan_context = _lifespan(app, settings, with_rate_limiter=False)

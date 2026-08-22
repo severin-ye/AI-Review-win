@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from '@/router'
 import { cn } from '@/lib/utils'
 import { diffChars } from '@/lib/diff'
 import { Button } from '@/components/ui/button'

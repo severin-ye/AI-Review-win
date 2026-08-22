@@ -236,9 +236,13 @@ export class LicenseService {
     return this.getState()
   }
 
-  private verifyToken(token: LicenseToken, signature: string): boolean {
+  private verifyToken(token: LicenseToken, signature: string, publicKeyPem?: string): boolean {
     try {
-      return verifyCredential(this.deps.getPublicKeyPem(), token, signature)
+      return verifyCredential(
+        publicKeyPem ?? this.credential?.server_public_key_pem ?? this.deps.getPublicKeyPem(),
+        token,
+        signature,
+      )
     } catch (err) {
       this.log(`[license] 公钥加载失败: ${err instanceof Error ? err.message : String(err)}`)
       return false
@@ -306,7 +310,11 @@ export class LicenseService {
 
     // 验签 + 设备比对（只信任验签通过的凭证）
     const token = payload.license
-    if (!token || typeof payload.signature !== 'string' || !this.verifyToken(token, payload.signature)) {
+    const serverPublicKey =
+      typeof payload.public_key_pem === 'string' && payload.public_key_pem.includes('BEGIN PUBLIC KEY')
+        ? payload.public_key_pem
+        : undefined
+    if (!token || typeof payload.signature !== 'string' || !this.verifyToken(token, payload.signature, serverPublicKey)) {
       if (!hadLocal) this.setState('INVALID_SIGNATURE', 'INVALID_LICENSE_SIGNATURE')
       return { success: false, reasonCode: 'INVALID_LICENSE_SIGNATURE', message: errorMessageOf('INVALID_LICENSE_SIGNATURE') }
     }
@@ -321,6 +329,7 @@ export class LicenseService {
     this.credential = {
       token,
       signature: payload.signature,
+      server_public_key_pem: serverPublicKey,
       server_url: serverUrl,
       last_trusted_server_time: token.issued_at,
       max_observed_time: now,
@@ -410,7 +419,12 @@ export class LicenseService {
       return false
     }
     const token = payload.license
-    if (!token || typeof payload.signature !== 'string' || !this.verifyToken(token, payload.signature)) {
+    const responsePublicKey =
+      cred.server_public_key_pem ??
+      (typeof payload.public_key_pem === 'string' && payload.public_key_pem.includes('BEGIN PUBLIC KEY')
+        ? payload.public_key_pem
+        : undefined)
+    if (!token || typeof payload.signature !== 'string' || !this.verifyToken(token, payload.signature, responsePublicKey)) {
       this.log('[license] refresh 响应验签失败，忽略')
       return false
     }
@@ -424,6 +438,7 @@ export class LicenseService {
       ...cred,
       token,
       signature: payload.signature,
+      server_public_key_pem: responsePublicKey,
       last_trusted_server_time: advanceTrustedTime(cred, token.issued_at),
       last_warning_threshold_sent: null, // 新有效期，重置提醒
       revoked: false,
@@ -538,7 +553,10 @@ export class LicenseService {
     // 只信任验签通过的响应
     let verified = false
     try {
-      verified = verifySignedResponse(this.deps.getPublicKeyPem(), payload)
+      verified = verifySignedResponse(
+        this.credential?.server_public_key_pem ?? this.deps.getPublicKeyPem(),
+        payload,
+      )
     } catch {
       verified = false
     }

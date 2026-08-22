@@ -24,7 +24,6 @@ from __future__ import annotations
 import json
 import re
 from copy import deepcopy
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
@@ -33,6 +32,7 @@ from docx.shared import Inches
 from sqlmodel import Session, select
 
 from app.core.db import engine
+from app.core.timeutil import to_iso_utc, utc_now
 from app.core.user_settings import first_line_indent_inches, output_dir
 from app.models import Block, Correction, Document, Sentence
 from app.pipeline.common import project_dir, set_document_status
@@ -206,6 +206,7 @@ def export_document(doc_id: str, emit: Emit | None = None) -> dict:
         if doc.status not in EXPORTABLE_STATUSES:
             raise ValueError(f"当前状态 {doc.status} 不能导出，请先完成人工审校")
         filename = doc.filename
+        source_path = doc.source_path
         original_status = doc.status
 
     emit("start", {"stage": "export", "filename": filename})
@@ -240,7 +241,13 @@ def export_document(doc_id: str, emit: Emit | None = None) -> dict:
             }
 
         out_dir_setting = output_dir()
-        out_dir = Path(out_dir_setting) if out_dir_setting else pdir / "exports"
+        if out_dir_setting:
+            out_dir = Path(out_dir_setting)
+        elif source_path:
+            out_dir = Path(source_path).parent / "Caret"
+        else:
+            # 浏览器预览或历史记录没有原始绝对路径时的安全回退。
+            out_dir = pdir / "Caret"
         out_dir.mkdir(parents=True, exist_ok=True)
         stem = Path(filename).stem or "document"
         paths = {
@@ -264,7 +271,7 @@ def export_document(doc_id: str, emit: Emit | None = None) -> dict:
                 },
             )
 
-        exported_at = datetime.utcnow().isoformat()
+        exported_at = to_iso_utc(utc_now())
         exports_payload = {
             "clean": str(paths["clean"]),
             "marked": str(paths["marked"]),
@@ -289,6 +296,7 @@ def export_document(doc_id: str, emit: Emit | None = None) -> dict:
             },
         )
         return {
+            "output_dir": str(out_dir),
             "clean_path": str(paths["clean"]),
             "marked_path": str(paths["marked"]),
             "adopted": adopted,

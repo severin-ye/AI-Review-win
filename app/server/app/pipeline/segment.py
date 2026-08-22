@@ -42,7 +42,16 @@ class SentenceSplitter:
         if os.environ.get("AI_REVIEW_SEGMENTER", "sat").lower() == "rule":
             return
         try:
-            from wtpsplit import SaT
+            # wtpsplit 经 skops 探测 Transformers 类型；5.x 会为大量兼容别名写告警。
+            # 仅在导入期间临时收窄 Transformers 日志，随后恢复全局级别。
+            import transformers
+
+            previous_verbosity = transformers.logging.get_verbosity()
+            transformers.logging.set_verbosity_error()
+            try:
+                from wtpsplit import SaT
+            finally:
+                transformers.logging.set_verbosity(previous_verbosity)
 
             from app.core.config import sat_model_dir, sat_tokenizer_dir
 

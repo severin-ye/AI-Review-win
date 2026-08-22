@@ -2,7 +2,7 @@
  * 测试桩：内存版假许可证服务器 + 假存储 + 假时钟。
  * 用真实 Ed25519 密钥对按服务端协议签名响应，不依赖 electron / 网络 / 真实服务器。
  */
-import { generateKeyPairSync, sign as cryptoSign } from 'node:crypto'
+import { createPublicKey, generateKeyPairSync, sign as cryptoSign } from 'node:crypto'
 import { canonicalBytes } from '../canonical'
 import type { FetchLike } from '../serverClient'
 import type { LicenseToken, StoredCredential } from '../types'
@@ -56,7 +56,12 @@ export class FakeLicenseServer {
     readonly license: FakeLicense,
     readonly privateKey: import('node:crypto').KeyObject,
     readonly nowIso: () => string,
-  ) {}
+  ) {
+    const privatePem = privateKey.export({ format: 'pem', type: 'pkcs8' })
+    this.publicKeyPem = createPublicKey(privatePem).export({ format: 'pem', type: 'spki' }).toString()
+  }
+
+  readonly publicKeyPem: string
 
   issueToken(deviceId: string, overrides: Partial<LicenseToken> = {}): { token: LicenseToken; signature: string } {
     const token: LicenseToken = {
@@ -92,7 +97,13 @@ export class FakeLicenseServer {
     const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {}
 
     if (url.endsWith('/api/v1/ping')) {
-      return this.json({ success: true, server_time: this.nowIso(), key_fingerprint: 'SHA256:fake', dev: true })
+      return this.json({
+        success: true,
+        server_time: this.nowIso(),
+        key_fingerprint: 'SHA256:fake',
+        public_key_pem: this.publicKeyPem,
+        dev: true,
+      })
     }
 
     if (url.endsWith('/api/v1/licenses/activate')) {
@@ -106,7 +117,13 @@ export class FakeLicenseServer {
       const deviceId = String(body['device_id'])
       this.boundDevices.add(deviceId)
       const { token, signature } = this.issueToken(deviceId)
-      return this.json({ success: true, license: token, signature })
+      return this.json({
+        success: true,
+        license: token,
+        signature,
+        public_key_pem: this.publicKeyPem,
+        key_fingerprint: 'SHA256:fake',
+      })
     }
 
     if (url.endsWith('/api/v1/licenses/heartbeat')) {
@@ -144,7 +161,13 @@ export class FakeLicenseServer {
       if (this.license.status === 'expired') return this.json(this.errorBody('LICENSE_EXPIRED', '许可证已到期，请联系管理员续期'), 403)
       const deviceId = String(body['device_id'])
       const { token, signature } = this.issueToken(deviceId)
-      return this.json({ success: true, license: token, signature })
+      return this.json({
+        success: true,
+        license: token,
+        signature,
+        public_key_pem: this.publicKeyPem,
+        key_fingerprint: 'SHA256:fake',
+      })
     }
 
     return this.json({ success: false, reason_code: 'INTERNAL_SERVER_ERROR', message: '未知路径' }, 404)
@@ -198,6 +221,7 @@ export function makeStoredCredential(
   return {
     token,
     signature,
+    server_public_key_pem: server.publicKeyPem,
     server_url: SERVER_URL,
     last_trusted_server_time: null,
     max_observed_time: null,

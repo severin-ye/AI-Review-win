@@ -104,6 +104,7 @@ class EventType(str, Enum):
     LICENSE_SUSPENDED = "LICENSE_SUSPENDED"
     LICENSE_RESUMED = "LICENSE_RESUMED"
     LICENSE_REVOKED = "LICENSE_REVOKED"
+    LICENSE_KEY_RESET = "LICENSE_KEY_RESET"
     DEVICE_UNBOUND = "DEVICE_UNBOUND"
     LICENSE_EXPIRED = "LICENSE_EXPIRED"
 
@@ -153,6 +154,8 @@ class CredentialResponse(BaseModel):
     success: bool = True
     license: LicenseToken
     signature: str
+    public_key_pem: str
+    key_fingerprint: str
 
 
 # ---------- 管理 API 请求 ----------

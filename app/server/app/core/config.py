@@ -17,7 +17,7 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.1.2"
 
 # 本地模型目录名（<data_dir>/models/ 下；与 hf-mirror 预下载布局一致，见 api/models.py）
 SAT_MODEL_DIRNAME = "sat-3l-sm"

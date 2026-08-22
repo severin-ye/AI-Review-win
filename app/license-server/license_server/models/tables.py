@@ -24,6 +24,7 @@ class License(SQLModel, table=True):
     id: str = Field(primary_key=True)  # lic_<hex>
     license_key_hash: str = Field(index=True, unique=True)  # SHA256(key) hex
     license_key_prefix: str = Field(index=True)  # 第一组 4 字符
+    license_key_encrypted: Optional[str] = None  # DPAPI 保管键 + AES-GCM，可供管理员再次复制
     name: str = ""
     note: str = ""
     status: str = Field(default="pending", index=True)  # pending/active/suspended/revoked/expired

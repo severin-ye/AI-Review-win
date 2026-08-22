@@ -57,7 +57,7 @@ Invoke-RestMethod http://<服务器IP>:8768/api/v1/ping
 ### 5. 创建第一个许可证
 
 **方式 A：管理 UI** —— 打开 <http://127.0.0.1:8767/> →「新建许可证」→ 填有效期/设备数 →
-创建后**立即复制完整密钥**（`AIREV-XXXX-XXXX-XXXX`，只显示这一次）。
+创建后复制完整密钥（`AIREV-XXXX-XXXX-XXXX`）。以后可在许可证列表点击“复制许可”再次取得。
 
 **方式 B：curl（PowerShell 用 Invoke-RestMethod）**：
 
@@ -65,7 +65,7 @@ Invoke-RestMethod http://<服务器IP>:8768/api/v1/ping
 $resp = Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8767/api/v1/admin/licenses `
   -ContentType 'application/json' `
   -Body '{"name":"测试许可证","validity_mode":"duration","duration_days":365,"max_devices":3}'
-$resp.license_key   # 明文密钥仅此一次返回
+$resp.license_key   # 创建响应返回；管理页以后仍可安全地再次复制
 ```
 
 其它常用管理操作（均有对应 UI 按钮）：
@@ -97,19 +97,14 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8767/api/v1/admin/licenses/
    ```
 
 4. 管理页「设置 → 危险操作 → 重新生成密钥对」会使**所有已签发凭证立即失效**，慎用。
-5. 打包成 exe（可选）：`..\server\.venv\Scripts\python.exe -m PyInstaller ai-review-license-server.spec --noconfirm` → `dist\句读授权中心.exe`。
+5. 打包成 exe（可选）：`..\server\.venv\Scripts\python.exe -m PyInstaller ai-review-license-server.spec --noconfirm` → `dist\Caret License Center.exe`。
 
 ## 二、客户端
 
 ### 1. 开发模式
 
-前置：**license-server 必须在跑**（见上），且员工端公钥已与服务器密钥匹配：
-
-```powershell
-# 在 app\license-server 下执行（服务器运行过一次、密钥已生成后）：
-..\server\.venv\Scripts\python.exe scripts\export_public_key.py
-# → 写 app\desktop\resources\license-public.pem（+ DEV 模式写 license-public.dev.json）
-```
+前置：**license-server 必须在跑**（见上）。首次激活会取得服务器公钥、完成凭证验签并固定，
+不再要求开发或部署前手工配对公钥。
 
 启动员工端（仓库根）：
 
@@ -134,14 +129,8 @@ npm.cmd run dist:backend   # 先出 app\server\dist\ai-review-backend.exe
 npm.cmd run dist           # electron-vite build + electron-builder（NSIS 到 release\）
 ```
 
-- `electron-builder.yml` 的 extraResources 已包含
-  `app\desktop\resources\license-public.pem → license-public.pem`，
-  主进程打包后从 `process.resourcesPath\license-public.pem` 读取，无需额外配置。
-- **生产构建前必须替换正式公钥**：
-  1. 授权端生产环境设 `AI_REVIEW_LICENSE_DEV_KEYS=0` 并生成正式密钥对（备份 `.data\keys\`）；
-  2. 运行 `scripts\export_public_key.py` 重新导出公钥；
-  3. 确认 `app\desktop\resources\license-public.dev.json` 不再生成（DEV 标注消失）后再打包；
-  4. 换公钥后所有员工端需用新包重新激活。
+- `electron-builder.yml` 仍携带 `license-public.pem`，仅用于升级前旧凭证兼容；新激活使用服务器返回并固定的公钥。
+- 生产授权端仍应设置 `AI_REVIEW_LICENSE_DEV_KEYS=0`，并完整备份 `.data\`；无需为了公钥配对重打客户端。
 
 ## 三、测试环境加速（心跳改 5 秒等）
 

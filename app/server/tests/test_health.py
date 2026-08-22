@@ -16,5 +16,5 @@ def test_health() -> None:
     assert resp.status_code == 200
     body = resp.json()
     assert body["status"] == "ok"
-    assert body["version"] == "0.1.0"
+    assert body["version"] == "0.1.2"
     assert body["backend"] == "fastapi"

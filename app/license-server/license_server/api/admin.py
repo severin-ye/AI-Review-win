@@ -76,11 +76,11 @@ def _run(request: Request, fn, commit: bool = True):
 @router.post("/admin/licenses")
 def create_license(req: CreateLicenseRequest, request: Request) -> dict:
     def op(session: Session):
-        result = license_ops.create_license(session, req)
+        result = license_ops.create_license(session, req, request.app.state.key_manager)
         lic = result["license"]
         return {
             "success": True,
-            "license_key": result["license_key"],  # 仅此一次返回完整 key
+            "license_key": result["license_key"],
             "license": license_summary(lic),
         }
 
@@ -102,6 +102,39 @@ def list_licenses(request: Request, search: str | None = None, status: str | Non
         return {"success": True, "items": items, "total": len(items)}
 
     return _run(request, op, commit=False)
+
+
+@router.get("/admin/licenses/{license_id}/key")
+def get_license_key(license_id: str, request: Request) -> dict:
+    """本机管理页重新取得完整许可证密钥；列表接口仍只返回脱敏值。"""
+    def op(session: Session):
+        lic = _get_license_or_404(session, license_id)
+        key = license_ops.reveal_license_key(lic, request.app.state.key_manager)
+        if key is None:
+            raise HTTPException(
+                status_code=409,
+                detail="该许可证由旧版本创建，原密钥只保存了不可逆哈希；请重置密钥后复制",
+            )
+        return {"success": True, "license_key": key}
+
+    return _run(request, op, commit=False)
+
+
+@router.post("/admin/licenses/{license_id}/reset-key")
+def reset_license_key(license_id: str, request: Request) -> dict:
+    def op(session: Session):
+        lic = _get_license_or_404(session, license_id)
+        if lic.status == "revoked":
+            raise HTTPException(status_code=409, detail="已撤销的许可证不能重置密钥")
+        key = license_ops.reset_license_key(
+            session,
+            lic,
+            request.app.state.key_manager,
+            ip_address=_client_ip(request),
+        )
+        return {"success": True, "license_key": key, "license": license_summary(lic)}
+
+    return _run(request, op)
 
 
 @router.get("/admin/licenses/{license_id}")

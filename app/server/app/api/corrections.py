@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from typing import Literal, Optional
 
 from fastapi import APIRouter, HTTPException
@@ -15,6 +14,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.core.db import engine
+from app.core.timeutil import to_iso_utc, utc_now
 from app.models import Block, Correction, Document, Sentence
 from app.pipeline.review import refresh_document_review_status
 
@@ -39,7 +39,7 @@ def _correction_json(c: Correction) -> dict:
         "evidence_ids": evidence_ids,
         "decision": c.decision,
         "custom_text": c.custom_text,
-        "decided_at": c.decided_at.isoformat() if c.decided_at else None,
+        "decided_at": to_iso_utc(c.decided_at),
     }
 
 
@@ -69,7 +69,7 @@ def decide_correction(correction_id: int, payload: DecisionPayload) -> dict:
             correction.decided_at = None
             correction.custom_text = None
         else:
-            correction.decided_at = datetime.utcnow()
+            correction.decided_at = utc_now()
             correction.custom_text = (
                 payload.custom_text.strip() if payload.decision == "custom" else None
             )
@@ -117,7 +117,7 @@ def batch_decide(document_id: str, payload: BatchPayload) -> dict:
         if payload.filter.error_type:
             stmt = stmt.where(Correction.error_type == payload.filter.error_type)
         rows = list(session.exec(stmt).all())
-        now = datetime.utcnow()
+        now = utc_now()
         decision = "accepted" if payload.action == "accept" else "rejected"
         for row in rows:
             row.decision = decision

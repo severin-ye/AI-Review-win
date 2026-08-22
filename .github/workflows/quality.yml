@@ -1,0 +1,46 @@
+name: Quality Baseline
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '23 1 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    runs-on: windows-latest
+    env:
+      ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:license
+      - run: npm run build
+      - shell: pwsh
+        run: ./scripts/check-boundaries.ps1
+
+  python:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            app/server/requirements.txt
+            app/license-server/requirements.txt
+      - run: python -m pip install -r app/server/requirements.txt -r app/license-server/requirements.txt
+      - run: python -m pytest tests -q
+        working-directory: app/server
+      - run: python -m pytest tests -q
+        working-directory: app/license-server

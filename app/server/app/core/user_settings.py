@@ -155,5 +155,5 @@ def first_line_indent_inches() -> float:
 
 
 def output_dir() -> str:
-    """output.dir：导出目录。空串 = 默认 projects/<doc_id>/exports/。"""
+    """output.dir：导出目录。空串 = 原文父目录/Caret/（无原路径时项目目录/Caret/）。"""
     return str(get_setting("output.dir", "") or "").strip()

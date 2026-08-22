@@ -47,3 +47,6 @@ def _migrate() -> None:
         if "exports_json" not in doc_cols:
             # M5：导出产物路径与 adopted 计数（JSON）
             conn.exec_driver_sql("ALTER TABLE documents ADD COLUMN exports_json VARCHAR")
+        if "source_path" not in doc_cols:
+            # 记录 Electron 选择的原文路径，供默认导出目录使用。
+            conn.exec_driver_sql("ALTER TABLE documents ADD COLUMN source_path VARCHAR")

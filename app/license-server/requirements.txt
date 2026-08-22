@@ -6,5 +6,5 @@ sqlmodel           # ORM（SQLite）
 pydantic-settings  # 配置（env 前缀 AI_REVIEW_LICENSE_）
 cryptography       # Ed25519 签名/验签
 pywin32; sys_platform == 'win32'  # DPAPI 私钥保护（win32crypt CryptProtectData）
-httpx              # TestClient 依赖
+httpx2             # Starlette 1.x TestClient 官方继任客户端
 pytest             # 测试

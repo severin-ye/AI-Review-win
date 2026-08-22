@@ -39,6 +39,7 @@ function makeHarness(overrides?: {
   licenseKey?: string
   stored?: StoredCredential | null
   deviceId?: string
+  clientPublicKeyPem?: string
 }): Harness {
   const clock = new FakeClock(T0)
   const server = new FakeLicenseServer(
@@ -58,7 +59,7 @@ function makeHarness(overrides?: {
   const service = new LicenseService({
     storage,
     getDeviceId: () => Promise.resolve(overrides?.deviceId ?? DEVICE_ID),
-    getPublicKeyPem: () => keyPair.publicKeyPem,
+    getPublicKeyPem: () => overrides?.clientPublicKeyPem ?? keyPair.publicKeyPem,
     getClientVersion: () => '0.1.0',
     fetchFn: server.fetch,
     clock: clock.now,
@@ -274,6 +275,20 @@ describe('离线规则表（任务书 §五）', () => {
 })
 
 describe('激活推送与失败状态（任务 1 回归：激活后必须可跳转/可见错误）', () => {
+  it('服务器与客户端构建期公钥不同时，首次激活使用服务器公钥验签并固定', async () => {
+    const unrelatedKey = makeKeyPair()
+    const { service, storage, server } = makeHarness({ clientPublicKeyPem: unrelatedKey.publicKeyPem })
+    await service.init()
+    const result = await service.activate({
+      serverUrl: SERVER_URL,
+      licenseKey: 'AIREV-TEST-KEY1-KEY2',
+      deviceName: 'test',
+    })
+    expect(result.success).toBe(true)
+    expect(storage.value?.server_public_key_pem).toBe(server.publicKeyPem)
+    expect(service.getState().state).toBe('SERVER_ACTIVE')
+  })
+
   it('激活成功：依次推送 CONNECTING_SERVER → SERVER_ACTIVE，凭证落盘', async () => {
     const { service, storage } = makeHarness()
     await service.init()

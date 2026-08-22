@@ -1,4 +1,4 @@
-# 句读授权中心（授权端）
+# Caret License Center（授权端）
 
 许可证核心库 + 许可证服务器（员工 API + 管理 API）+ 内置 Web 管理界面。
 技术栈与 app/server 对齐：Python 3.12 + FastAPI + SQLModel(SQLite) + pydantic-settings。
@@ -19,6 +19,8 @@ cd app/license-server
   `private.key.bin`；无 win32crypt 时明文 `private_key.pem` + 醒目警告，仅开发用）。
 - 数据目录默认 `app/license-server/.data`（SQLite + 密钥 + 运行时配置），可用
   `AI_REVIEW_LICENSE_DATA_DIR` 覆盖。**`.data/` 已加入 .gitignore，私钥不会入库。**
+- 新许可证的完整 Key 经 AES-GCM 加密保存，保管键由 DPAPI 保护；管理列表可随时点
+  「复制许可」，列表、日志和审计事件仍不暴露完整 Key。
 
 ## 员工连接地址
 
@@ -37,12 +39,15 @@ cd app/license-server
 netsh advfirewall firewall add rule name="Caret License Server" dir=in action=allow protocol=TCP localport=8768
 ```
 
-## 公钥导出（员工端验签内嵌）
+## 公钥导出（旧凭证兼容）
+
+新客户端在首次激活时取得服务器公钥并随凭证加密固定，不要求构建前手工配对。
+下列命令仅用于维护升级前未保存服务器公钥的旧凭证兼容资源：
 
 ```bash
 ../server/.venv/Scripts/python.exe scripts/export_public_key.py
 # → app/desktop/resources/license-public.pem
-# DEV 模式下额外写 license-public.dev.json 标注（仅开发联调，生产构建前必须重新导出）
+# DEV 模式下额外写 license-public.dev.json 标注
 ```
 
 ## 生产密钥与备份
@@ -67,7 +72,7 @@ cd app/license-server
 ```bash
 ../server/.venv/Scripts/python.exe -m pip install pyinstaller
 ../server/.venv/Scripts/python.exe -m PyInstaller ai-review-license-server.spec --noconfirm
-# → dist/句读授权中心.exe
+# → dist/Caret License Center.exe
 ```
 
 ## 员工端协议速览

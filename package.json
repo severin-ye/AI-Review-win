@@ -1,10 +1,13 @@
 {
   "name": "ai-review",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
-  "description": "句读 Caret — Electron + React + TypeScript + Python FastAPI sidecar",
+  "description": "Caret — Electron + React + TypeScript + Python FastAPI sidecar",
   "main": "out/main/index.js",
   "scripts": {
+    "deps:ci": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-deps.ps1 -Command ci",
+    "deps:install": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-deps.ps1 -Command install",
+    "deps:ci:official": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-deps.ps1 -Command ci -Official",
     "dev": "electron-vite dev",
     "dev:renderer": "vite --config app/web/vite.config.ts",
     "build": "electron-vite build",
@@ -13,8 +16,10 @@
     "start": "electron-vite preview",
     "backend:dev": "cd app/server && .venv\\Scripts\\python -m uvicorn app.main:app --reload --port 8765",
     "backend:setup": "cd app/server && python -m venv .venv && .venv\\Scripts\\python -m pip install -r requirements.txt",
+    "backend:models": "app\\server\\.venv\\Scripts\\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu",
     "dist:backend": "cd app/server && .venv\\Scripts\\python -m PyInstaller ai-review-backend.spec --noconfirm",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run build && electron-builder",
+    "release:finalize": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/finalize-delivery.ps1"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -22,7 +27,6 @@
     "clsx": "^2.1.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router-dom": "^7.18.1",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3",
     "zustand": "^5.0.14"

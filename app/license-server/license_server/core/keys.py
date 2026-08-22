@@ -9,10 +9,13 @@ DEV 标记来自 Settings.dev_keys（env AI_REVIEW_LICENSE_DEV_KEYS，默认 1�
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import logging
+import os
 from pathlib import Path
 
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
@@ -26,6 +29,9 @@ logger = logging.getLogger("license_server.keys")
 _DPAPI_FILE = "private.key.bin"
 _PLAIN_FILE = "private_key.pem"
 _PUBLIC_FILE = "public_key.pem"
+_VAULT_DPAPI_FILE = "license-vault.key.bin"
+_VAULT_PLAIN_FILE = "license-vault.key"
+_VAULT_AAD = b"caret-license-key-v1"
 
 try:  # DPAPI（Windows）
     import win32crypt  # type: ignore
@@ -61,6 +67,7 @@ class KeyManager:
         self.dpapi_used = False
         self._private_key: Ed25519PrivateKey | None = None
         self._public_key: Ed25519PublicKey | None = None
+        self._vault_key: bytes | None = None
         self.load_or_create()
 
     # ---------- 加载 / 生成 ----------
@@ -74,6 +81,7 @@ class KeyManager:
             logger.info("已生成新的 Ed25519 密钥对（目录 %s）", self.keys_dir)
         self._private_key = private
         self._public_key = private.public_key()
+        self._vault_key = self._load_or_create_vault_key()
         public_path = self.keys_dir / _PUBLIC_FILE
         public_path.write_bytes(_public_pem(self._public_key))
         if self.dev:
@@ -106,6 +114,27 @@ class KeyManager:
             path.write_bytes(pem)
             logger.warning("win32crypt 不可用：私钥以明文 PEM 存储于 %s（仅开发用！）", path)
 
+    def _load_or_create_vault_key(self) -> bytes:
+        """读取独立的许可证密钥加密键；签名密钥轮换不会破坏已保存的许可证。"""
+        dpapi_path = self.keys_dir / _VAULT_DPAPI_FILE
+        plain_path = self.keys_dir / _VAULT_PLAIN_FILE
+        if dpapi_path.exists():
+            if not _HAS_DPAPI:
+                raise RuntimeError("发现 DPAPI 许可证保管键，但当前环境无法解密")
+            return win32crypt.CryptUnprotectData(dpapi_path.read_bytes(), None, None, None, 0)[1]
+        if plain_path.exists():
+            logger.warning("许可证保管键以明文存储于 %s（仅开发用）", plain_path)
+            return plain_path.read_bytes()
+
+        key = os.urandom(32)
+        if _HAS_DPAPI:
+            blob = win32crypt.CryptProtectData(key, None, None, None, None, 0)
+            dpapi_path.write_bytes(blob)
+        else:
+            plain_path.write_bytes(key)
+            logger.warning("win32crypt 不可用：许可证保管键以明文存储（仅开发用）")
+        return key
+
     # ---------- 对外 ----------
 
     @property
@@ -129,6 +158,23 @@ class KeyManager:
             format=serialization.PublicFormat.SubjectPublicKeyInfo,
         )
         return "SHA256:" + hashlib.sha256(der).hexdigest()
+
+    def encrypt_license_key(self, license_key: str) -> str:
+        """加密完整许可证密钥后存入数据库，供管理员以后再次复制。"""
+        assert self._vault_key is not None
+        nonce = os.urandom(12)
+        encrypted = AESGCM(self._vault_key).encrypt(nonce, license_key.encode("utf-8"), _VAULT_AAD)
+        return "v1:" + base64.b64encode(nonce + encrypted).decode("ascii")
+
+    def decrypt_license_key(self, encrypted: str) -> str:
+        assert self._vault_key is not None
+        if not encrypted.startswith("v1:"):
+            raise ValueError("不支持的许可证密钥密文版本")
+        raw = base64.b64decode(encrypted[3:], validate=True)
+        if len(raw) < 29:
+            raise ValueError("许可证密钥密文损坏")
+        plain = AESGCM(self._vault_key).decrypt(raw[:12], raw[12:], _VAULT_AAD)
+        return plain.decode("utf-8")
 
     def regenerate(self) -> None:
         """重新生成密钥对（危险：所有已签发凭证立即失效）。"""

@@ -4,6 +4,8 @@ export interface RendererApi {
   getAppVersion: () => Promise<string>
   /** 在系统文件管理器中定位文件（Electron shell.showItemInFolder） */
   showItemInFolder: (path: string) => Promise<void>
+  /** 取得文件选择器中 File 对应的本机绝对路径 */
+  getPathForFile: (file: File) => string
 }
 
 declare global {

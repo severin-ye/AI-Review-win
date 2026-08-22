@@ -2,12 +2,12 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from typing import Any
 
 from sqlmodel import Session
 
 from app.core.db import engine
+from app.core.timeutil import utc_now
 from app.models import Job, JobEvent
 
 
@@ -43,7 +43,7 @@ def finish_job(job_id: str, status: str) -> None:
         job = session.get(Job, job_id)
         if job is not None:
             job.status = status
-            job.updated_at = datetime.utcnow()
+            job.updated_at = utc_now()
             session.add(job)
             session.commit()
 

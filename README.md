@@ -1,4 +1,4 @@
-# 句读 Caret（AI-Review-win）
+# Caret（AI-Review-win）
 
 医学文稿 AI 审校桌面应用：上传 Word 文稿 → AI 自动审校（事实/术语/语法/格式四类问题，附医学知识库证据）→ 人工逐条确认 → 导出双版本 Word 成稿。
 
@@ -38,7 +38,8 @@
 ### 首次安装
 
 ```bash
-npm install                # 前端依赖（.npmrc 已配 Electron 镜像）
+npm run deps:ci            # 前端依赖；脚本仅在安装进程内设置 Electron 镜像并在结束后恢复环境
+# 官方 GitHub 下载源可用时也可运行：npm run deps:ci:official
 npm run backend:setup      # 创建 app/server/.venv 并安装 requirements.txt
 # torch 必须单独装 CPU 版（requirements.txt 无法表达 --index-url）：
 app/server/.venv/Scripts/python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
@@ -73,7 +74,7 @@ cd app/server
 ```bash
 npm run build          # electron-vite 三端构建到 out/
 npm run dist:backend   # PyInstaller 打 app/server/dist/ai-review-backend.exe（约 362MB）
-npm run dist           # npm run build + electron-builder → release/句读 Caret Setup 0.1.0.exe（约 459MB）
+npm run dist           # npm run build + electron-builder → release/Caret Setup 0.1.1.exe（约 459MB）
 ```
 
 安装包为 NSIS 向导式安装（下一步→完成，免管理员、按用户安装，自动建桌面/开始菜单快捷方式），已实测：静默安装 → 双击启动 → 主进程拉起后端 sidecar → 卸载干净。模型文件（数 GB）不打入安装包；首次启动后在「设置 → 模型管理」一键预下载。
@@ -138,4 +139,4 @@ AI-Review-win/
 - 新版移植业务逻辑时的对照参考（如 `legacy/code/src/utils/table_utils.py` 的表格占位方案、`docx` 导出标记语法 `｛～原文:x AI:y～｝`、首行缩进等，均已在新版 `app/server/app/pipeline/` 中重写并注明出处）；
 - git 历史之外的实物存档。
 
-旧版的已知缺陷（每次启动清空工作目录、Chroma 索引"永不重建"bug、自研规则分割器泛化差、结果不入库等）正是本次重构的动因，细节见 `docs/design/AI-Review-Electron-重构设计.md` 第 1 节。**不要**在旧目录下新增代码，也不要让新版代码 import 旧模块；旧版如需运行请自行创建独立虚拟环境（其依赖与 `app/server/.venv` 不共享）。
+旧版的已知缺陷（每次启动清空工作目录、Chroma 索引"永不重建"bug、自研规则分割器泛化差、结果不入库等）正是本次重构的动因，细节见 `docs/design/AI-Review-Electron-重构设计.md` 第 1 节。**不要**在旧目录下新增代码，也不要让新版代码 import 旧模块；旧版如需运行请自行创建独立虚拟环境（其依赖与 `app/server/.venv` 不共享）。任何旧版行为、配置、数据格式或文档与新版冲突时，均以 `app/` 下的当前实现和现行测试为唯一准则，不得为了兼容旧版而反向修改新版逻辑。

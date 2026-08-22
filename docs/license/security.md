@@ -14,29 +14,24 @@
   - 公钥始终明文存 `public_key.pem`（公钥无需保密）。
 - **备份要求**：备份整个 `.data/`（`license.db` + `keys/`）。私钥丢失 = 所有已签发凭证
   无法验签，只能重新生成密钥对并全员重新激活。
-- 「重新生成密钥对」（管理页危险操作）会删除旧密钥文件并新建——**所有已签发凭证立即
-  验签失败**，且员工端需重新导出公钥、重新打包或替换资源。
+- 「重新生成密钥对」（管理页危险操作）会删除旧签名密钥并新建——**所有已签发凭证立即
+  验签失败**，员工端需退出许可证并用新签名密钥重新激活。
 
 ## 2. 公钥分发
 
-- 流程：老板端 `scripts/export_public_key.py` →
-  `app/desktop/resources/license-public.pem` → electron-builder `extraResources`
-  复制到安装包 `resources/license-public.pem` → 主进程多候选路径加载
-  （`app/desktop/main/license/publicKey.ts`）。
-- **客户端只含公钥**，验签使用 Node `node:crypto`（不手写密码学）。
-- **当前仓库内的公钥是 DEV 密钥**：DEV 模式导出时额外写
-  `app/desktop/resources/license-public.dev.json` 标注文件（含指纹与醒目警告）。
-  含义：该密钥对仅用于开发联调。**生产构建前必须**：生产密钥对（`AI_REVIEW_LICENSE_DEV_KEYS=0`）
-  → 重新导出公钥 → 确认 dev 标注不再生成 → 再打包。
+- 激活/刷新响应携带服务器公钥与指纹；客户端用响应公钥验证同一响应中的 Ed25519 凭证，
+  验证通过后把公钥随凭证一起经 safeStorage 加密固定。后续离线启动、心跳和刷新均使用已固定公钥。
+- `app/desktop/resources/license-public.pem` 继续随包分发，仅用于兼容升级前没有保存服务器公钥的旧凭证；
+  新安装不再要求授权端密钥与客户端构建机公钥预先配对。
+- **客户端只含/保存公钥**，验签使用 Node `node:crypto`（不手写密码学），私钥不会通过 API 下发。
 - 公钥指纹（`SHA256:<sha256(DER)>`）在管理页与 `/api/v1/ping` 可见，可用于核对
   员工连接的是不是目标服务器。
 
 ## 3. License Key 保存
 
-- 明文 License Key（`AIREV-XXXX-XXXX-XXXX`，32 字符集排除 0/O/1/I/L）**只存在创建瞬间**：
-  管理 API 仅在 `POST /admin/licenses` 响应中返回一次明文。
-- 数据库只存：`license_key_hash = SHA256(key) hex`（唯一索引）+
-  `license_key_prefix`（第一组 4 字符，用于脱敏展示 `AIREV-XXXX-****-****`）。
+- 明文 License Key 不落库。数据库保存 SHA256 哈希、脱敏前缀和 AES-GCM 密文；
+  AES-GCM 保管键单独存于 `.data/keys/`，Windows 下由 DPAPI 保护。
+- 管理列表只返回脱敏值；仅本机管理 API 的专用端点可临时解密完整密钥，供管理员再次复制。
 - 激活查询按哈希匹配，比对用 `hmac.compare_digest`（防时序侧信道）。
 - 用户输入经规整（去空白、转大写），不改变哈希语义。
 

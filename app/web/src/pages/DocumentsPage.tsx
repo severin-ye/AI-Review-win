@@ -1,7 +1,8 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@/router'
 import clsx from 'clsx'
+import { toast } from '@/components/ui/sonner'
 import {
   deleteDocument,
   exportDocument,
@@ -208,6 +209,9 @@ function ExportPanel({
                   打开所在文件夹
                 </button>
               ))}
+            <div className="w-full break-all font-mono text-[11px] text-slate-500" title={item.path}>
+              {item.path}
+            </div>
           </div>
         ))}
       </div>
@@ -325,6 +329,11 @@ export default function DocumentsPage() {
   })
   const [nowTick, setNowTick] = useState<number>(Date.now())
   const [exportingId, setExportingId] = useState<string | null>(null)
+  const [exportNotice, setExportNotice] = useState<{
+    outputDir: string
+    cleanPath: string
+    markedPath: string
+  } | null>(null)
   const [exportData, setExportData] = useState<
     Record<string, { items: ExportItem[]; adopted: number | null; urls: Record<number, string> }>
   >({})
@@ -337,6 +346,8 @@ export default function DocumentsPage() {
   const [parsedText, setParsedText] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const reviewSubscriptionRef = useRef<(() => void) | null>(null)
+  const attachedReviewJobRef = useRef<string | null>(null)
 
   const refresh = useCallback(async () => {
     try {
@@ -351,9 +362,102 @@ export default function DocumentsPage() {
     }
   }, [])
 
+  const resetReviewState = useCallback(() => {
+    reviewSubscriptionRef.current?.()
+    attachedReviewJobRef.current = null
+    reviewSubscriptionRef.current = null
+    setReviewingId(null)
+    setReviewProgress(null)
+    setReviewStart(null)
+    setReviewBlocks({ done: 0, total: null })
+  }, [])
+
+  /** 订阅新任务或重新进入页面后恢复仍在运行的审校任务；SSE 会从数据库回放已有事件。 */
+  const attachReviewJob = useCallback(
+    async (documentId: string, jobId: string, startedAt?: string | null) => {
+      if (attachedReviewJobRef.current === jobId) return
+      reviewSubscriptionRef.current?.()
+      attachedReviewJobRef.current = jobId
+      setReviewingId(documentId)
+      setReviewProgress('正在恢复审校进度…')
+      setReviewStart(startedAt ? Date.parse(startedAt) : Date.now())
+      setReviewBlocks({ done: 0, total: null })
+
+      const close = await subscribeJobEvents(jobId, {
+        onEvent: (event, data) => {
+          if (event === 'start') {
+            const total = typeof data.blocks === 'number' ? data.blocks : null
+            setReviewBlocks({ done: 0, total })
+            setReviewProgress(`审校中：共 ${String(data.blocks ?? '?')} 个块`)
+          } else if (event === 'progress' && data.block_idx !== undefined) {
+            const total = typeof data.blocks === 'number' ? data.blocks : null
+            setReviewBlocks({ done: (data.block_idx as number) + 1, total })
+            setReviewProgress(
+              `审校中：块 ${String((data.block_idx as number) + 1)}/${String(data.blocks ?? '?')}` +
+                (typeof data.corrections === 'number' ? `，本块 ${data.corrections} 条建议` : ''),
+            )
+          } else if (event === 'error') {
+            setError(`审校失败：${String(data.message ?? '未知错误')}`)
+          }
+        },
+        onDone: (status) => {
+          resetReviewState()
+          if (status === 'done') {
+            void refresh()
+            navigate(`/workbench/${documentId}`)
+          } else {
+            void (async () => {
+              try {
+                const detailData = await getDocumentDetail(documentId)
+                setError(`审校失败：${detailData.error ?? '未知错误，请重试'}`)
+              } catch {
+                setError('审校失败：未知错误，请重试')
+              }
+              await refresh()
+            })()
+          }
+        },
+        onError: (err) => {
+          resetReviewState()
+          setError(`审校进度连接中断：${err.message}`)
+          void refresh()
+        },
+      })
+      if (attachedReviewJobRef.current === jobId) {
+        reviewSubscriptionRef.current = close
+      } else {
+        close()
+      }
+    },
+    [navigate, refresh, resetReviewState],
+  )
+
   useEffect(() => {
     void refresh()
   }, [refresh])
+
+  // 页面卸载时只关闭前端订阅，不影响后端任务；回来后会重新回放恢复。
+  useEffect(
+    () => () => {
+      reviewSubscriptionRef.current?.()
+      reviewSubscriptionRef.current = null
+      attachedReviewJobRef.current = null
+    },
+    [],
+  )
+
+  // 从文档列表携带的运行中 job_id 恢复完整进度，而不是退化为行内转圈。
+  useEffect(() => {
+    if (attachedReviewJobRef.current !== null) return
+    const active = docs.find((doc) => doc.active_review_job_id)
+    if (active?.active_review_job_id) {
+      void attachReviewJob(
+        active.id,
+        active.active_review_job_id,
+        active.active_review_started_at,
+      )
+    }
+  }, [attachReviewJob, docs])
 
   // 审校进行中：每秒刷新一次「已持续时间」
   useEffect(() => {
@@ -443,65 +547,16 @@ export default function DocumentsPage() {
 
   /** M4：触发 LLM 审校（后台线程），SSE 跟踪进度（进度圈+计时），完成跳工作台，失败明确提示。 */
   const handleReview = async (id: string) => {
+    setError(null)
     setReviewingId(id)
     setReviewProgress('审校启动中…')
     setReviewStart(null)
     setReviewBlocks({ done: 0, total: null })
-    setError(null)
-    const clearReview = () => {
-      setReviewingId(null)
-      setReviewProgress(null)
-      setReviewStart(null)
-      setReviewBlocks({ done: 0, total: null })
-    }
-    let close: (() => void) | null = null
     try {
       const { job_id } = await reviewDocument(id)
-      setReviewStart(Date.now())
-      close = await subscribeJobEvents(job_id, {
-        onEvent: (event, data) => {
-          if (event === 'start') {
-            const total = typeof data.blocks === 'number' ? data.blocks : null
-            setReviewBlocks({ done: 0, total })
-            setReviewProgress(`审校中：共 ${String(data.blocks ?? '?')} 个块`)
-          } else if (event === 'progress' && data.block_idx !== undefined) {
-            const total = typeof data.blocks === 'number' ? data.blocks : null
-            setReviewBlocks({ done: (data.block_idx as number) + 1, total })
-            setReviewProgress(
-              `审校中：块 ${String((data.block_idx as number) + 1)}/${String(data.blocks ?? '?')}` +
-                (typeof data.corrections === 'number' ? `，本块 ${data.corrections} 条建议` : ''),
-            )
-          } else if (event === 'error') {
-            setError(`审校失败：${String(data.message ?? '未知错误')}`)
-          }
-        },
-        onDone: (status) => {
-          clearReview()
-          if (status === 'done') {
-            void refresh()
-            navigate(`/workbench/${id}`)
-          } else {
-            // 失败：取回后端记录的错误原因，刷新列表让状态芯片显示「失败」
-            void (async () => {
-              try {
-                const detailData = await getDocumentDetail(id)
-                setError(`审校失败：${detailData.error ?? '未知错误，请重试'}`)
-              } catch {
-                setError('审校失败：未知错误，请重试')
-              }
-              await refresh()
-            })()
-          }
-        },
-        onError: (err) => {
-          clearReview()
-          setError(`审校失败：${err.message}`)
-          void refresh()
-        },
-      })
+      await attachReviewJob(id, job_id)
     } catch (e) {
-      close?.()
-      clearReview()
+      resetReviewState()
       setError(e instanceof Error ? e.message : String(e))
     }
   }
@@ -524,8 +579,15 @@ export default function DocumentsPage() {
   const handleExport = async (id: string) => {
     setExportingId(id)
     setError(null)
+    setExportNotice(null)
     try {
       const result = await exportDocument(id)
+      setExportNotice({
+        outputDir: result.output_dir,
+        cleanPath: result.clean_path,
+        markedPath: result.marked_path,
+      })
+      toast.success(`导出成功：${result.output_dir}`)
       if (result.warnings.length > 0) {
         setError(
           `导出完成，但 ${result.warnings.length} 条修订未能在原文中定位（已保留原文）：` +
@@ -609,6 +671,26 @@ export default function DocumentsPage() {
       {error && (
         <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
           {error}
+        </div>
+      )}
+
+      {exportNotice && (
+        <div className="mb-3 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-semibold">导出成功</div>
+            {!isBrowserPreview() && (
+              <button
+                type="button"
+                onClick={() => void window.api.showItemInFolder(exportNotice.cleanPath)}
+                className="rounded border border-emerald-300 bg-white px-2.5 py-1 text-xs text-emerald-700 hover:bg-emerald-100"
+              >
+                打开导出目录
+              </button>
+            )}
+          </div>
+          <div className="mt-1 break-all font-mono text-xs">输出目录：{exportNotice.outputDir}</div>
+          <div className="mt-1 break-all text-xs text-emerald-700">清洁版：{exportNotice.cleanPath}</div>
+          <div className="break-all text-xs text-emerald-700">留痕版：{exportNotice.markedPath}</div>
         </div>
       )}
 
@@ -753,8 +835,16 @@ export default function DocumentsPage() {
                         )}
                         {doc.status === 'reviewing' && (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-amber-600">
-                            <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
-                            审校中…
+                            {reviewingId === doc.id && reviewBlocks.total ? (
+                              <span className="font-medium">
+                                审校中 {Math.min(100, Math.round((reviewBlocks.done / reviewBlocks.total) * 100))}%
+                              </span>
+                            ) : (
+                              <>
+                                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                                审校中…
+                              </>
+                            )}
                           </span>
                         )}
                         {doc.status === 'pending_manual' && (

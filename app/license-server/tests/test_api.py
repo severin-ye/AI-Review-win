@@ -3,10 +3,12 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlmodel import Session
 
 from license_server.core import db, keys, timeutil
 from license_server.crypto import canonical_json, verify_bytes
 from license_server.main import create_admin_app, create_employee_app
+from license_server.models.tables import License
 from license_server.services.token import verify_credential
 
 from conftest import (
@@ -386,6 +388,39 @@ def test_admin_list_status_filter_and_no_full_key(clients):
     assert lst2["total"] == 0
 
 
+def test_admin_can_copy_existing_license_key(clients):
+    created = create_license(clients["admin"], name="可重复复制")
+    lic_id = created["license"]["id"]
+    copied = clients["admin"].get(f"/api/v1/admin/licenses/{lic_id}/key")
+    assert copied.status_code == 200
+    assert copied.json()["license_key"] == created["license_key"]
+    # 列表和详情仍不得泄露完整 key。
+    assert created["license_key"] not in clients["admin"].get("/api/v1/admin/licenses").text
+    assert created["license_key"] not in clients["admin"].get(f"/api/v1/admin/licenses/{lic_id}").text
+
+
+def test_legacy_license_can_reset_key_then_copy_and_activate(clients):
+    created = create_license(clients["admin"], name="旧版许可证")
+    lic_id, old_key = created["license"]["id"], created["license_key"]
+    # 模拟升级前数据库：只有不可逆哈希，没有加密保存的完整 key。
+    with Session(db.get_engine()) as session:
+        lic = session.get(License, lic_id)
+        assert lic is not None
+        lic.license_key_encrypted = None
+        session.add(lic)
+        session.commit()
+
+    unavailable = clients["admin"].get(f"/api/v1/admin/licenses/{lic_id}/key")
+    assert unavailable.status_code == 409
+    reset = clients["admin"].post(f"/api/v1/admin/licenses/{lic_id}/reset-key")
+    assert reset.status_code == 200
+    new_key = reset.json()["license_key"]
+    assert new_key != old_key
+    assert clients["admin"].get(f"/api/v1/admin/licenses/{lic_id}/key").json()["license_key"] == new_key
+    assert activate(clients["employee"], old_key, make_device_id("old-key")).status_code == 404
+    assert activate(clients["employee"], new_key, make_device_id("new-key")).status_code == 200
+
+
 def test_admin_events_audit_trail(clients, clock):
     created = create_license(clients["admin"])
     lic_id = created["license"]["id"]
@@ -429,6 +464,7 @@ def test_ping_endpoint(clients):
     assert body["success"] is True
     assert body["server_time"]
     assert body["key_fingerprint"].startswith("SHA256:")
+    assert body["public_key_pem"].startswith("-----BEGIN PUBLIC KEY-----")
 
 
 def test_error_responses_never_leak_stack(clients):

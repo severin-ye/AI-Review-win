@@ -39,9 +39,14 @@ def sign_token(token: dict, key_manager: KeyManager) -> str:
 
 def issue_credential(license: License, device_id: str, key_manager: KeyManager,
                      now: datetime | None = None) -> dict:
-    """签发凭证：{"license": token, "signature": b64}"""
+    """签发凭证，并附上服务器公钥供客户端首次激活时验签并固定。"""
     token = build_token(license, device_id, now)
-    return {"license": token, "signature": sign_token(token, key_manager)}
+    return {
+        "license": token,
+        "signature": sign_token(token, key_manager),
+        "public_key_pem": key_manager.public_pem,
+        "key_fingerprint": key_manager.fingerprint,
+    }
 
 
 def verify_credential(token: dict, signature_b64: str, public_key: Ed25519PublicKey) -> bool:

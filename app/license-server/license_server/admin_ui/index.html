@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>句读授权中心</title>
+<title>Caret License Center</title>
 <style>
   :root {
     --bg: #f4f5f7; --card: #ffffff; --border: #e3e6ea; --text: #1f2329;
@@ -84,7 +84,7 @@
 </head>
 <body>
 <header>
-  <h1>句读授权中心</h1>
+  <h1>Caret License Center</h1>
   <span id="devBadge" class="dev-badge" style="display:none">DEV 密钥</span>
 </header>
 <main>
@@ -265,7 +265,9 @@ async function api(path, opts) {
     const detail = data && (data.reason_code || data.detail)
       ? `${data.reason_code ? data.reason_code + '：' : ''}${data.message || data.detail}`
       : `HTTP ${res.status}`;
-    throw new Error(detail);
+    const err = new Error(detail);
+    err.status = res.status;
+    throw err;
   }
   return data;
 }
@@ -347,6 +349,7 @@ async function loadLicenses() {
         <td>${fmtTime(l.last_heartbeat_at)}</td>
         <td>${esc(l.minimum_client_version || '-')}</td>
         <td class="row-actions">
+          <button class="btn sm primary" onclick="copyLicense('${l.id}')">复制许可</button>
           <button class="btn sm" onclick="renewMenu('${l.id}')">续期</button>
           ${l.status === 'suspended'
             ? `<button class="btn sm" onclick="doAction('${l.id}','resume')">恢复</button>`
@@ -362,6 +365,22 @@ async function loadLicenses() {
   } catch (e) { toast('列表加载失败：' + e.message, false); }
 }
 function findLic(id) { return licensesCache.find(l => l.id === id) || {}; }
+async function copyLicense(id) {
+  try {
+    const r = await api(`/licenses/${id}/key`);
+    await navigator.clipboard.writeText(r.license_key);
+    toast('完整许可证已复制', true);
+  } catch (e) {
+    if (e.status !== 409) { toast('复制失败：' + e.message, false); return; }
+    if (!confirm('这个许可证由旧版本创建，原密钥只保存了不可逆哈希，无法恢复。\n\n是否立即生成一个新密钥并复制？旧密钥将不能再用于新设备激活，已激活设备不受影响。')) return;
+    try {
+      const r = await api(`/licenses/${id}/reset-key`, {method: 'POST'});
+      await navigator.clipboard.writeText(r.license_key);
+      toast('许可证密钥已重置并复制', true);
+      loadLicenses();
+    } catch (resetError) { toast('重置失败：' + resetError.message, false); }
+  }
+}
 function renewMenu(id) {
   showModal(`<h3>续期许可证</h3>
     <p style="margin-bottom:12px;color:var(--muted)">续期会使 license_version +1，客户端将在心跳后收到刷新提示。</p>
@@ -474,7 +493,7 @@ async function createLicense() {
   try {
     const r = await api('/licenses', {body});
     showModal(`<h3>许可证创建成功</h3>
-      <p class="warn-text">完整 Key 仅此一次显示，请立即保存！</p>
+      <p class="warn-text">请妥善保管；以后也可在许可证列表中点击“复制许可”。</p>
       <div class="key-box">${esc(r.license_key)}</div>
       <button class="btn primary" onclick="copyText('${esc(r.license_key)}')">复制 Key</button>`);
     loadLicenses();

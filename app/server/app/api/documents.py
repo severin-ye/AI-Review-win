@@ -4,16 +4,17 @@ from __future__ import annotations
 import json
 import shutil
 import threading
-from datetime import datetime
+from pathlib import Path
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, PlainTextResponse
 from sqlalchemy import delete
 from sqlmodel import Session, select
 
 from app.core.db import engine
 from app.core.joblog import create_job, finish_job, make_emit, record_event
+from app.core.timeutil import to_iso_utc, utc_now
 from app.core.user_settings import llm_config, retrieve_enabled, review_references
 from app.llm.client import LLMNotConfiguredError
 from app.models import (
@@ -37,13 +38,17 @@ from app.rag.retrieve import PLACEHOLDER_RE, retrieve_document
 router = APIRouter(prefix="/documents", tags=["documents"])
 
 
-def _doc_json(doc: Document) -> dict:
+def _doc_json(doc: Document, active_review_job: Job | None = None) -> dict:
     return {
         "id": doc.id,
         "filename": doc.filename,
         "status": doc.status,
         "error": doc.error,
-        "created_at": doc.created_at.isoformat(),
+        "created_at": to_iso_utc(doc.created_at),
+        "active_review_job_id": active_review_job.id if active_review_job else None,
+        "active_review_started_at": (
+            to_iso_utc(active_review_job.created_at) if active_review_job else None
+        ),
     }
 
 
@@ -66,11 +71,20 @@ def _parse_evidence_ids(raw: str) -> list:
 def list_documents() -> list[dict]:
     with Session(engine) as session:
         docs = session.exec(select(Document).order_by(Document.created_at.desc())).all()
-        return [_doc_json(d) for d in docs]
+        running_review_jobs = session.exec(
+            select(Job)
+            .where(Job.type == "review", Job.status == "running")
+            .order_by(Job.created_at.desc())
+        ).all()
+        jobs_by_document: dict[str, Job] = {}
+        for job in running_review_jobs:
+            if job.document_id and job.document_id not in jobs_by_document:
+                jobs_by_document[job.document_id] = job
+        return [_doc_json(d, jobs_by_document.get(d.id)) for d in docs]
 
 
 @router.post("", status_code=201)
-def upload_document(file: UploadFile) -> dict:
+def upload_document(file: UploadFile, source_path: str | None = Form(default=None)) -> dict:
     filename = file.filename or "document.docx"
     if not filename.lower().endswith(".docx"):
         raise HTTPException(status_code=400, detail="仅支持 .docx 文件")
@@ -78,8 +92,19 @@ def upload_document(file: UploadFile) -> dict:
     dest = project_dir(doc_id) / "original.docx"
     with dest.open("wb") as out:
         shutil.copyfileobj(file.file, out)
+    normalized_source_path: str | None = None
+    if source_path and source_path.strip():
+        candidate = Path(source_path.strip()).expanduser()
+        # Electron 传入的路径应指向当前选择的同名文件；不接受目录或另一个文件名。
+        if candidate.is_file() and candidate.name.casefold() == Path(filename).name.casefold():
+            normalized_source_path = str(candidate.resolve())
     with Session(engine) as session:
-        doc = Document(id=doc_id, filename=filename, status="uploaded")
+        doc = Document(
+            id=doc_id,
+            filename=filename,
+            source_path=normalized_source_path,
+            status="uploaded",
+        )
         session.add(doc)
         session.commit()
         session.refresh(doc)
@@ -109,7 +134,7 @@ def run_pipeline(document_id: str) -> dict:
             row = session.get(Job, job_id)
             if row is not None:
                 row.status = status
-                row.updated_at = datetime.utcnow()
+                row.updated_at = utc_now()
                 session.add(row)
                 session.commit()
 
@@ -178,7 +203,7 @@ def document_detail(document_id: str) -> dict:
                                 "evidence_ids": _parse_evidence_ids(c.evidence_ids),
                                 "decision": c.decision,
                                 "custom_text": c.custom_text,
-                                "decided_at": c.decided_at.isoformat() if c.decided_at else None,
+                                "decided_at": to_iso_utc(c.decided_at),
                             }
                             for c in corrections
                         ],

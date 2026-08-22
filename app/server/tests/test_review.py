@@ -21,7 +21,7 @@ from sqlmodel import Session, select  # noqa: E402
 
 from app.core.db import engine  # noqa: E402
 from app.main import app  # noqa: E402
-from app.models import Block, Correction, Document, Evidence, Sentence  # noqa: E402
+from app.models import Block, Correction, Document, Evidence, Job, Sentence  # noqa: E402
 from app.pipeline import review as review_mod  # noqa: E402
 
 DUMMY_LLM_SETTINGS = {
@@ -110,6 +110,28 @@ def wait_job(client: TestClient, job_id: str, timeout: float = 15.0) -> str:
             return status
         time.sleep(0.1)
     raise AssertionError(f"job {job_id} 超时未完成")
+
+
+def test_document_list_exposes_running_review_job(client: TestClient) -> None:
+    """页面重新进入时可从文档列表找回运行中的 review job 并重放 SSE 进度。"""
+    doc_id = seed_document()
+    with Session(engine) as session:
+        job = Job(document_id=doc_id, type="review", status="running")
+        session.add(job)
+        session.commit()
+        session.refresh(job)
+        job_id = job.id
+
+    rows = client.get("/api/documents").json()
+    row = next(item for item in rows if item["id"] == doc_id)
+    assert row["active_review_job_id"] == job_id
+    assert row["active_review_started_at"]
+
+    with Session(engine) as session:
+        job = session.get(Job, job_id)
+        job.status = "done"
+        session.add(job)
+        session.commit()
 
 
 def run_review(client: TestClient, monkeypatch, doc_id: str, payload, force: bool = False) -> dict:

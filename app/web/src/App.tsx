@@ -1,14 +1,16 @@
-import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import clsx from 'clsx'
-import DocumentsPage from '@/pages/DocumentsPage'
-import WorkbenchPage from '@/pages/WorkbenchPage'
-import KnowledgeBasePage from '@/pages/KnowledgeBasePage'
-import SettingsPage from '@/pages/SettingsPage'
 import BackendStatus from '@/components/BackendStatus'
 import LicenseGate from '@/license/LicenseGate'
 import LicenseBanner from '@/license/LicenseBanner'
 import { Toaster } from '@/components/ui/sonner'
 import { isBrowserPreview } from '@/api/client'
+import { useHashPath } from '@/router'
+
+const DocumentsPage = lazy(() => import('@/pages/DocumentsPage'))
+const WorkbenchPage = lazy(() => import('@/pages/WorkbenchPage'))
+const KnowledgeBasePage = lazy(() => import('@/pages/KnowledgeBasePage'))
+const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 
 const navItems = [
   { to: '/documents', label: '文档库' },
@@ -18,27 +20,34 @@ const navItems = [
 ]
 
 export default function App() {
+  const path = useHashPath()
+  const page = path === '/kb'
+    ? <KnowledgeBasePage />
+    : path === '/settings'
+      ? <SettingsPage />
+      : path === '/workbench' || path.startsWith('/workbench/')
+        ? <WorkbenchPage />
+        : <DocumentsPage />
+
   return (
     <LicenseGate>
       <div className="flex h-screen bg-slate-50 text-slate-800">
       <aside className="flex w-52 shrink-0 flex-col border-r border-slate-200 bg-white">
-        <div className="px-4 py-4 text-lg font-semibold">句读</div>
+        <div className="px-4 py-4 text-lg font-semibold">Caret</div>
         <nav className="flex-1 space-y-1 px-2">
           {navItems.map((item) => (
-            <NavLink
+            <a
               key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                clsx(
-                  'block rounded-md px-3 py-2 text-sm',
-                  isActive
-                    ? 'bg-blue-50 font-medium text-blue-700'
-                    : 'text-slate-600 hover:bg-slate-100',
-                )
-              }
+              href={`#${item.to}`}
+              className={clsx(
+                'block rounded-md px-3 py-2 text-sm',
+                path === item.to || path.startsWith(`${item.to}/`)
+                  ? 'bg-blue-50 font-medium text-blue-700'
+                  : 'text-slate-600 hover:bg-slate-100',
+              )}
             >
               {item.label}
-            </NavLink>
+            </a>
           ))}
         </nav>
         <div className="border-t border-slate-200 px-4 py-3">
@@ -53,13 +62,15 @@ export default function App() {
             「打开所在文件夹」等系统集成功能不可用，导出产物以下载链接代替。
           </div>
         )}
-        <Routes>
-          <Route path="/" element={<Navigate to="/documents" replace />} />
-          <Route path="/documents" element={<DocumentsPage />} />
-          <Route path="/workbench/:docId?" element={<WorkbenchPage />} />
-          <Route path="/kb" element={<KnowledgeBasePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
+        <Suspense
+          fallback={
+            <div className="rounded-lg border border-slate-200 bg-white p-10 text-center text-sm text-slate-400">
+              页面加载中…
+            </div>
+          }
+        >
+          {page}
+        </Suspense>
       </main>
       <Toaster />
     </div>

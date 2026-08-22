@@ -39,6 +39,12 @@ def init_db(settings: Settings | None = None) -> None:
 
     engine = get_engine(settings)
     SQLModel.metadata.create_all(engine)
+    # create_all 不会为已有 SQLite 表补列；显式做向前兼容迁移。
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(licenses)").fetchall()}
+        if "license_key_encrypted" not in columns:
+            conn.exec_driver_sql("ALTER TABLE licenses ADD COLUMN license_key_encrypted VARCHAR")
+            logger.info("数据库迁移完成：licenses.license_key_encrypted")
     logger.info("数据库已就绪: %s", engine.url)
 
 

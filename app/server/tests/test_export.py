@@ -193,7 +193,11 @@ def test_export_full_flow(client: TestClient, docx_path: Path, monkeypatch) -> N
 
     # ---------- upload → run（ingest + segment） ----------
     with docx_path.open("rb") as f:
-        up = client.post("/api/documents", files={"file": ("export-sample.docx", f, DOCX_MIME)})
+        up = client.post(
+            "/api/documents",
+            data={"source_path": str(docx_path)},
+            files={"file": ("export-sample.docx", f, DOCX_MIME)},
+        )
     assert up.status_code == 201, up.text
     doc_id = up.json()["id"]
     run = client.post(f"/api/documents/{doc_id}/run")
@@ -267,8 +271,9 @@ def test_export_full_flow(client: TestClient, docx_path: Path, monkeypatch) -> N
     assert clean_path.name == "export-sample_审校修订1_.docx"
     assert marked_path.name == "export-sample_审校修订2_.docx"
     assert clean_path.exists() and marked_path.exists()
-    # 默认输出目录 projects/<doc_id>/exports/
-    assert clean_path.parent == DATA_DIR / "projects" / doc_id / "exports"
+    # Electron 传入原文件路径后，默认输出到原文件同级 Caret/。
+    assert clean_path.parent == docx_path.parent / "Caret"
+    assert result["output_dir"] == str(docx_path.parent / "Caret")
 
     # 文档状态与 exports_json 落库
     assert _doc_status(doc_id) == "done"
@@ -391,6 +396,8 @@ def test_export_without_adopted_corrections(client: TestClient, docx_path: Path,
     assert exp.status_code == 200, exp.text
     result = exp.json()
     assert result["adopted"] == 0
+    # 浏览器预览/历史文档没有 source_path 时回退项目目录下的 Caret/。
+    assert Path(result["output_dir"]) == DATA_DIR / "projects" / doc_id / "Caret"
     clean = DocxDocument(result["clean_path"])
     text = _paragraph_texts(clean)
     assert "任意建议" not in text and PARA_ACCEPT in text

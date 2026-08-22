@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 
 from app.core.db import engine
+from app.core.timeutil import to_iso_utc
 from app.models import Job, JobEvent
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -48,8 +49,8 @@ def job_status(job_id: str) -> dict:
             "status": job.status,
             "document_id": job.document_id,
             "kb_document_id": job.kb_document_id,
-            "created_at": job.created_at.isoformat(),
-            "updated_at": job.updated_at.isoformat(),
+            "created_at": to_iso_utc(job.created_at),
+            "updated_at": to_iso_utc(job.updated_at),
         }
 
 
@@ -70,7 +71,12 @@ async def job_events(job_id: str) -> StreamingResponse:
                 last_id = row.id
             status = await asyncio.to_thread(_fetch_job_status, job_id)
             if status in ("done", "error"):
-                # 终态：事件已全部冲刷（jobs 写事件先于终态落库）
+                # 不同 SQLite 连接在极窄竞态下可能先看见 job 终态、后看见刚提交的
+                # 最后一批事件；终态后再取一次，避免 SSE 漏掉 skipped/result 等事件。
+                final_rows = await asyncio.to_thread(_fetch_events, job_id, last_id)
+                for row in final_rows:
+                    yield f"event: {row.event}\ndata: {row.data}\n\n"
+                    last_id = row.id
                 yield f"event: done\ndata: {json.dumps({'status': status})}\n\n"
                 return
             if time.monotonic() > deadline:

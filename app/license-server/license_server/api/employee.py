@@ -87,6 +87,7 @@ def ping(request: Request) -> dict:
         "success": True,
         "server_time": timeutil.to_iso_z(timeutil.now()),
         "key_fingerprint": km.fingerprint,
+        "public_key_pem": km.public_pem,
         "dev": km.dev,
         "server_version": __version__,
     }

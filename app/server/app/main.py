@@ -1,6 +1,5 @@
 """FastAPI 应用入口：uvicorn app.main:app"""
 from contextlib import asynccontextmanager
-from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +9,7 @@ from app.api import corrections, documents, health, jobs, kb, models as models_a
 from app.api import settings as settings_api
 from app.core.config import get_settings
 from app.core.db import engine, init_db
+from app.core.timeutil import utc_now
 from app.models import Document, Job, KbDocument
 
 # 进程中断（重启/崩溃）后会残留的瞬态状态：后台线程已死，永不自愈，启动时统一收敛为 failed
@@ -23,7 +23,7 @@ def _sweep_interrupted_state() -> None:
         interrupted = False
         for job in session.exec(select(Job).where(Job.status == "running")).all():
             job.status = "error"
-            job.updated_at = datetime.utcnow()
+            job.updated_at = utc_now()
             session.add(job)
             interrupted = True
         for doc in session.exec(
@@ -51,7 +51,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="句读 Caret Backend", version=get_settings().version, lifespan=lifespan)
+app = FastAPI(title="Caret Backend", version=get_settings().version, lifespan=lifespan)
 
 # 仅允许本地渲染层来源（Electron dev server / 任意 localhost 端口）
 app.add_middleware(

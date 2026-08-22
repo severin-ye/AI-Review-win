@@ -14,6 +14,11 @@ if (!hasSingleInstanceLock) {
 
 const isDev = !app.isPackaged
 
+// 品牌显示改为 Caret，但继续沿用既有用户数据目录，避免升级后凭证和设置“消失”。
+if (app.isPackaged) {
+  app.setPath('userData', path.join(app.getPath('appData'), '句读 Caret'))
+}
+
 let mainWindow: BrowserWindow | null = null
 let splash: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -50,7 +55,7 @@ const SPLASH_HTML = `<!DOCTYPE html>
       <rect x="4" y="4" width="56" height="56" rx="14" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
       <path d="M20 34l8 8 16-18" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <div class="title">句读</div>
+    <div class="title">Caret</div>
     <div class="spinner"></div>
     <div class="sub">正在启动，请稍候…</div>
   </div>
@@ -112,7 +117,7 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 900,
-    title: '句读 Caret',
+    title: 'Caret',
     show: false,
     // 官方建议：与 ready-to-show 配合设置背景色，避免页面加载完成前白闪
     backgroundColor: '#f8fafc',
@@ -224,12 +229,12 @@ async function createTray(): Promise<void> {
       return
     }
     tray = new Tray(icon)
-    tray.setToolTip('句读 Caret')
+    tray.setToolTip('Caret')
     const menu = Menu.buildFromTemplate([
       { label: '显示主窗口', click: showMainWindow },
       { type: 'separator' },
       {
-        label: '退出 句读 Caret',
+        label: '退出 Caret',
         click: () => {
           isQuitting = true
           app.quit()

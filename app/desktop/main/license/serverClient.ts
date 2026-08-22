@@ -34,6 +34,8 @@ export class ServerError extends Error {
 export interface CredentialPayload {
   license: LicenseToken
   signature: string
+  public_key_pem?: string
+  key_fingerprint?: string
   [k: string]: unknown
 }
 
@@ -54,6 +56,7 @@ export interface PingPayload {
   success: boolean
   server_time: string
   key_fingerprint?: string
+  public_key_pem?: string
   dev?: boolean
   server_version?: string
 }

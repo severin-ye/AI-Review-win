@@ -1,6 +1,6 @@
 # 许可证系统架构说明
 
-> 适用范围：AI 审校助手「老板端许可证服务器 + 员工端许可证接入」（阶段 2–6 实现）。
+> 适用范围：Caret「Caret License Center + 员工端许可证接入」（阶段 2–6 实现）。
 > 本文所有路径、端口、字段名均以仓库当前代码为准。
 
 ## 1. 系统总览
@@ -28,7 +28,8 @@
 - **许可证门在 desktop/renderer 层**。`app/server`（审校业务后端）完全不感知许可证；
   渲染层在发审校等核心请求前调用 `requireActiveLicense()` 实时查询主进程状态机
   （`app/web/src/api/client.ts`）。
-- **客户端只含公钥**（`app/desktop/resources/license-public.pem`），私钥只在老板端数据目录。
+- **客户端只接触公钥**：首次激活响应携带当前授权服务器公钥，客户端先用它验证凭证，
+  再随凭证用 safeStorage 加密固定；内置 `license-public.pem` 只用于兼容旧凭证。私钥始终只在老板端数据目录。
 - 管理 API 只监听 `127.0.0.1`，员工无法访问管理功能。
 - **防火墙自动放行**（`license_server/core/firewall.py`）：打包 exe 启动员工监听前
   "先查后建"——netsh 查询放行规则，缺失才经 `ShellExecuteW("runas")` 弹一次 UAC 提权添加；
@@ -45,7 +46,7 @@
 
 | 表 | 关键字段 | 说明 |
 |---|---|---|
-| `licenses` | `id`（`lic_<hex>`）、`license_key_hash`（**SHA256(key) hex，唯一索引**）、`license_key_prefix`（第一组 4 字符，脱敏展示）、`status`（pending/active/suspended/revoked/expired）、`validity_mode`（duration 模式 A / fixed 模式 B）、`duration_seconds`、`activated_at`、`expires_at`、`max_devices`、`features`（JSON）、`minimum_client_version`、`license_version`（影响凭证内容的变更 +1）、`suspended_at`/`revoked_at`/`revoked_reason` | **明文 License Key 不落库**，只在创建时经 API 返回一次 |
+| `licenses` | `id`（`lic_<hex>`）、`license_key_hash`（**SHA256(key) hex，唯一索引**）、`license_key_prefix`、`license_key_encrypted`（AES-GCM 密文）、状态/有效期/设备上限等 | 明文 License Key 不落库；本机管理端可用 DPAPI 保护的独立保管键解密后再次复制 |
 | `devices` | `id`（`dev_<uuid>`）、`license_id`（外键）、`device_id`（客户端算好的 SHA256 hex）、`device_name`、`platform`、`os_version`、`first_activated_at`、`last_seen_at`、`last_ip`、`last_client_version`、`last_nonce`（心跳防重放）、`revoked` | 激活时绑定；心跳按 `device_id` **全局**校验归属 |
 | `license_events` | `id`（`evt_<uuid>`）、`license_id`、`device_id`、`event_type`（见 `schemas.EventType`）、`event_time`、`ip_address`、`client_version`、`result`（success/failure）、`reason_code`、`event_metadata`（JSON 列，物理列名 `metadata`） | 审计流水；**metadata 严禁包含完整 key、私钥、完整签名**（代码注释约束） |
 
