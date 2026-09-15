@@ -13,7 +13,7 @@ import { LICENSE_ERROR_MESSAGES as rendererMessages } from '../../../../../app/w
 const schemasPy = readFileSync(
   path.resolve(__dirname, '../../../../../app/license-server/license_server/schemas.py'),
   'utf8',
-)
+).replace(/\r\n/g, '\n')
 
 /** 从 schemas.py 提取 ErrorCode 枚举成员名。 */
 function extractErrorCodes(): string[] {
