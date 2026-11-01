@@ -272,8 +272,10 @@ def test_export_full_flow(client: TestClient, docx_path: Path, monkeypatch) -> N
     assert marked_path.name == "export-sample_审校修订2_.docx"
     assert clean_path.exists() and marked_path.exists()
     # Electron 传入原文件路径后，默认输出到原文件同级 Caret/。
-    assert clean_path.parent == docx_path.parent / "Caret"
-    assert result["output_dir"] == str(docx_path.parent / "Caret")
+    # Windows TEMP may use an 8.3 alias; upload normalizes the source path.
+    expected_output_dir = docx_path.parent.resolve() / "Caret"
+    assert clean_path.parent == expected_output_dir
+    assert Path(result["output_dir"]) == expected_output_dir
 
     # 文档状态与 exports_json 落库
     assert _doc_status(doc_id) == "done"
