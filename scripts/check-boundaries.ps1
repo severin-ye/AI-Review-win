@@ -7,15 +7,15 @@ $patterns = @(
 )
 
 $violations = @()
-foreach ($pattern in $patterns) {
-    $matches = & rg -n --pcre2 $pattern app `
-        --glob '*.py' --glob '*.ts' --glob '*.tsx' --glob '*.js' --glob '*.jsx' 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        $violations += $matches
-    }
-    elseif ($LASTEXITCODE -ne 1) {
-        throw "rg boundary check failed with exit code $LASTEXITCODE"
-    }
+# Git is already required for checkout; do not assume CI also provides ripgrep.
+# Include untracked source files while respecting .gitignore (venv/data/build).
+$sourceFiles = & git -c core.quotePath=false ls-files --cached --others --exclude-standard -- app
+if ($LASTEXITCODE -ne 0) {
+    throw "git boundary file listing failed with exit code $LASTEXITCODE"
+}
+$sourceFiles = @($sourceFiles | Where-Object { $_ -match '\.(py|ts|tsx|js|jsx)$' })
+if ($sourceFiles.Count -gt 0) {
+    $violations = @(Select-String -LiteralPath $sourceFiles -Pattern $patterns)
 }
 
 if ($violations.Count -gt 0) {
