@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Version = "",
     [string]$PackageDir = "",
     [string]$ReleaseNote = "",
@@ -6,6 +6,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "gstack-check.ps1")
 $repo = (Resolve-Path -LiteralPath ".").Path
 $packageJson = Get-Content -LiteralPath (Join-Path $repo "package.json") -Raw | ConvertFrom-Json
 if (-not $Version) { $Version = [string]$packageJson.version }
@@ -45,23 +46,21 @@ foreach ($relative in $requiredFiles) {
 $forbiddenData = @(Get-ChildItem -LiteralPath $PackageDir -Recurse -Force | Where-Object { $_.Name -eq ".data" })
 if ($forbiddenData.Count -gt 0) { throw "干净交付包不得包含运行时 .data：$($forbiddenData.FullName -join ', ')" }
 
-if (-not $SkipValidation) {
-    & npm.cmd run typecheck
-    if ($LASTEXITCODE -ne 0) { throw "TypeScript 类型检查失败" }
-    & npm.cmd run test:license
-    if ($LASTEXITCODE -ne 0) { throw "客户端许可证测试失败" }
-    & (Join-Path $repo "app\server\.venv\Scripts\python.exe") -m pytest `
-        (Join-Path $repo "app\license-server\tests") -q
-    if ($LASTEXITCODE -ne 0) { throw "授权端测试失败" }
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repo "scripts\check-boundaries.ps1")
-    if ($LASTEXITCODE -ne 0) { throw "新旧代码边界检查失败" }
+# Compatibility: SkipValidation now means check-only existing gstack evidence.
+# It never skips native product smoke or ZIP/data/file integrity checks.
+Invoke-GstackCheck -Label 'caret-typecheck' -Command 'npm.cmd run typecheck' -CheckOnly:$SkipValidation
+Invoke-GstackCheck -Label 'caret-license-tests' -Command 'npm.cmd run test:license' -CheckOnly:$SkipValidation
+$quotedPython=(Join-Path $repo 'app/server/.venv/Scripts/python.exe').Replace("'","''")
+$quotedLicenseTests=(Join-Path $repo 'app/license-server/tests').Replace("'","''")
+Invoke-GstackCheck -Label 'caret-license-server-tests' -Command "& '$quotedPython' -m pytest '$quotedLicenseTests' -q" -CheckOnly:$SkipValidation
+$quotedBoundaries=(Join-Path $repo 'scripts/check-boundaries.ps1').Replace("'","''")
+Invoke-GstackCheck -Label 'caret-boundaries' -Command "& '$quotedBoundaries'" -CheckOnly:$SkipValidation
 
-    $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
-    $smokeDir = Join-Path $releaseRoot "构建中间文件\v$Version\发布前烟测-$stamp"
-    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repo "scripts\package-smoke.ps1") `
-        -DataDir $smokeDir -ExpectedVersion $Version
-    if ($LASTEXITCODE -ne 0) { throw "打包产物烟测失败" }
-}
+$stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$smokeDir = Join-Path $releaseRoot "构建中间文件\v$Version\发布前烟测-$stamp"
+& powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repo "scripts\package-smoke.ps1") `
+    -DataDir $smokeDir -ExpectedVersion $Version
+if ($LASTEXITCODE -ne 0) { throw "打包产物烟测失败" }
 
 Copy-Item -LiteralPath $ReleaseNote -Destination (Join-Path $PackageDir "更新日志.md") -Force
 
